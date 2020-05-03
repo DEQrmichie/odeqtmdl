@@ -10,14 +10,14 @@
 #' which_target(GeoID = "2006_Willamette_JohnsonCreek", parameter = "Total phosphorus, mixed forms", date = "2015-07-01")
 
 which_target <- function(reachcode, parameter, date){
-    
+
   target <- tmdl_db
   target <- target %>% dplyr::filter(ReachCode == reachcode, pollutant_name_AWQMS == parameter)
-  
+
   if(nrow(target) == 0){
     return(NA)
   }
-    
+
   target <- target %>% dplyr::mutate(
     # Append start and end dates with year
     start_datetime = ifelse(!is.na(season_start), paste0(season_start,"-", lubridate::year(date)), NA ) ,
@@ -32,7 +32,7 @@ which_target <- function(reachcode, parameter, date){
                              start_datetime))
 
   target_id <- target %>% dplyr::filter(season_start <= date, season_end >= date)
-  
-  return(unique(target_id))
-  
-} 
+
+  return(unique(target_id[,-ReachCode]))
+
+}

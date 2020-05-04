@@ -33,6 +33,6 @@ which_target <- function(reachcode, parameter, date){
 
   target_id <- target %>% dplyr::filter(season_start <= date, season_end >= date)
 
-  return(unique(target_id[,-ReachCode]))
+  return(as.data.frame(unique(target_id[,!colnames(target_id) %in% c("ReachCode")])))
 
 }

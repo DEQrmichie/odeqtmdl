@@ -21,11 +21,11 @@ which_target_df <- function(df, all_obs = TRUE){
       start_datetime = as.POSIXct(start_datetime, format = "%d-%b-%Y"),
       end_datetime = as.POSIXct(end_datetime, format = "%d-%b-%Y"),
       # If dates span a calendar year, account for year change in end date
-      end_datetime = if_else(end_datetime < start_datetime & date >= end_datetime, end_datetime + lubridate::years(1), # add a year if inperiod carrying to next year
+      end_datetime = if_else(!is.na(end_datetime) & end_datetime < start_datetime & date >= end_datetime, end_datetime + lubridate::years(1), # add a year if inperiod carrying to next year
                              end_datetime), # otherwise, keep End_spawn as current year
-      start_datetime = if_else(end_datetime < start_datetime & date <= end_datetime, start_datetime - lubridate::years(1), # subtract a year if in period carrying from previous year
+      start_datetime = if_else(!is.na(end_datetime) & end_datetime < start_datetime & date <= end_datetime, start_datetime - lubridate::years(1), # subtract a year if in period carrying from previous year
                                start_datetime),
-      tmdl_season = if_else(sample_datetime >= start_datetime & sample_datetime <= end_datetime, TRUE, FALSE),
+      tmdl_season = if_else(!is.na(end_datetime) & sample_datetime >= start_datetime & sample_datetime <= end_datetime, TRUE, FALSE),
       criteria = if_else(tmdl_season, geo_id, NA_character_)
     ) %>% dplyr::select(-season_start, -season_end, -geo_id)
   }

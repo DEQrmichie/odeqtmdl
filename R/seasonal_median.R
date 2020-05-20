@@ -15,7 +15,8 @@ df <- df %>%
   dplyr::group_by_at(vars(-Project1, -Result, -Result_Numeric, -Result_Operator, -Result_Unit, -Result_cen,
                           -Statistical_Base, -QualifierAbbr, -Method_Code, -Activity_Type, -act_id, -MRLValue,
                           -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
-  dplyr::summarise(seasonal_median = median(Result_cen, na.rm = TRUE)) %>%
+  dplyr::summarise(seasonal_median = median(Result_cen, na.rm = TRUE),
+                   sample_datetime = first(start_datetime)) %>%
   dplyr::ungroup()
 
 return(df)

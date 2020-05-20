@@ -12,11 +12,13 @@ monthly_median <- function(df){
 
   df <- df %>%
     dplyr::filter(tmdl_season) %>%
-    dplyr::mutate(mon = lubridate::month(sample_datetime)) %>%
+    dplyr::mutate(mon = lubridate::month(sample_datetime),
+                  year = lubridate::year(sample_datetime)) %>%
     dplyr::group_by_at(vars(-Project1, -Result, -Result_Numeric, -Result_Operator, -Result_Unit, -Result_cen,
                             -Statistical_Base, -QualifierAbbr, -Method_Code, -Activity_Type, -act_id, -MRLValue,
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
-    dplyr::summarise(monthly_median = median(Result_cen, na.rm = TRUE)) %>%
+    dplyr::summarise(monthly_median = median(Result_cen, na.rm = TRUE),
+                     sample_datetime = as.POSIXct(paste0(year, "-", mon, "-01"))) %>%
     dplyr::ungroup()
 
   return(df)

@@ -31,7 +31,7 @@ consecutive_median <- function(df, n_years = 2){
   }
 
   tmp$prev_year <- mapply(consecutive_check, tmp$MLocID, tmp$year, SIMPLIFY = TRUE, USE.NAMES = FALSE)
-  tmp$excursion <- if_else((tmp$exceed + tmp$prev_year) == 2, 1, 0)
+  tmp$excursion_cen <- if_else((tmp$exceed + tmp$prev_year) == 2, 1, 0)
 
   return(df)
 

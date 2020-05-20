@@ -15,28 +15,28 @@ target_assessment <- function(df){
   df_seasonal_median <- df %>% dplyr::filter(target_stat_base == "seasonal median")
   if(nrow(df_seasonal_median) > 0){
     df_seasonal_median <- seasonal_median(df_seasonal_median)
-    df_seasonal_median$excursion <- if_else(df_seasonal_median$seasonal_median > df_seasonal_median$target_value, 1, 0)
+    df_seasonal_median$excursion_cen <- if_else(df_seasonal_median$seasonal_median > df_seasonal_median$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_seasonal_median)
   }
 
   df_seasonal_mean <- df %>% dplyr::filter(target_stat_base == "seasonal mean")
   if(nrow(df_seasonal_mean) > 0){
     df_seasonal_mean <- seasonal_mean(df_seasonal_mean)
-    df_seasonal_mean$excursion <- if_else(df_seasonal_mean$seasonal_mean > df_seasonal_mean$target_value, 1, 0)
+    df_seasonal_mean$excursion_cen <- if_else(df_seasonal_mean$seasonal_mean > df_seasonal_mean$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_seasonal_mean)
   }
 
   df_monthly_median <- df %>% dplyr::filter(target_stat_base == "monthly median")
   if(nrow(df_monthly_median) > 0){
     df_monthly_median <- monthly_median(df_monthly_median)
-    df_monthly_median$excursion <- if_else(df_monthly_median$monthly_median > df_monthly_median$target_value, 1, 0)
+    df_monthly_median$excursion_cen <- if_else(df_monthly_median$monthly_median > df_monthly_median$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_monthly_median)
   }
 
   df_monthly_mean <- df %>% dplyr::filter(target_stat_base == "monthly mean")
   if(nrow(df_monthly_mean) > 0){
     df_monthly_mean <- monthly_mean(df_monthly_mean)
-    df_monthly_mean$excursion <- if_else(df_monthly_mean$monthly_median > df_monthly_mean$target_value, 1, 0)
+    df_monthly_mean$excursion_cen <- if_else(df_monthly_mean$monthly_median > df_monthly_mean$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_monthly_mean)
   }
 
@@ -48,13 +48,13 @@ target_assessment <- function(df){
 
   df_daily_max <- df %>% dplyr::filter(target_stat_base == "daily maximum")
   if(nrow(df_daily_max) > 0){
-    df_daily_max$excursion <- if_else(df_daily_max$tmdl_season & df_daily_max$Result_cen > df_daily_max$target_value, 1, 0)
+    df_daily_max$excursion_cen <- if_else(df_daily_max$tmdl_season & df_daily_max$Result_cen > df_daily_max$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_daily_max)
   }
 
   df_ss <- df %>% dplyr::filter(target_stat_base == "single sample")
   if(nrow(df_ss) > 0){
-    df_ss$excursion <- if_else(df_ss$tmdl_season & df_ss$Result_cen > df_ss$target_value, 1, 0)
+    df_ss$excursion_cen <- if_else(df_ss$tmdl_season & df_ss$Result_cen > df_ss$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_ss)
   }
 

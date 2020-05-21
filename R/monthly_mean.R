@@ -18,7 +18,7 @@ monthly_mean <- function(df){
                             -Statistical_Base, -QualifierAbbr, -Method_Code, -Activity_Type, -act_id, -MRLValue,
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
     dplyr::summarise(monthly_mean = mean(Result_cen, na.rm = TRUE),
-                     sample_datetime = as.POSIXct(paste0(year, "-", mon, "-01"))) %>%
+                     sample_datetime = as.POSIXct(paste0(first(year), "-", first(mon), "-01"))) %>%
     dplyr::ungroup()
 
   return(df)

@@ -38,7 +38,7 @@ target_assessment <- function(df){
   df_monthly_mean <- df %>% dplyr::filter(target_stat_base == "monthly mean")
   if(nrow(df_monthly_mean) > 0){
     df_monthly_mean <- monthly_mean(df_monthly_mean)
-    df_monthly_mean$excursion_cen <- if_else(df_monthly_mean$monthly_median > df_monthly_mean$target_value, 1, 0)
+    df_monthly_mean$excursion_cen <- if_else(df_monthly_mean$monthly_mean > df_monthly_mean$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_monthly_mean)
   }
 

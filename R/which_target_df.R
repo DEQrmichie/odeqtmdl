@@ -9,7 +9,14 @@
 
 which_target_df <- function(df, all_obs = TRUE){
 
-  df <- merge(df, tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id", "target_value", "target_units", "target_stat_base", "season_start", "season_end")],
+  tmdl_db_mins <- odeqtmdl::tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id",
+                                        "target_value", "target_units", "target_stat_base",
+                                        "season_start", "season_end")] %>%
+    dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base,
+                    season_start, season_end) %>%
+    dplyr::summarise(target_value = min(target_value, na.rm = TRUE))
+
+  df <- merge(df, tmdl_db_mins,
               by.x = c("Reachcode", "Char_Name"), by.y = c("ReachCode", "pollutant_name_AWQMS"), all.x = all_obs, all.y = FALSE)
 
   if(nrow(df) > 0){

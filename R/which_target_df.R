@@ -44,7 +44,7 @@ which_target_df <- function(df, all_obs = TRUE){
                                     FALSE),
                             FALSE),
       criteria = if_else(tmdl_season, "TMDL", NA_character_)
-    ) %>% dplyr::select(-season_start, -season_end, -geo_id)
+    ) %>% dplyr::select(-season_start, -season_end)
   }
 
   return(df)

@@ -43,7 +43,7 @@ which_target_df <- function(df, all_obs = TRUE){
                                     TRUE,
                                     FALSE),
                             FALSE),
-      criteria = if_else(tmdl_season, geo_id, NA_character_)
+      criteria = if_else(tmdl_season, "TMDL", NA_character_)
     ) %>% dplyr::select(-season_start, -season_end, -geo_id)
   }
 

@@ -12,7 +12,7 @@ target_assessment <- function(df){
 
   df_assessed <- df %>%
     dplyr::filter(is.na(target_value)) %>%
-    dplyr::mutate(excursion_cen = 0)
+    dplyr::mutate(excursion_cen = NA)
 
   df_seasonal_median <- df %>% dplyr::filter(target_stat_base == "seasonal median")
   if(nrow(df_seasonal_median) > 0){

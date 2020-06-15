@@ -19,7 +19,8 @@ consecutive_median <- function(df, n_years = 2){
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
     dplyr::summarise(seasonal_median = median(Result_cen, na.rm = TRUE)) %>%
     dplyr::mutate(exceed = if_else(seasonal_median > target_value, 1, 0),
-                  sample_datetime = first(start_datetime)) %>%
+                  sample_datetime = first(start_datetime),
+                  Result_cen = seasonal_median) %>%
     dplyr::ungroup()
 
   consecutive_check <- function(stn, yr){

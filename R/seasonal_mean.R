@@ -17,7 +17,8 @@ seasonal_mean <- function(df){
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
     dplyr::summarise(seasonal_mean = mean(Result_cen, na.rm = TRUE),
                      sample_datetime = first(start_datetime)) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(Result_cen = seasonal_mean)
 
   return(df)
 

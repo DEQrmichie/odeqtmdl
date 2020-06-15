@@ -19,7 +19,8 @@ monthly_median <- function(df){
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type)) %>%
     dplyr::summarise(monthly_median = median(Result_cen, na.rm = TRUE),
                      sample_datetime = as.POSIXct(paste0(first(year), "-", first(mon), "-01"))) %>%
-    dplyr::ungroup()
+    dplyr::ungroup() %>%
+    dplyr::mutate(Result_cen = monthly_median)
 
   return(df)
 

@@ -10,7 +10,7 @@
 which_target_df <- function(df, all_obs = TRUE){
 
   tmdl_db_mins <- odeqtmdl::tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id",
-                                        "target_value", "target_units", "target_stat_base",
+                                        "target_value", "target_units", "target_stat_base", "target_type",
                                         "season_start", "season_end", "target_conditionals_references")] %>%
     dplyr::filter(is.na(target_conditionals_references), target_type %in% c("temperature", "concentration")) %>%
     dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base,

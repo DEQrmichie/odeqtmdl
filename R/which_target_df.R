@@ -17,8 +17,8 @@ which_target_df <- function(df, all_obs = TRUE){
                     season_start, season_end) %>%
     dplyr::summarise(target_value = min(target_value, na.rm = TRUE)) %>%
     dplyr::mutate(tmdl_period = paste(season_start, "-", season_end),
-                  tmdl = paste0(TMDL_name, " (DEQ ", approval_year, ")")) %>%
-    dplyr::select(-approval_year, -TMDL_name)
+                  tmdl = paste0(TMDL_name, " (DEQ ", TMDL_issue_year, ")")) %>%
+    dplyr::select(-TMDL_issue_year, -TMDL_name)
 
   df <- merge(df, tmdl_db_mins,
               by.x = c("Reachcode", "Char_Name"), by.y = c("ReachCode", "pollutant_name_AWQMS"), all.x = all_obs, all.y = FALSE)

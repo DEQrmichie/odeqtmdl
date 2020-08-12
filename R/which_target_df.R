@@ -59,8 +59,6 @@ which_target_df <- function(df, all_obs = TRUE){
                                  End_spawn), # otherwise, keep End_spawn as current year
       Start_spawn = dplyr::if_else(End_spawn < Start_spawn & sample_datetime <= End_spawn, Start_spawn - lubridate::years(1), # subtract a year if in spawn period carrying from previous year
                                    Start_spawn), # otherwise, keep Start_spawn as current year
-      # Flag for results in critical period
-      In_crit_period = ifelse(sample_datetime >= Crit_period_start & sample_datetime <= Crit_period_end, 1, 0 ),
       # Print if result is in spawn or out of spawn
       Spawn_type = ifelse((sample_datetime >= Start_spawn & sample_datetime <= End_spawn & !is.na(Start_spawn)),  "Spawn", "Not_Spawn")
     ) %>% dplyr::select(-season_start, -season_end)

@@ -47,7 +47,22 @@ which_target_df <- function(df, all_obs = TRUE){
                                     TRUE,
                                     FALSE),
                             FALSE),
-      criteria = if_else(tmdl_season, "TMDL", NA_character_)
+      criteria = if_else(tmdl_season, "TMDL", NA_character_),
+      # Append spawn start and end dates with year
+      Start_spawn = ifelse(!is.na(spawn_start), paste0(spawn_start,"/",lubridate::year(sample_datetime)), NA ) ,
+      End_spawn = ifelse(!is.na(spawn_end), paste0(spawn_end,"/",lubridate::year(sample_datetime)), NA ),
+      # Make spwnmn start and end date date format
+      Start_spawn = lubridate::mdy(Start_spawn),
+      End_spawn = lubridate::mdy(End_spawn),
+      # If Spawn dates span a calendar year, account for year change in spawn end date
+      End_spawn = dplyr::if_else(End_spawn < Start_spawn & sample_datetime >= End_spawn, End_spawn + lubridate::years(1), # add a year if in spawn period carrying to next year
+                                 End_spawn), # otherwise, keep End_spawn as current year
+      Start_spawn = dplyr::if_else(End_spawn < Start_spawn & sample_datetime <= End_spawn, Start_spawn - lubridate::years(1), # subtract a year if in spawn period carrying from previous year
+                                   Start_spawn), # otherwise, keep Start_spawn as current year
+      # Flag for results in critical period
+      In_crit_period = ifelse(sample_datetime >= Crit_period_start & sample_datetime <= Crit_period_end, 1, 0 ),
+      # Print if result is in spawn or out of spawn
+      Spawn_type = ifelse((sample_datetime >= Start_spawn & sample_datetime <= End_spawn & !is.na(Start_spawn)),  "Spawn", "Not_Spawn")
     ) %>% dplyr::select(-season_start, -season_end)
   }
 

@@ -9,18 +9,19 @@
 
 which_target_df <- function(df, all_obs = TRUE){
 
-  tmdl_db_mins <- odeqtmdl::tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id", "TMDL_name", "TMDL_issue_year",
+  tmdl_db_tmp <- odeqtmdl::tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id", "TMDL_name", "TMDL_issue_year",
                                         "target_value", "target_units", "target_stat_base", "target_type", "season_start",
                                         "season_end", "target_conditionals_references")] %>%
     dplyr::filter(is.na(target_conditionals_references), target_type %in% c("temperature", "concentration")) %>%
-    dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base, TMDL_name, TMDL_issue_year,
-                    season_start, season_end) %>%
-    dplyr::summarise(target_value = min(target_value, na.rm = TRUE)) %>%
+    # dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base, TMDL_name, TMDL_issue_year,
+    #                 season_start, season_end) %>%
+    # dplyr::summarise(target_value = min(target_value, na.rm = TRUE)
+                     # ) %>%
     dplyr::mutate(tmdl_period = paste(season_start, "-", season_end),
                   tmdl = paste0(TMDL_name, " (DEQ ", TMDL_issue_year, ")")) %>%
     dplyr::select(-TMDL_issue_year, -TMDL_name)
 
-  df <- merge(df, tmdl_db_mins,
+  df <- merge(df, tmdl_db_tmp,
               by.x = c("Reachcode", "Char_Name"), by.y = c("ReachCode", "pollutant_name_AWQMS"), all.x = all_obs, all.y = FALSE)
 
   if(nrow(df) > 0){

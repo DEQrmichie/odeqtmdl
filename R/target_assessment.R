@@ -14,14 +14,14 @@ target_assessment <- function(df){
     dplyr::filter(is.na(target_value)) %>%
     dplyr::mutate(excursion_cen = NA)
 
-  df_seasonal_median <- df %>% dplyr::filter(target_stat_base == "seasonal median")
+  df_seasonal_median <- df %>% dplyr::filter(target_stat_base %in% c("seasonal mean", "annual mean"))
   if(nrow(df_seasonal_median) > 0){
     df_seasonal_median <- seasonal_median(df_seasonal_median)
     df_seasonal_median$excursion_cen <- if_else(df_seasonal_median$seasonal_median > df_seasonal_median$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_seasonal_median)
   }
 
-  df_seasonal_mean <- df %>% dplyr::filter(target_stat_base == "seasonal mean")
+  df_seasonal_mean <- df %>% dplyr::filter(target_stat_base %in% c("seasonal mean", "annual mean"))
   if(nrow(df_seasonal_mean) > 0){
     df_seasonal_mean <- seasonal_mean(df_seasonal_mean)
     df_seasonal_mean$excursion_cen <- if_else(df_seasonal_mean$seasonal_mean > df_seasonal_mean$target_value, 1, 0)

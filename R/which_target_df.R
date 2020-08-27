@@ -63,6 +63,9 @@ which_target_df <- function(df, all_obs = TRUE){
       # Print if result is in spawn or out of spawn
       Spawn_type = ifelse((sample_datetime >= Start_spawn & sample_datetime <= End_spawn & !is.na(Start_spawn)),  "Spawn", "Not_Spawn")
     ) %>% dplyr::select(-season_start, -season_end)
+    
+    df <- df %>% dplyr::mutate(Spawn_type = case_when((Char_Name %in% c("Total Phosphorus, mixed forms", "Total suspended solids")) ~ NA_character_,
+                                                      TRUE ~ as.character(Spawn_type)))
   }
 
   return(df)

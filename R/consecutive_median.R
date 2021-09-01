@@ -15,7 +15,7 @@ consecutive_median <- function(df, n_years = 2){
     dplyr::filter(tmdl_season) %>%
     dplyr::mutate(year = lubridate::year(sample_datetime)) %>%
     dplyr::group_by_at(vars(-Project1, -Result, -Result_Numeric, -Result_Operator, -Result_Unit, -Result_cen,
-                            -Statistical_Base, -QualifierAbbr, -Method_Code, -Activity_Type, -act_id, -MRLValue,
+                            -Statistical_Base, -DQL, -Method_Code, -Activity_Type, -act_id, -MRLValue,
                             -Result_status, -sample_datetime, -sample_id, -Spawn_type, -spawn_start, -spawn_end)) %>%
     dplyr::summarise(seasonal_median = median(Result_cen, na.rm = TRUE)) %>%
     dplyr::mutate(exceed = if_else(seasonal_median > target_value, 1, 0),

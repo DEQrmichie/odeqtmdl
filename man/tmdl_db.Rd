@@ -5,7 +5,7 @@
 \alias{tmdl_db}
 \title{Oregon TMDL database}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 159171 rows and 27 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 159460 rows and 28 columns.
 }
 \usage{
 data(tmdl_db)
@@ -37,12 +37,13 @@ for more information. A full listing of all non tribal TMDL actions in Oregon ca
   \item TMDL_active:	Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
   \item issue_agency:	The agency that developed and issued the TMDL.
   \item in_attains:	Boolean to indicate if the TMDL action has been entered into USEPA's ATTAINS database.
+  \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
   \item TMDL_issue_date:	The date the TMDL was issued by the issue agency.
   \item EPA_action_date:	The date USEPA took action (approval or disapproval) on the TMDL.
   \item AU_ID:	Assessment Unit ID.
-  \item ReachCode:	Oregon DEQ NHD High version reach code value.
+  \item ReachCode:	Reach code value from NHDH_OR_931v220, which is the current version used for DEQ business data.
   \item edit_date:	The date the GIS feature was last edited.
-  \item db_version:	The version of the tabular database (when lasted edited).
+  \item db_version:	The version of the tabular database (when last edited).
 }
 }
 \examples{

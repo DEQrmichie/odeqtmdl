@@ -1,4 +1,5 @@
 # This script generates the "TMDL database" as an R data file.
+# It should be opened within the Project Rstudio view so the working directory is set correctly.
 # It pulls in the GIS features and tabular data and joins everything into one table.
 # The script also reads and saves the TMDL actions table.
 
@@ -12,7 +13,7 @@ library(writexl)
 # This shapefile is located on the TMDL server
 tmdl_db_shp <- "tmdl_db_reaches"
 
-reaches_tbl <- sf::st_read(dsn ="T:/Planning statewide/TMDL_DB/GIS",
+reaches_tbl <- sf::st_read(dsn ="//deqhq1/TMDL/Planning statewide/TMDL_DB/GIS",
                            layer=tmdl_db_shp,
                            stringsAsFactors=FALSE) %>%
   sf::st_drop_geometry() %>%
@@ -66,7 +67,7 @@ save(tmdl_db, file="tmdl_db.rda")
 save(tmdl_actions, file="tmdl_actions.rda")
 
 # Save a copy on the server w/ version #
-setwd("T:/Planning statewide/TMDL_DB/R")
+setwd("//deqhq1/TMDL/Planning statewide/TMDL_DB/R")
 save(tmdl_db, file=paste0("tmdl_db_", db_version,".rda"))
 save(tmdl_actions, file=paste0("tmdl_actions_", db_version,".rda"))
 

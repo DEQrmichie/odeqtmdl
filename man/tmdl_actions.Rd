@@ -5,7 +5,7 @@
 \alias{tmdl_actions}
 \title{Oregon TMDL Actions}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 55 rows and 12 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 55 rows and 14 columns.
 }
 \usage{
 data(tmdl_actions)
@@ -27,6 +27,8 @@ Summary of all non tribal TMDL actions applicable in Oregon
   \item EPA_action_date: The date EPA took action (approval or disapproval) on the TMDL.
   \item action_wq_limited_parameters: All 303(d) water quality limited parameters being addressed by the TMDL action.
   \item action_TMDL_pollutants: All pollutants causing the water quality listings associated with the TMDL action.
+  \item citation_abbbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+  \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 
 }
 }

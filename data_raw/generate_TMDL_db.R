@@ -22,7 +22,7 @@ reaches_tbl <- sf::st_read(dsn ="//deqhq1/TMDL/Planning statewide/TMDL_DB/GIS",
 tmdl_actions_tbl <- readxl::read_excel(path="data_raw/TMDL_db_tabular.xlsx",
                                        sheet = "tmdl_actions_table" , col_names = TRUE,
                                        col_types = c('text', 'text', 'numeric', 'text', 'logical', 'text',
-                                                     'logical', 'text', 'date', 'date', 'text', 'text'))
+                                                     'logical', 'text', 'date', 'date', 'text', 'text', 'text', 'text'))
 
 geoid_tbl <- readxl::read_excel(path="data_raw/TMDL_db_tabular.xlsx",
                                 sheet = "geo_id_table" ,col_names = TRUE,
@@ -57,7 +57,7 @@ tmdl_db <- geoid_tbl %>%
                 season_end, target_conditionals_references, TMDL_element, notes,
                 action_id, TMDL_name, TMDL_issue_year,
                 TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
-                EPA_action_date, AU_ID, ReachCode, edit_date, db_version)
+                EPA_action_date, AU_ID, ReachCode, citation_abbbreviated, citation_full, edit_date, db_version)
 
 tmdl_actions <- tmdl_actions_tbl
 

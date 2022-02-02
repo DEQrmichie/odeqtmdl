@@ -1,7 +1,7 @@
 #' Oregon TMDL database
 #'
 #' Inventory of TMDL targets from non-tribal Oregon TMDLs. Note the inventory is incomplete. See each relevant TMDL document
-#' for more information. A full listing of all non tribal TMDL actions in Oregon can be viewed using odeqtmdl::tmdl_actions().
+#' for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using odeqtmdl::tmdl_actions().
 #'
 #'
 #' \itemize{

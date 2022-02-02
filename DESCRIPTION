@@ -1,12 +1,18 @@
 Package: odeqtmdl
 Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.2.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Oregon TMDL Database
+Version: 0.2.1
+Authors@R: 
+    c(person(given = "Ryan",
+           family = "Michie",
+           role = c("aut", "cre"),
+           email = "Ryan.Michie@deq.state.or.us"),
+      person(given = "Colin",
+           family = "Donald",
+           role = c("aut"),
+           email = "Colin.Donald@deq.state.or.us"))
+Description: Inventory of TMDL targets from non-tribal Oregon TMDLs. Note the inventory is incomplete. See each relevant TMDL document 
+             for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using odeqtmdl::tmdl_actions().
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2

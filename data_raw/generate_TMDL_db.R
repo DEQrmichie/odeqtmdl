@@ -1,4 +1,5 @@
 # This script generates the "TMDL database" as an R data file.
+# It should be opened within the Project Rstudio view so the working directory is set correctly.
 # It pulls in the GIS features and tabular data and joins everything into one table.
 # The script also reads and saves the TMDL actions table.
 
@@ -12,7 +13,7 @@ library(writexl)
 # This shapefile is located on the TMDL server
 tmdl_db_shp <- "tmdl_db_reaches"
 
-reaches_tbl <- sf::st_read(dsn ="T:/Planning statewide/TMDL_DB/GIS",
+reaches_tbl <- sf::st_read(dsn ="//deqhq1/TMDL/Planning statewide/TMDL_DB/GIS",
                            layer=tmdl_db_shp,
                            stringsAsFactors=FALSE) %>%
   sf::st_drop_geometry() %>%
@@ -21,7 +22,7 @@ reaches_tbl <- sf::st_read(dsn ="T:/Planning statewide/TMDL_DB/GIS",
 tmdl_actions_tbl <- readxl::read_excel(path="data_raw/TMDL_db_tabular.xlsx",
                                        sheet = "tmdl_actions_table" , col_names = TRUE,
                                        col_types = c('text', 'text', 'numeric', 'text', 'logical', 'text',
-                                                     'logical', 'text', 'date', 'date', 'text', 'text'))
+                                                     'logical', 'text', 'date', 'date', 'text', 'text', 'text', 'text'))
 
 geoid_tbl <- readxl::read_excel(path="data_raw/TMDL_db_tabular.xlsx",
                                 sheet = "geo_id_table" ,col_names = TRUE,
@@ -56,7 +57,7 @@ tmdl_db <- geoid_tbl %>%
                 season_end, target_conditionals_references, TMDL_element, notes,
                 action_id, TMDL_name, TMDL_issue_year,
                 TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
-                EPA_action_date, AU_ID, ReachCode, edit_date, db_version)
+                EPA_action_date, AU_ID, ReachCode, citation_abbbreviated, citation_full, edit_date, db_version)
 
 tmdl_actions <- tmdl_actions_tbl
 
@@ -66,7 +67,7 @@ save(tmdl_db, file="tmdl_db.rda")
 save(tmdl_actions, file="tmdl_actions.rda")
 
 # Save a copy on the server w/ version #
-setwd("T:/Planning statewide/TMDL_DB/R")
+setwd("//deqhq1/TMDL/Planning statewide/TMDL_DB/R")
 save(tmdl_db, file=paste0("tmdl_db_", db_version,".rda"))
 save(tmdl_actions, file=paste0("tmdl_actions_", db_version,".rda"))
 

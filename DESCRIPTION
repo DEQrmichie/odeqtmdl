@@ -1,18 +1,20 @@
 Package: odeqtmdl
 Type: Package
 Title: Oregon TMDL Database
-Version: 0.2.2
+Version: 0.2.3
 Authors@R: 
     c(person(given = "Ryan",
            family = "Michie",
            role = c("aut", "cre"),
-           email = "Ryan.Michie@deq.state.or.us"),
+           email = "Ryan.Michie@deq.oregon.gov"),
       person(given = "Colin",
            family = "Donald",
            role = c("aut"),
-           email = "Colin.Donald@deq.state.or.us"))
-Description: Inventory of TMDL targets from non-tribal Oregon TMDLs. Note the inventory is incomplete. See each relevant TMDL document 
-             for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using odeqtmdl::tmdl_actions().
+           email = "Colin.Donald@deq.oregon.gov"))
+Description: The odeqtmdl R package includes databases of TMDL information from non-tribal Oregon TMDLs 
+             and a set of functions that assist in assessment of water quality data against 
+             select TMDL targets. Currently the TMDL databases are incomplete. See each relevant TMDL document 
+             for the official record.
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.2

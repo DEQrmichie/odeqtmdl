@@ -15,7 +15,7 @@
 #'   \item EPA_action_date: The date EPA took action (approval or disapproval) on the TMDL.
 #'   \item action_wq_limited_parameters: All 303(d) water quality limited parameters being addressed by the TMDL action.
 #'   \item action_TMDL_pollutants: All pollutants causing the water quality listings associated with the TMDL action.
-#'   \item citation_abbbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+#'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'
 #' }
@@ -26,7 +26,7 @@
 #' @keywords datasets
 #' @examples
 #' actions1 <- data(tmdl_actions)
-#' actions2 <-odeqtmdl::tmdl_actions
+#' actions2 <- odeqtmdl::tmdl_actions
 #'
 
 "tmdl_actions"

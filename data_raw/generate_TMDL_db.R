@@ -59,7 +59,7 @@ tmdl_db <- geoid_tbl %>%
                 TMDL_element, notes, action_id, TMDL_name, TMDL_issue_year,
                 TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
                 EPA_action_date, AU_ID, ReachCode,
-                citation_abbbreviated, citation_full, edit_date, db_version)
+                citation_abbreviated, citation_full, edit_date, db_version)
 
 tmdl_actions <- tmdl_actions_tbl
 

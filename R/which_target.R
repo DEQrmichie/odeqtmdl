@@ -1,20 +1,20 @@
-#' Which TMDL target ID applies
+#' Which TMDL target geio ID applies
 #'
 #' Takes a sample reachcode, parameter, and date and returns the TMDL target ID(s) that apply
-#' @param reachcode The GeoID for the sample location
-#' @param parameter The pollutant or characteristic name value for the sample
+#' @param reachcode The NHD reachcode for the monitoring location
+#' @param parameter The AWQMS pollutant or characteristic name value for the sample
 #' @param date The sample date in yyyy-mm-dd format
 #' @return The applicable TMDL target
 #' @export
 #' @examples
-#' which_target(GeoID = "2006_Willamette_JohnsonCreek", parameter = "Total phosphorus, mixed forms", date = "2015-07-01")
+#' which_target(reachcode = "17090012000099", parameter = "Total suspended solids", date = "2015-07-01")
 
 which_target <- function(reachcode, parameter, date){
 
   target <- tmdl_db
   target <- target %>% dplyr::filter(ReachCode == reachcode, pollutant_name_AWQMS == parameter)
 
-  if(nrow(target) == 0){
+  if (nrow(target) == 0) {
     return(NA)
   }
 

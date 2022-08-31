@@ -2,14 +2,14 @@
 % Please edit documentation in R/which_target.R
 \name{which_target}
 \alias{which_target}
-\title{Which TMDL target ID applies}
+\title{Which TMDL target geio ID applies}
 \usage{
 which_target(reachcode, parameter, date)
 }
 \arguments{
-\item{reachcode}{The GeoID for the sample location}
+\item{reachcode}{The NHD reachcode for the monitoring location}
 
-\item{parameter}{The pollutant or characteristic name value for the sample}
+\item{parameter}{The AWQMS pollutant or characteristic name value for the sample}
 
 \item{date}{The sample date in yyyy-mm-dd format}
 }
@@ -20,5 +20,5 @@ The applicable TMDL target
 Takes a sample reachcode, parameter, and date and returns the TMDL target ID(s) that apply
 }
 \examples{
-which_target(GeoID = "2006_Willamette_JohnsonCreek", parameter = "Total phosphorus, mixed forms", date = "2015-07-01")
+which_target(reachcode = "17090012000099", parameter = "Total suspended solids", date = "2015-07-01")
 }

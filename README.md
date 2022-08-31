@@ -31,7 +31,7 @@ applicable NHD reachcode and Oregon Assessment Unit IDs where the target applies
 odeqtmdl::tmdl_db
 ```
 
-See odeqtmdl package help for information on individual functions
+See odeqtmdl package help for information on individual functions.
 ```R
 ?consecutive_median
 ?monthly_mean

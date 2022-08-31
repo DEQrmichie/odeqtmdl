@@ -60,9 +60,10 @@ tmdl_db <- geoid_tbl %>%
                 TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
                 EPA_action_date, AU_ID, ReachCode,
                 citation_abbreviated, citation_full, edit_date, db_version) %>%
-  tidyr::drop_na(geo_id)
+  tidyr::drop_na(geo_id) %>%
+  dplyr::distinct()
 
-tmdl_actions <- tmdl_actions_tbl
+tmdl_actions <- dplyr::distinct(tmdl_actions_tbl)
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_db, file = file.path("data", "tmdl_db.rda"))

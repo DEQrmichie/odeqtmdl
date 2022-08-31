@@ -3,7 +3,7 @@
 The odeqtmdl R package includes databases of TMDL information from non-tribal 
 Oregon TMDLs and a set of functions that assist in assessment of water quality 
 data against select TMDL targets. Currently the databases are incomplete. 
-See each relevant TMDL document for the official record
+See each relevant TMDL document for the official record.
 
 https://www.oregon.gov/deq/wq/tmdls/Pages/default.aspx
 

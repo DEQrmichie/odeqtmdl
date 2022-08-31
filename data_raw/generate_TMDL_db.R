@@ -12,7 +12,7 @@ library(writexl)
 
 paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
                             sheet = "paths" , col_names = TRUE,
-                            col_types = c('text', 'text'))
+                            col_types = c('text', 'text', 'text'))
 
 reaches_tbl <- sf::st_read(dsn = paths$tmdl_db_path[1],
                            layer = paths$tmdl_db_shp[1],
@@ -59,7 +59,8 @@ tmdl_db <- geoid_tbl %>%
                 TMDL_element, notes, action_id, TMDL_name, TMDL_issue_year,
                 TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
                 EPA_action_date, AU_ID, ReachCode,
-                citation_abbreviated, citation_full, edit_date, db_version)
+                citation_abbreviated, citation_full, edit_date, db_version) %>%
+  tidyr::drop_na(geo_id)
 
 tmdl_actions <- tmdl_actions_tbl
 
@@ -68,6 +69,6 @@ save(tmdl_db, file = file.path("data", "tmdl_db.rda"))
 save(tmdl_actions, file = file.path("data", "tmdl_actions.rda"))
 
 # Save an archive w/ version #
-save(tmdl_db, file = file.path("data_raw",  paste0("tmdl_db_", db_version,".rda")))
-save(tmdl_actions, file = file.path("data_raw",  paste0("tmdl_actions_", db_version,".rda")))
+save(tmdl_db, file = file.path(paths$tmdl_db_archive_path[1], paste0("tmdl_db_", db_version,".rda")))
+save(tmdl_actions, file = file.path(paths$tmdl_db_archive_path[1], paste0("tmdl_actions_", db_version,".rda")))
 

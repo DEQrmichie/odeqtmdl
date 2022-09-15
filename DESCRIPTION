@@ -1,6 +1,6 @@
 Package: odeqtmdl
 Type: Package
-Title: Oregon TMDL Database
+Title: Oregon TMDL database
 Version: 0.2.3
 Authors@R: 
     c(person(given = "Ryan",

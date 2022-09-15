@@ -5,7 +5,7 @@
 \alias{tmdl_db}
 \title{Oregon TMDL database}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 99832 rows and 30 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 99958 rows and 30 columns.
 }
 \usage{
 data(tmdl_db)

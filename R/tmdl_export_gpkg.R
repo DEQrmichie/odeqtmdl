@@ -78,7 +78,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_pa
 
   if (!is.null(TMDL_param)) {
     df <- tmdl_reaches %>%
-      dplyr::filter(TMDL_wq_limited_parameter %in% out_TMDL_param &
+      dplyr::filter(TMDL_wq_limited_parameter %in% TMDL_param &
                       TMDL_active)
   } else {
     df <- tmdl_reaches %>%
@@ -121,8 +121,8 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_pa
                   LengthKM)
 
   sf::st_write(tmdl_reach_shp_param,
-               dsn = out_gpkg_dsn,
-               layer = out_gpkg_layer,
+               dsn = gpkg_dsn,
+               layer = gpkg_layer,
                delete_layer = TRUE)
 
 }

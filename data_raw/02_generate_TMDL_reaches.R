@@ -211,8 +211,8 @@ z_spawn <- tmdl_aus %>%
   filter(n > 1)
 
 # Save a copy in data folder (replaces existing)
-save(tmdl_reaches, file = file.path(paths$package_path[1], "data", "tmdl_reaches.rda"))
-save(tmdl_aus, file = file = file.path(paths$package_path[1], "data", "tmdl_aus.rda"))
+save(tmdl_reaches, file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.rda"))
+save(tmdl_aus, file = file.path(paths$package_path[1], "data", "tmdl_aus.rda"))
 
 # Save an archive w/ version #
 save(tmdl_reaches, file = file.path(paths$tmdl_reaches_shp[1], paste0("R/tmdl_reaches_", db_version,".rda")))

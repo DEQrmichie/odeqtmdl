@@ -12,7 +12,7 @@ library(writexl)
 
 paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
                             sheet = "paths" , col_names = TRUE,
-                            col_types = c('text', 'text', 'text'))
+                            col_types = c('text', 'text', 'text', 'text'))
 
 reaches_tbl <- sf::st_read(dsn = paths$tmdl_db_path[1],
                            layer = paths$tmdl_db_shp[1],

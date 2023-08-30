@@ -14,13 +14,16 @@ paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
 
 # Import NHD flowline feature ----------------------------------------------------------
 
-nhd_dsn <- file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb")
-nhd_layer <- "OR_NHD_Flowlines"
-nhd_fc <- sf::st_read(dsn = nhd_dsn, layer = nhd_layer, stringsAsFactors =  FALSE) %>%
-  sf::st_zm() %>%
-  dplyr::select(-action_id, -TMDL_param, -TMDL_pollu, -Source, -period, -TMDL_scope)
+# nhd_dsn <- file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb")
+# nhd_layer <- "OR_NHD_Flowlines"
+# nhd_fc <- sf::st_read(dsn = nhd_dsn, layer = nhd_layer, stringsAsFactors =  FALSE) %>%
+#   sf::st_zm() %>%
+#   dplyr::select(-action_id, -TMDL_param, -TMDL_pollu, -Source, -period, -TMDL_scope)
+#
+# save(nhd_fc, file = "data_raw/nhd_fc.rda")
 
-save(nhd_fc, file = "data_raw/nhd_fc.rda")
+
+load(file.path(paths$package_path[1], "data_raw", "nhd_fc.rda"))
 
 # - Import TMDL mapping data at reach scale ------------------------------------
 

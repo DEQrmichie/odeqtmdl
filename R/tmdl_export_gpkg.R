@@ -73,7 +73,7 @@
 #' @export
 #' @keywords Oregon TMDL reach database
 
-tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reachs, nhd_fc, TMDL_param = NULL) {
+tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_param = NULL) {
 
 
   if (!is.null(TMDL_param)) {

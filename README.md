@@ -24,6 +24,13 @@ A full listing of all non-tribal TMDL actions in Oregon.
 odeqtmdl::tmdl_actions
 ```
 
+Inventory of assessment units where non-tribal Oregon TMDLs have been developed. 
+Note the inventory is still being developed and some information may not be accurate.
+See each relevant TMDL document for more information and applicability.
+```R
+odeqtmdl::tmdl_aus
+```
+
 Partial inventory of TMDL targets from non-tribal Oregon TMDLs. Database includes 
 TMDL target value, target unit, statistical base, season start/end, and
 applicable NHD reachcode and Oregon Assessment Unit IDs where the target applies.
@@ -40,6 +47,7 @@ See odeqtmdl package help for information on individual functions.
 ?seasonal_median
 ?target_assessment
 ?tmdl_actions
+?tmdl_aus
 ?tmdl_db
 ?which_target_df
 ?which_target

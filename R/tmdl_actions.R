@@ -1,7 +1,8 @@
 #' Oregon TMDL Actions
 #'
-#'Summary of all non tribal TMDL actions applicable in Oregon
+#'Summary of all non tribal TMDL actions applicable in Oregon.
 #'
+#'Database fields include:
 #' \itemize{
 #'   \item action_id:	USEPA ATTAINS Action ID assigned to each TMDL document.
 #'   \item TMDL_name:	Name of TMDL document.

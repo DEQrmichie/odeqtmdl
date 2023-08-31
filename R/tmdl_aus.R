@@ -3,9 +3,9 @@
 #' Inventory of assessment units where non-tribal Oregon TMDLs have been developed. Note the inventory
 #' is still being developed and some information may not be accurate.
 #' See each relevant TMDL document for more information and applicability. A full listing of all
-#' non-tribal TMDL actions in Oregon can be viewed using odeqtmdl::tmdl_actions().
+#' non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
 #'
-#' NHD values are derived from NHDH_OR_931v220, which is the current version used for DEQ business data.
+#' NHD values are derived from NHDH_OR_931v220, which is the current version used for DEQ business data. Database fields include:
 #'
 #' \itemize{
 #'   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
@@ -13,6 +13,21 @@
 #'   \item TMDL_issue_year:	Year the TMDL was issued by the issue agency.
 #'   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
 #'   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
+#'   \item TMDL_scope: Provides information about how the TMDL applies.
+#'      \itemize{
+#'      \item TMDL:	Identifies segments that a TMDL was developed for.
+#'      \item Allocation only: Identifies segments where a TMDL allocation applies
+#'                            but the TMDL does not address a 303(d) listing in that segment.
+#'                            Typically this situation is applicable for tributaries or canals
+#'                            that are upstream of the segment where the "TMDL" applies.
+#'                            The pollutant reduction in the upstream segment is needed to achieve the
+#'                            TMDL loading capacity of the downstream segment.
+#'                            This is common for TMDLs that address narrative water quality standards
+#'                            or cases when the pollutant is not the same as the listed parameter (e.g. nutrients).
+#'      \item Advisory allocation: Identifies segments that have suggested non regulatory allocations;
+#'                                or segments that may be used to assess progress or status of allocation attainment
+#'                                but the segment is not the regulatory compliance point as defined in the TMDL.
+#'                                }
 #'   \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
 #'   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs for temperature or dissolved oxygen.
 #'      \itemize{

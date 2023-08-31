@@ -85,10 +85,15 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_pa
       dplyr::filter(TMDL_active)
   }
 
+  df <- df %>%
+    dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+    dplyr::select(-Permanent_Identifier, -AU_ID)
 
-  tmdl_reach_shp_param <- nhd_fc %>%
-    dplyr::select(Permanent_Identifier, WBArea_Permanent_Identifier, FType, AU_WBType) %>%
-    dplyr::inner_join(y = df, by = "Permanent_Identifier") %>%
+
+  tmdl_reach_fc_param <- nhd_fc %>%
+    dplyr::select(AU_ID, Permanent_Identifier, WBArea_Permanent_Identifier, FType, AU_WBType) %>%
+    dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+    dplyr::inner_join(y = df, by = "PIDAUID") %>%
     dplyr::select(action_id,
                   TMDL_name,
                   TMDL_issue_year,
@@ -120,9 +125,10 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_pa
                   AU_GNIS,
                   LengthKM)
 
-  sf::st_write(tmdl_reach_shp_param,
+  sf::st_write(tmdl_reach_fc_param,
                dsn = gpkg_dsn,
                layer = gpkg_layer,
+               driver = "GPKG",
                delete_layer = TRUE)
 
 }

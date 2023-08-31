@@ -104,7 +104,7 @@ for (i in 1:length(tmdl.shps)) {
       } %>%
     select(action_id, action_wq_limited_parameter = TMDL_param,
            action_TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-           Permanent_Identifier = Permanent_)
+           Permanent_Identifier = Permanent_, AU_ID)
 
   tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
 
@@ -116,7 +116,8 @@ ornhd <- odeqmloctools::ornhd %>%
   filter(!AU_ID == "99") %>%
   mutate(HUC_6 = substr(AU_ID, 7, 12),
          HUC_8 = substr(AU_ID, 7, 14),
-         HUC_10 = substr(AU_ID, 7, 16)) %>%
+         HUC_10 = substr(AU_ID, 7, 16),
+         PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
   left_join(huc10)
@@ -127,29 +128,13 @@ oraus <- ornhd %>%
   dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
   ungroup()
 
-# checks
-na_z <- tmdl_reach_tbl %>%
-  select(Permanent_Identifier, action_id, TMDL_wq_limited_parameter = action_wq_limited_parameter,
-         TMDL_pollutant = action_TMDL_pollutant, TMDL_scope, Period) %>%
-  dplyr::left_join(odeqtmdl::tmdl_actions, by = "action_id") %>%
-  select(-TMDL_active) %>%
-  left_join(tmdl_active_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
-  filter(is.na(TMDL_active)) %>%
-  group_by(action_id, TMDL_name, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
-  summarise(n = n())
-
-na_names <- tmdl_reach_tbl %>%
-  select(action_id, TMDL_wq_limited_parameter = action_wq_limited_parameter,
-         TMDL_pollutant = action_TMDL_pollutant) %>%
-  filter(TMDL_wq_limited_parameter == "Dissolved oxygen") %>%
-  distinct()
-
 # Note, remove TMDL active mutate once all the GIS layers have been updated w/
 # consistent parameter names. Better approach is to use a join w/ mapping list. e.g.
 # select(-TMDL_active) %>%
 # left_join(by=c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant"))
 tmdl_reaches <- tmdl_reach_tbl %>%
-  select(Permanent_Identifier, action_id, TMDL_wq_limited_parameter = action_wq_limited_parameter,
+  dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+  select(PIDAUID, action_id, TMDL_wq_limited_parameter = action_wq_limited_parameter,
          TMDL_pollutant = action_TMDL_pollutant, TMDL_scope, Period) %>%
   dplyr::left_join(odeqtmdl::tmdl_actions, by = "action_id") %>%
   dplyr::mutate(TMDL_active = case_when(action_id %in% c("2043", "1230", "2021",
@@ -162,7 +147,7 @@ tmdl_reaches <- tmdl_reach_tbl %>%
                                                                                      "Methylmercury") ~ FALSE,
                                         TRUE ~ TRUE
                                         )) %>%
-  left_join(ornhd, by = "Permanent_Identifier") %>%
+  left_join(ornhd, by = "PIDAUID") %>%
   filter(!AU_ID == "99") %>%
   dplyr::arrange(TMDL_issue_year, TMDL_name, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID) %>%
   dplyr::distinct() %>%
@@ -183,6 +168,7 @@ tmdl_aus <- tmdl_reaches %>%
   dplyr::filter(TMDL_scope == "TMDL") %>%
   dplyr::select(action_id, TMDL_name, TMDL_issue_year,
                 TMDL_wq_limited_parameter, TMDL_pollutant, Period, TMDL_active,
+                TMDL_scope,
                 citation_abbreviated, citation_full,
                 HUC_6, HU_6_NAME, HUC6_full,
                 HUC_8, HU_8_NAME, HUC8_full,
@@ -191,6 +177,7 @@ tmdl_aus <- tmdl_reaches %>%
                 LengthKM) %>%
   dplyr::group_by(action_id, TMDL_name, TMDL_issue_year,
                   TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active, Period,
+                  TMDL_scope,
                   citation_abbreviated, citation_full,
                   HUC_6, HU_6_NAME, HUC6_full,
                   HUC_8, HU_8_NAME, HUC8_full,
@@ -200,15 +187,6 @@ tmdl_aus <- tmdl_reaches %>%
   dplyr::ungroup() %>%
   dplyr::left_join(oraus, by = "AU_ID") %>%
   dplyr::mutate(TMDL_AU_Percent = round(TMDL_length_km/AU_length_km * 100,0))
-
-# Check for multiple spawning values in each AU
-z_spawn <- tmdl_aus %>%
-  filter(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen"), TMDL_active) %>%
-  select(action_id, TMDL_wq_limited_parameter, AU_ID, Period) %>%
-  distinct() %>%
-  group_by(action_id, TMDL_wq_limited_parameter, AU_ID) %>%
-  summarise(n = n()) %>%
-  filter(n > 1)
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_reaches, file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.rda"))

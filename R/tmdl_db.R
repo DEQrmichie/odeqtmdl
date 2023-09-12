@@ -29,8 +29,16 @@
 #'   \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
 #'   \item TMDL_issue_date:	The date the TMDL was issued by the issue agency.
 #'   \item EPA_action_date:	The date USEPA took action (approval or disapproval) on the TMDL.
-#'   \item AU_ID:	Assessment Unit ID.
 #'   \item ReachCode:	Reach code value from NHDH_OR_931v220, which is the current version used for DEQ business data.
+#'   \item Permanent_Identifier: NHD Permanent Identifier.
+#'   \item GNIS_Name: Proper name, specific term, or expression by which a particular geographic entity is known
+#'   \item GNIS_ID: Unique identifier assigned by GNIS, length 10.
+#'   \item AU_ID:	Assessment Unit ID.
+#'   \item AU_Name: Name of the assessment unit.
+#'   \item AU_Description: Assessment unit descriptions.
+#'   \item AU_GNIS_Name: Assessment unit and GNIS name concatenation.
+#'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+#'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item edit_date:	The date the GIS feature was last edited.
 #'   \item db_version:	The version of the tabular database (when last edited).
 #' }

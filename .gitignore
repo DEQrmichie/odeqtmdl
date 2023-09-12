@@ -2,4 +2,7 @@
 .Rhistory
 .RData
 .RDataTmp
-data_raw/geoid_gis_path.xlsx
+data_raw/*.rda
+data_raw/geoid_*.xlsx
+data_raw/TMDL_par*.xlsx
+data_raw/Archive

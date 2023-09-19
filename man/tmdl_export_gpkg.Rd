@@ -4,7 +4,14 @@
 \alias{tmdl_export_gpkg}
 \title{Export TMDLs to a GeoPackage}
 \usage{
-tmdl_export_gpkg(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_param = NULL)
+tmdl_export_gpkg(
+  gpkg_dsn,
+  gpkg_layer,
+  tmdl_reaches,
+  nhd_fc,
+  TMDL_param = NULL,
+  TMDL_pollu = NULL
+)
 }
 \arguments{
 \item{gpkg_dsn}{data source name. The path and name of output GeoPackage database. Passed to 'dsn' argument in \code{\link[sf]{st_write}}.}
@@ -15,7 +22,9 @@ tmdl_export_gpkg(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_param = NULL)
 
 \item{nhd_fc}{The NHD feature class that the TMDL database will be attributed to. The "Permanent_Identifier" field is used for joining.}
 
-\item{TMDL_param}{vector of water quality  parameter names used to filter the TMDLs. The output will only include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
+\item{TMDL_param}{vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
+
+\item{TMDL_pollu}{vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.}
 }
 \description{
 Export active TMDLs from the TMDL reach database to a GeoPackage (.gpkg). This allows the data to

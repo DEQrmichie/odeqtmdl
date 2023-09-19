@@ -68,27 +68,46 @@
 #' @param gpkg_layer layer name. The name of the output layer in the GeoPackage database. Passed to 'layer' argument in \code{\link[sf]{st_write}}.
 #' @param tmdl_reaches Oregon TMDL reach database. The database is currently only available to Oregon DEQ employees.
 #' @param nhd_fc The NHD feature class that the TMDL database will be attributed to. The "Permanent_Identifier" field is used for joining.
-#' @param TMDL_param vector of water quality  parameter names used to filter the TMDLs. The output will only include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
+#' @param action_ids vector of TMDL action IDs used to filter the TMDLs. Default is NULL and all TMDLs are included.
+#' @param TMDL_param vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
+#' @param TMDL_pollu vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.
 #'
 #' @export
 #' @keywords Oregon TMDL reach database
 
-tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc, TMDL_param = NULL) {
+tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
+                             action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL) {
 
+  df <- tmdl_reaches %>%
+    dplyr::filter(TMDL_active)
 
-  if (!is.null(TMDL_param)) {
-    df <- tmdl_reaches %>%
-      dplyr::filter(TMDL_wq_limited_parameter %in% TMDL_param &
-                      TMDL_active)
-  } else {
-    df <- tmdl_reaches %>%
-      dplyr::filter(TMDL_active)
+  # Filter to action IDs
+  if ((!is.null(action_ids)) {
+    df <- df %>%
+      dplyr::filter(action_id %in% action_ids)
+  }
+
+  # Filter both TMDL param and TMDL pollu
+  if ((!is.null(TMDL_param) & !is.null(TMDL_pollu))) {
+    df <- df %>%
+      dplyr::filter(TMDL_wq_limited_parameter %in% TMDL_param | TMDL_pollutant %in% TMDL_pollu)
+    }
+
+  # TMDL param only
+  if ((!is.null(TMDL_param) & is.null(TMDL_pollu))) {
+    df <- df %>%
+      dplyr::filter(TMDL_wq_limited_parameter %in% TMDL_param)
+  }
+
+  # TMDL pollu only
+  if ((is.null(TMDL_param) & !is.null(TMDL_pollu))) {
+    df <- df %>%
+      dplyr::filter(TMDL_pollutant %in% TMDL_pollu)
   }
 
   df <- df %>%
     dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
     dplyr::select(-Permanent_Identifier, -AU_ID)
-
 
   tmdl_reach_fc_param <- nhd_fc %>%
     dplyr::select(AU_ID, Permanent_Identifier, WBArea_Permanent_Identifier, FType, AU_WBType) %>%

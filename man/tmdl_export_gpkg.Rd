@@ -9,6 +9,7 @@ tmdl_export_gpkg(
   gpkg_layer,
   tmdl_reaches,
   nhd_fc,
+  action_ids = NULL,
   TMDL_param = NULL,
   TMDL_pollu = NULL
 )
@@ -21,6 +22,8 @@ tmdl_export_gpkg(
 \item{tmdl_reaches}{Oregon TMDL reach database. The database is currently only available to Oregon DEQ employees.}
 
 \item{nhd_fc}{The NHD feature class that the TMDL database will be attributed to. The "Permanent_Identifier" field is used for joining.}
+
+\item{action_ids}{vector of TMDL action IDs used to filter the TMDLs. Default is NULL and all TMDLs are included.}
 
 \item{TMDL_param}{vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
 

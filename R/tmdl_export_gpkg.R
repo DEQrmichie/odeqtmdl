@@ -82,7 +82,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
     dplyr::filter(TMDL_active)
 
   # Filter to action IDs
-  if ((!is.null(action_ids)) {
+  if (!is.null(action_ids)) {
     df <- df %>%
       dplyr::filter(action_id %in% action_ids)
   }

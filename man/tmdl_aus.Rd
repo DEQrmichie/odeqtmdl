@@ -5,7 +5,7 @@
 \alias{tmdl_aus}
 \title{Oregon TMDL assessment unit database}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 16753 rows and 25 columns.
+An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 16469 rows and 29 columns.
 }
 \usage{
 data(tmdl_aus)
@@ -25,6 +25,7 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
   \item TMDL_issue_year:	Year the TMDL was issued by the issue agency.
   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
+  \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
   \item TMDL_scope: Provides information about how the TMDL applies.
      \itemize{
      \item TMDL:	Identifies segments that a TMDL was developed for.
@@ -40,13 +41,21 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
                                or segments that may be used to assess progress or status of allocation attainment
                                but the segment is not the regulatory compliance point as defined in the TMDL.
                                }
-  \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs for temperature or dissolved oxygen.
      \itemize{
-     \item year_round: TMDL developed to address only non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
-     \item spawning: TMDL developed to address only spawning uses for the temperature or dissolved oxygen water quality standards.
-     \item Both: TMDL developed to address both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
+     \item year_round: TMDL addresses only non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
+     \item spawning: TMDL addresses only spawning uses for the temperature or dissolved oxygen water quality standards.
+     \item Both: TMDL addresses both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
+     \item Mixed: TMDL addresses different fish use periods in different sections of the assessment unit.
      }
+  \item Source:
+     \itemize{
+     \item Point source: Identifies assessment units where pollutant loading is from point sources only.
+     \item Nonpoint source: Identifies assessment units where pollutant loading is from nonpoint sources only.
+     \item Both: Identifies assessment units where pollutant loading is from point sources and nonpoint sources.
+     }
+  \item in_attains: Boolean to indicate if the TMDL action has been entered into USEPA's ATTAINS database.
+  \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item HUC_6: Basin six digit USGS hydrological unit code

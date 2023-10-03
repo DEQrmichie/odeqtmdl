@@ -1,9 +1,10 @@
 # odeqtmdl
 
-The odeqtmdl R package includes databases of TMDL information from non-tribal 
+The odeqtmdl R package includes data tables of TMDL information from non-tribal 
 Oregon TMDLs and a set of functions that assist in assessment of water quality 
-data against select TMDL targets. Currently the databases are incomplete. 
-See each relevant TMDL document for the official record.
+data against select TMDL targets. The data tables are still in development and 
+for some TMDLs may be with incomplete. See each relevant TMDL document 
+for the official record.
 
 https://www.oregon.gov/deq/wq/tmdls/Pages/default.aspx
 
@@ -17,7 +18,7 @@ devtools::install_github("OR-Dept-Environmental-Quality/odeqtmdl",
                          dependencies = TRUE, force = TRUE, upgrade = FALSE)
 ```
 
-## Database Usage
+## Data Table Usage
 
 A full listing of all non-tribal TMDL actions in Oregon.
 ```R
@@ -31,14 +32,33 @@ See each relevant TMDL document for more information and applicability.
 odeqtmdl::tmdl_aus
 ```
 
-Partial inventory of TMDL targets from non-tribal Oregon TMDLs. Database includes 
-TMDL target value, target unit, statistical base, season start/end, and
-applicable NHD reachcode and Oregon Assessment Unit IDs where the target applies.
+Summary of all unique water quality limited parameter and pollutant pair 
+combinations for each TMDL action.
 ```R
-odeqtmdl::tmdl_db
+odeqtmdl::tmdl_parameters
 ```
 
-See odeqtmdl package help for information on individual functions.
+Partial inventory of TMDL targets from non-tribal Oregon TMDLs. Database includes 
+TMDL target value, target unit, statistical base, season start/end, and the 
+geo_id. A geo ID is a unique ID used to identify the applicable NHD 
+reaches and Oregon Assessment Unit IDs where the target applies.
+```R
+odeqtmdl::tmdl_targets
+```
+
+Inventory and narrative description of unique TMDL geo IDs for non-tribal 
+Oregon TMDLs. A geo ID is a unique ID that is used to identify where a 
+specific TMDL target applies.
+```R
+odeqtmdl::tmdl_geo_ids
+```
+
+Lookup table of DEQ and EPA ATTAINS water quality parameter names and IDs.
+```R
+odeqtmdl::LU_pollutant
+```
+
+See odeqtmdl package help for information on other individual functions.
 ```R
 ?consecutive_median
 ?monthly_mean
@@ -46,9 +66,8 @@ See odeqtmdl package help for information on individual functions.
 ?seasonal_mean
 ?seasonal_median
 ?target_assessment
-?tmdl_actions
-?tmdl_aus
-?tmdl_db
+?tmdl_export_attains
+?tmdl_export_gpkg
 ?which_target_df
 ?which_target
 ```

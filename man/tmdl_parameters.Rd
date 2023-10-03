@@ -11,7 +11,8 @@ An object of class \code{data.frame} with 277 rows and 6 columns.
 data(tmdl_parameters)
 }
 \description{
-Summary of all unique water quality limited parameter and the pollutant pairs for each TMDL action.
+Summary of all unique water quality limited parameter and pollutant pair
+combinations for each TMDL action.
 }
 \details{
 Database fields include:

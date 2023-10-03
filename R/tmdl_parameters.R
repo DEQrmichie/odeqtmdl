@@ -1,6 +1,7 @@
 #' Oregon TMDL parameters
 #'
-#'Summary of all unique water quality limited parameter and the pollutant pairs for each TMDL action.
+#'Summary of all unique water quality limited parameter and pollutant pair
+#'combinations for each TMDL action.
 #'
 #'Database fields include:
 #' \itemize{

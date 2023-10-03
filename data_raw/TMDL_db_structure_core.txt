@@ -1,0 +1,118 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+// https://dbdiagram.io/d/tmdl-core-650fb148ffbf5169f0600bc7
+
+Table tmdl_actions {
+action_id  text [primary key]
+TMDL_name  text
+TMDL_issue_year text
+issue_agency  text
+in_attains  logical
+attains_status  text
+TMDL_issue_date  date
+EPA_action_date  date
+citation_abbreviated  text
+citation_full  text
+}
+
+Table tmdl_parameters {
+action_id text
+TMDL_wq_limited_parameter text
+TMDL_pollutant text
+TMDL_active text
+TMDL_active_note text
+scope_narrative text
+}
+
+Table tmdl_geo_ids {
+  action_id text
+  geo_id text
+  geo_description text
+  mapped logical
+}
+
+Table tmdl_targets {
+action_id text 
+geo_id text
+TMDL_pollutant text
+target_type text
+target_value text
+target_units text
+target_stat_base text
+season_start text
+season_end text
+target_conditionals_references text
+TMDL_element text
+notes text
+}
+
+Table tmdl_reaches {
+action_id text
+TMDL_wq_limited_parameter text
+TMDL_pollutant text
+TMDL_active text
+TMDL_scope text
+Period text
+Source text
+geo_id text
+HUC_6 text
+HU_6_NAME text
+HUC6_full text
+HUC_8 text
+HU_8_NAME text
+HUC8_full text
+HUC_10 text
+HU_10_NAME text
+HUC10_full text
+Permanent_Identifier text
+ReachCode text
+GNIS_Name text
+GNIS_ID integer
+AU_ID text
+AU_Name text
+AU_Description text
+AU_GNIS_Name text
+AU_GNIS text
+LengthKM numeric
+}
+
+Table tmdl_aus {
+action_id text
+TMDL_wq_limited_parameter text
+TMDL_pollutant text
+TMDL_active text
+TMDL_scope text
+Period text
+Source text
+HUC_6 text
+HU_6_NAME text
+HUC6_full text
+HUC_8 text
+HU_8_NAME text
+HUC8_full text
+AU_ID text
+AU_Name text
+AU_Description text
+TMDL_length_km numeric
+AU_length_km numeric
+TMDL_AU_Percent numeric
+}
+
+Ref: "tmdl_geo_ids"."geo_id" < "tmdl_targets"."geo_id"
+
+Ref: "tmdl_geo_ids"."action_id" < "tmdl_targets"."action_id"
+
+Ref: "tmdl_geo_ids"."geo_id" < "tmdl_reaches"."geo_id"
+
+Ref: "tmdl_actions"."action_id" < "tmdl_reaches"."action_id"
+
+Ref: "tmdl_actions"."action_id" < "tmdl_aus"."action_id"
+
+Ref: "tmdl_parameters"."action_id" < "tmdl_reaches"."action_id"
+
+Ref: "tmdl_parameters"."TMDL_wq_limited_parameter" < "tmdl_reaches"."TMDL_wq_limited_parameter"
+
+Ref: "tmdl_parameters"."TMDL_pollutant" < "tmdl_reaches"."TMDL_pollutant"
+
+Ref: "tmdl_parameters"."TMDL_active" < "tmdl_reaches"."TMDL_active"

@@ -5,7 +5,7 @@
 \alias{tmdl_aus}
 \title{Oregon TMDL assessment unit database}
 \format{
-An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 16469 rows and 29 columns.
+An object of class \code{data.frame} with 16370 rows and 22 columns.
 }
 \usage{
 data(tmdl_aus)
@@ -21,8 +21,6 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
 
 \itemize{
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
-  \item TMDL_name:	Name of TMDL document.
-  \item TMDL_issue_year:	Year the TMDL was issued by the issue agency.
   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
   \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
@@ -54,10 +52,6 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
      \item Nonpoint source: Identifies assessment units where pollutant loading is from nonpoint sources only.
      \item Both: Identifies assessment units where pollutant loading is from point sources and nonpoint sources.
      }
-  \item in_attains: Boolean to indicate if the TMDL action has been entered into USEPA's ATTAINS database.
-  \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
-  \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
-  \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item HUC_6: Basin six digit USGS hydrological unit code
   \item HU_6_NAME: USGS Basin name.
   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.

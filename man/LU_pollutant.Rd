@@ -5,7 +5,7 @@
 \alias{LU_pollutant}
 \title{Pollutant parameter look up}
 \format{
-An object of class \code{data.frame} with 190 rows and 7 columns.
+An object of class \code{data.frame} with 191 rows and 7 columns.
 }
 \usage{
 data(LU_pollutant)

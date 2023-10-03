@@ -20,6 +20,7 @@
 #'   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
 #'   \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
 #'   \item TMDL_scope: Provides information about how the TMDL applies.
+#'   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'      \itemize{
 #'      \item TMDL:	Identifies segments that a TMDL was developed for.
 #'      \item Allocation only: Identifies segments where a TMDL allocation applies
@@ -40,8 +41,6 @@
 #'      \item spawning: TMDL developed to address only spawning uses for the temperature or dissolved oxygen water quality standards.
 #'      \item Both: TMDL developed to address both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
 #'      }
-#'   \item in_attains:	Boolean to indicate if the TMDL action has been entered into USEPA's ATTAINS database.
-#'   \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
 #'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item HUC_6: Basin six digit USGS hydrological unit code.
@@ -51,6 +50,7 @@
 #'   \item HU_8_NAME: USGS Subbasin name.
 #'   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
 #'   \item Permanent_Identifier: NHD Permanent Identifier.
+#'   \item ReachCode: NHD Reach code.
 #'   \item WBArea_Permanent_Identifier: NHD Waterbody feature Permanent Identifier
 #'   \item FType: Three-digit integer value; unique identifier of a feature type.
 #'   \item GNIS_Name: Proper name, specific term, or expression by which a particular geographic entity is known
@@ -66,7 +66,8 @@
 #'
 #' @param gpkg_dsn data source name. The path and name of output GeoPackage database. Passed to 'dsn' argument in \code{\link[sf]{st_write}}.
 #' @param gpkg_layer layer name. The name of the output layer in the GeoPackage database. Passed to 'layer' argument in \code{\link[sf]{st_write}}.
-#' @param tmdl_reaches Oregon TMDL reach database. The database is currently only available to Oregon DEQ employees.
+#' @param tmdl_reaches Oregon TMDL reach table. The database is currently only available to Oregon DEQ employees.
+#' @param tmdl_actions Oregon TMDL action table. Default is NULL and \code{\link{tmdl_actions}} will be used.
 #' @param nhd_fc The NHD feature class that the TMDL database will be attributed to. The "Permanent_Identifier" field is used for joining.
 #' @param action_ids vector of TMDL action IDs used to filter the TMDLs. Default is NULL and all TMDLs are included.
 #' @param TMDL_param vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
@@ -75,11 +76,16 @@
 #' @export
 #' @keywords Oregon TMDL reach database
 
-tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
+tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = NULL, nhd_fc,
                              action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL) {
+
 
   df <- tmdl_reaches %>%
     dplyr::filter(TMDL_active)
+
+  if (is.null(tmdl_actions)) {
+    tmdl_actions_tbl <- odeqtmdl::tmdl_actions
+  }
 
   # Filter to action IDs
   if (!is.null(action_ids)) {
@@ -106,6 +112,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
   }
 
   df <- df %>%
+    dplyr::left_join(tmdl_actions_tbl) %>%
     dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
     dplyr::select(-Permanent_Identifier, -AU_ID)
 
@@ -120,9 +127,8 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
                   TMDL_pollutant,
                   TMDL_active,
                   TMDL_scope,
+                  geo_id,
                   Period,
-                  in_attains,
-                  attains_status,
                   citation_abbreviated,
                   citation_full,
                   HUC_6,
@@ -132,6 +138,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, nhd_fc,
                   HU_8_NAME,
                   HUC8_full,
                   Permanent_Identifier,
+                  ReachCode,
                   WBArea_Permanent_Identifier,
                   FType,
                   GNIS_Name,

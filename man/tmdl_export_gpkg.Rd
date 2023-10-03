@@ -8,6 +8,7 @@ tmdl_export_gpkg(
   gpkg_dsn,
   gpkg_layer,
   tmdl_reaches,
+  tmdl_actions = NULL,
   nhd_fc,
   action_ids = NULL,
   TMDL_param = NULL,
@@ -19,7 +20,9 @@ tmdl_export_gpkg(
 
 \item{gpkg_layer}{layer name. The name of the output layer in the GeoPackage database. Passed to 'layer' argument in \code{\link[sf]{st_write}}.}
 
-\item{tmdl_reaches}{Oregon TMDL reach database. The database is currently only available to Oregon DEQ employees.}
+\item{tmdl_reaches}{Oregon TMDL reach table. The database is currently only available to Oregon DEQ employees.}
+
+\item{tmdl_actions}{Oregon TMDL action table. Default is NULL and \code{\link{tmdl_actions}} will be used.}
 
 \item{nhd_fc}{The NHD feature class that the TMDL database will be attributed to. The "Permanent_Identifier" field is used for joining.}
 
@@ -51,6 +54,7 @@ Output GeoPackage fields include:
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
   \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
   \item TMDL_scope: Provides information about how the TMDL applies.
+  \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
      \itemize{
      \item TMDL:	Identifies segments that a TMDL was developed for.
      \item Allocation only: Identifies segments where a TMDL allocation applies
@@ -71,8 +75,6 @@ Output GeoPackage fields include:
      \item spawning: TMDL developed to address only spawning uses for the temperature or dissolved oxygen water quality standards.
      \item Both: TMDL developed to address both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
      }
-  \item in_attains:	Boolean to indicate if the TMDL action has been entered into USEPA's ATTAINS database.
-  \item attains_status: Status of TMDL action in ATTAINS. NA indicates the TMDL action is not included in ATTAINS.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item HUC_6: Basin six digit USGS hydrological unit code.
@@ -82,6 +84,7 @@ Output GeoPackage fields include:
   \item HU_8_NAME: USGS Subbasin name.
   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
   \item Permanent_Identifier: NHD Permanent Identifier.
+  \item ReachCode: NHD Reach code.
   \item WBArea_Permanent_Identifier: NHD Waterbody feature Permanent Identifier
   \item FType: Three-digit integer value; unique identifier of a feature type.
   \item GNIS_Name: Proper name, specific term, or expression by which a particular geographic entity is known

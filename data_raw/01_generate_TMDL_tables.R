@@ -207,8 +207,9 @@ tmdl_reaches <- tmdl_reach_tbl %>%
                 LengthKM) %>%
   as.data.frame()
 
-# Save a copy in data folder (replaces existing)
-save(tmdl_reaches, file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.rda"))
+# Save a copy in inst/extdata folder (replaces existing)
+# File is too large to save in data.
+save(tmdl_reaches, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.rda"))
 
 #- tmdl_aus --------------------------------------------------------------------
 
@@ -345,6 +346,8 @@ save(LU_pollutant, file = file.path(paths$package_path[1], "data", "LU_pollutant
 
 
 #- tmdl_db ---------------------------------------------------------------------
+
+# Not used but keeping just in case.
 
 tmdl_db <- tmdl_reaches %>%
   left_join(tmdl_actions, by = "action_id") %>%

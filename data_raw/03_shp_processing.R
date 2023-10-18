@@ -21,12 +21,28 @@ paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
 #
 # save(nhd_fc, file = "data_raw/nhd_fc.rda")
 
-
+# nhd_fc
 load(file.path(paths$package_path[1], "data_raw", "nhd_fc.rda"))
+
+# Import Statewide dissolved AU feature ----------------------------------------------------------
+
+# au_dsn <- file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb")
+# au_layer <- "AU_OR_Dissolve"
+# au_fc <- sf::st_read(dsn = au_dsn, layer = au_layer, stringsAsFactors =  FALSE) %>%
+#   sf::st_zm() %>%
+#   dplyr::select(-AU_Type) %>%
+#   dplyr::filter(!AU_ID == "99")
+#
+# save(au_fc, file = "data_raw/au_fc.rda")
+
+#load(file.path(paths$package_path[1], "data_raw", "au_fc.rda"))
 
 # - Import TMDL mapping data at reach scale ------------------------------------
 
-load(file = file.path(paths$package_path[1],"data_raw/tmdl_reaches.rda"))
+# tmdl_reaches
+load(file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.rda"))
+
+# tmdl_aus
 load(file = file.path(paths$package_path[1], "data", "tmdl_aus.rda"))
 
 # unique list of NHD permanent Identifiers where TMDLs or allocation apply
@@ -65,41 +81,42 @@ tmdl_au_fc <- tmdl_reach_fc %>%
   ungroup()
 
 # create unique AU fc
-tmdl_au_fc_full <- tmdl_au_fc %>%
-  dplyr::select(AU_ID, AU_WBType) %>%
-  dplyr::inner_join(y = tmdl_aus, by = "AU_ID") %>%
-  dplyr::select(action_id,
-                TMDL_name,
-                TMDL_issue_year,
-                TMDL_wq_limited_parameter,
-                TMDL_pollutant,
-                TMDL_active,
-                TMDL_scope,
-                Period,
-                citation_abbreviated,
-                citation_full,
-                HUC_6,
-                HU_6_NAME,
-                HUC6_full,
-                HUC_8,
-                HU_8_NAME,
-                HUC8_full,
-                HUC_10,
-                HU_10_NAME,
-                HUC10_full,
-                AU_ID,
-                AU_Name,
-                AU_Description,
-                AU_WBType,
-                TMDL_length_km,
-                AU_length_km,
-                TMDL_AU_Percent)
-
-sf::st_write(tmdl_au_fc_full,
-             dsn = file.path(paths$tmdl_reaches_shp[1],"Deliverables", "OR_tmdls.gpkg"),
-             layer = "TMDLs_by_AU",
-             driver = "GPKG",
-             delete_layer = TRUE)
+# tmdl_au_fc_full <- tmdl_au_fc %>%
+#   dplyr::select(AU_ID, AU_WBType) %>%
+#   dplyr::inner_join(y = tmdl_aus, by = "AU_ID") %>%
+#   dplyr::left_join(odeqtmdl::tmdl_actions, by = "action_id") %>%
+#   dplyr::select(action_id,
+#                 TMDL_name,
+#                 TMDL_issue_year,
+#                 TMDL_wq_limited_parameter,
+#                 TMDL_pollutant,
+#                 TMDL_active,
+#                 TMDL_scope,
+#                 Period,
+#                 citation_abbreviated,
+#                 citation_full,
+#                 HUC_6,
+#                 HU_6_NAME,
+#                 HUC6_full,
+#                 HUC_8,
+#                 HU_8_NAME,
+#                 HUC8_full,
+#                 HUC_10,
+#                 HU_10_NAME,
+#                 HUC10_full,
+#                 AU_ID,
+#                 AU_Name,
+#                 AU_Description,
+#                 AU_WBType,
+#                 TMDL_length_km,
+#                 AU_length_km,
+#                 TMDL_AU_Percent)
+#
+# sf::st_write(tmdl_au_fc_full,
+#              dsn = file.path(paths$tmdl_reaches_shp[1],"Deliverables", "OR_tmdls.gpkg"),
+#              layer = "TMDLs_by_AU",
+#              driver = "GPKG",
+#              delete_layer = TRUE)
 
 save(tmdl_reach_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_reach_fc.rda"))
 save(tmdl_au_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_au_fc.rda"))

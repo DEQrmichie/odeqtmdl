@@ -28,7 +28,7 @@ tmdl_actions_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
                                        na = c("", "NA"),
                                        col_names = TRUE,
                                        col_types = c("text", "text", 'numeric', "text", "logical", "text",
-                                                     "logical", "text", "text", "text", "text", "text", "text", "text",
+                                                     "logical", "text", "date", "date", "text", "text", "text", "text",
                                                      "text"))
 
 # This will be used when all mapping is complete.

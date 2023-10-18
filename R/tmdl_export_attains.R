@@ -1,9 +1,9 @@
 #' Export TMDL info to ATTAINS upload files
 #'
-#' Exports all or a subset of the Oregon TMDL assessment unit database (\code{\link{tmdl_aus}}) as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced. The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
+#' Exports all or a subset of the Oregon TMDL assessment unit database (\code{\link{tmdl_au}}) as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced. The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
 #'
 #' @param out_dir: The directory to save the output csv files.
-#' @param tmdl_aus: Data frame formatted the same as the Oregon TMDL assessment unit database. Default is NULL and the \code{\link{tmdl_aus}} database will be used.
+#' @param tmdl_au: Data frame formatted the same as the Oregon TMDL assessment unit database. Default is NULL and the \code{\link{tmdl_au}} database will be used.
 #' @param AU_IDs: Vector of assessment units used to filter 'tmdl_aus'. Default is NULL and all AU IDs are included.
 #' @param status_attains: Vector of the attains status used to filter 'tmdl_aus'. Default is NULL and all statuses are included.
 #' @param action_ids: Vector of action IDs used to filter 'tmdl_aus'. Default is NULL and all action IDs are included.
@@ -12,14 +12,14 @@
 #' @export
 #' @keywords Oregon TMDL ATTAINS batch upload
 
-tmdl_export_attains <- function(out_dir, tmdl_aus = NULL, AU_IDs = NULL,
+tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
                                 status_attains = NULL,
                                 action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL) {
 
-  if (is.null(tmdl_aus)) {
-    df <- odeqtmdl::tmdl_aus
+  if (is.null(tmdl_au)) {
+    df <- odeqtmdl::tmdl_au
   } else {
-    df <- tmdl_aus
+    df <- tmdl_au
   }
 
   # Filter to action IDs
@@ -58,7 +58,7 @@ tmdl_export_attains <- function(out_dir, tmdl_aus = NULL, AU_IDs = NULL,
       dplyr::filter(TMDL_pollutant %in% TMDL_pollu)
   }
 
-  LU_pollu <- odeqtmdl::LU_pollutant
+  df_pollu <- odeqtmdl::LU_pollutant
 
 # - Actions --------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ tmdl_export_attains <- function(out_dir, tmdl_aus = NULL, AU_IDs = NULL,
 # - Pollutants -----------------------------------------------------------------
 
     pollu_csv <- df %>%
-      dplyr::left_join(LU_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+      dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
       dplyr::mutate(EXPLICIT_MARGIN_OF_SAFETY = NA_character_,
                     IMPLICIT_MARGIN_OF_SAFETY = NA_character_,
                     TMDL_END_POINT = NA_character_) %>%
@@ -116,11 +116,11 @@ tmdl_export_attains <- function(out_dir, tmdl_aus = NULL, AU_IDs = NULL,
       # - Parameter ------------------------------------------------------------------
 
       param_csv <- df %>%
-        dplyr::left_join(LU_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+        dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
         dplyr::rename(ACTION_ID = action_id,
                       ASSESSMENT_UNIT_ID = AU_ID,
                       ASSOCIATED_POLLUTANT = Attains_Pollutant) %>%
-      dplyr::left_join(LU_pollu, by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+      dplyr::left_join(df_pollu, by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
         dplyr::rename(PARAMETER_NAME = Attains_Pollutant) %>%
       dplyr::select(ACTION_ID,
                     ASSESSMENT_UNIT_ID,

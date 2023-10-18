@@ -5,7 +5,7 @@
 \alias{tmdl_actions}
 \title{Oregon TMDL Actions}
 \format{
-An object of class \code{data.frame} with 55 rows and 10 columns.
+An object of class \code{data.frame} with 55 rows and 11 columns.
 }
 \usage{
 data(tmdl_actions)
@@ -14,7 +14,7 @@ data(tmdl_actions)
 Summary of all non tribal TMDL actions applicable in Oregon.
 }
 \details{
-* Field removed in version 0.6.
+** Field removed in version 0.6.
 See \code{\link{tmdl_parameters}} for listings of all unique TMDL parameter and pollutant pairs.
 
 Database fields include:
@@ -31,6 +31,7 @@ Database fields include:
   \item **action_TMDL_pollutants: All pollutants causing the water quality listings associated with the TMDL action.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+  \item URL: Website address for the TMDL.
 
 }
 }

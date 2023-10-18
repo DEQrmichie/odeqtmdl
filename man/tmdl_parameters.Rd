@@ -5,7 +5,7 @@
 \alias{tmdl_parameters}
 \title{Oregon TMDL parameters}
 \format{
-An object of class \code{data.frame} with 277 rows and 6 columns.
+An object of class \code{data.frame} with 299 rows and 6 columns.
 }
 \usage{
 data(tmdl_parameters)
@@ -27,8 +27,8 @@ Database fields include:
 }
 }
 \examples{
-actions1 <- data(tmdl_parameters)
-actions2 <- odeqtmdl::tmdl_parameters
+p1 <- data(tmdl_parameters)
+p2 <- odeqtmdl::tmdl_parameters
 
 }
 \keyword{Oregon}

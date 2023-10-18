@@ -19,8 +19,8 @@
 #' @keywords Oregon TMDL database
 #' @keywords datasets
 #' @examples
-#' actions1 <- data(tmdl_parameters)
-#' actions2 <- odeqtmdl::tmdl_parameters
+#' p1 <- data(tmdl_parameters)
+#' p2 <- odeqtmdl::tmdl_parameters
 #'
 
 "tmdl_parameters"

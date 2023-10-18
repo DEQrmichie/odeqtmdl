@@ -5,7 +5,7 @@
 \alias{tmdl_targets}
 \title{Oregon TMDL targets}
 \format{
-An object of class \code{data.frame} with 211 rows and 12 columns.
+An object of class \code{data.frame} with 232 rows and 14 columns.
 }
 \usage{
 data(tmdl_targets)
@@ -19,9 +19,11 @@ for more information. A full listing of all non-tribal TMDL actions in Oregon ca
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
   \item geo_id:	Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
+  \item field_parameter: Name of the parameter to be sampled in the field.
   \item target_type:	Type of target, e.g. concentration, load, clarity, percent, temperature.
   \item target_value:	Value of TMDL Target.
   \item target_units:	Parameter units of the TMDL Target.
+  \item Unit_UID: Parameter unit ID.
   \item target_stat_base:	The method used to calculate derive results of the TMDL target.
   \item season_start:	The beginning of the period when the target applies. Date in format %m-%b (e.g 31-Aug)
   \item season_end:	The end of the period when the target applies. Date in format %m-%b (e.g 31-Aug)

@@ -35,7 +35,8 @@ Inventory of assessment units where non-tribal Oregon TMDLs have been developed.
 Note the inventory is still being developed and some information may not be accurate.
 See each relevant TMDL document for more information and applicability.
 ```R
-odeqtmdl::tmdl_aus
+odeqtmdl::tmdl_au
+odeqtmdl::tmdl_au_gnis
 ```
 
 Summary of all unique water quality limited parameter and pollutant pair 

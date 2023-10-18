@@ -1,6 +1,6 @@
 #' Pollutant parameter look up
 #'
-#' Lookup table of DEQ and EPA ATTAINS water quality parameter names and IDs.
+#' Look up table of DEQ and EPA ATTAINS water quality parameter names and IDs.
 #'
 #' Data fields include:
 #' \itemize{
@@ -23,10 +23,3 @@
 #'
 
 "LU_pollutant"
-
-
-
-
-
-
-

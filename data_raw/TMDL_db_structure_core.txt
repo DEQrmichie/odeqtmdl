@@ -14,6 +14,7 @@ TMDL_issue_date  date
 EPA_action_date  date
 citation_abbreviated  text
 citation_full  text
+URL text
 }
 
 Table tmdl_parameters {
@@ -39,6 +40,7 @@ TMDL_pollutant text
 target_type text
 target_value text
 target_units text
+Unit_UID numeric
 target_stat_base text
 season_start text
 season_end text
@@ -56,6 +58,7 @@ TMDL_scope text
 Period text
 Source text
 geo_id text
+Pollu_ID numeric
 HUC_6 text
 HU_6_NAME text
 HUC6_full text
@@ -77,7 +80,7 @@ AU_GNIS text
 LengthKM numeric
 }
 
-Table tmdl_aus {
+Table tmdl_au {
 action_id text
 TMDL_wq_limited_parameter text
 TMDL_pollutant text
@@ -85,6 +88,7 @@ TMDL_active text
 TMDL_scope text
 Period text
 Source text
+Pollu_ID numeric
 HUC_6 text
 HU_6_NAME text
 HUC6_full text
@@ -99,6 +103,57 @@ AU_length_km numeric
 TMDL_AU_Percent numeric
 }
 
+Table tmdl_au_gnis {
+action_id text
+TMDL_wq_limited_parameter text
+TMDL_pollutant text
+TMDL_active text
+TMDL_scope text
+Period text
+Source text
+Pollu_ID numeric
+HUC_6 text
+HU_6_NAME text
+HUC6_full text
+HUC_8 text
+HU_8_NAME text
+HUC8_full text
+AU_ID text
+AU_Name text
+AU_GNIS_Name text
+AU_GNIS text
+AU_Description text
+TMDL_length_km numeric
+AU_GNIS_length_km numeric
+TMDL_AU_GNIS_Percent numeric
+}
+
+Table tmdl_wqstd {
+  action_id text
+  Pollu_ID numeric
+  wqstd_code numeric
+}
+
+Table LU_pollutant {
+  Pollu_ID numeric
+  Pollutant_DEQ text
+  CAS text
+  WQS_Unit text
+  Unit_UID numeric
+  Attains_Pollutant text
+  Attains_Group text
+}
+
+Table LU_wqstd_code {
+wqstd_code numeric
+wqstd text
+}
+
+Table LU_wqstd {
+Pollu_ID numeric
+wqstd_code numeric
+}
+
 Ref: "tmdl_geo_ids"."geo_id" < "tmdl_targets"."geo_id"
 
 Ref: "tmdl_geo_ids"."action_id" < "tmdl_targets"."action_id"
@@ -107,7 +162,7 @@ Ref: "tmdl_geo_ids"."geo_id" < "tmdl_reaches"."geo_id"
 
 Ref: "tmdl_actions"."action_id" < "tmdl_reaches"."action_id"
 
-Ref: "tmdl_actions"."action_id" < "tmdl_aus"."action_id"
+Ref: "tmdl_actions"."action_id" < "tmdl_au"."action_id"
 
 Ref: "tmdl_parameters"."action_id" < "tmdl_reaches"."action_id"
 
@@ -116,3 +171,9 @@ Ref: "tmdl_parameters"."TMDL_wq_limited_parameter" < "tmdl_reaches"."TMDL_wq_lim
 Ref: "tmdl_parameters"."TMDL_pollutant" < "tmdl_reaches"."TMDL_pollutant"
 
 Ref: "tmdl_parameters"."TMDL_active" < "tmdl_reaches"."TMDL_active"
+
+Ref: "tmdl_actions"."action_id" < "tmdl_au_gnis"."action_id"
+
+Ref: "tmdl_wqstd"."Pollu_ID" < "tmdl_reaches"."Pollu_ID"
+
+Ref: "tmdl_wqstd"."action_id" < "tmdl_reaches"."action_id"

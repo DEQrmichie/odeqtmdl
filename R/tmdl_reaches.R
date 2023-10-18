@@ -1,11 +1,11 @@
-#' Oregon TMDL reach data table
+#' Oregon TMDL database by NHD reach
 #'
 #' Inventory of where non-tribal Oregon TMDLs have been developed. Note the inventory
 #' is still being developed and some information may not be accurate.
 #' See each relevant TMDL document for more information and applicability. A full listing of all
 #' non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
 #'
-#' Note: tmdl_reaches is large so it may take a minute to load. This function loads the R data file directly into the global environment.
+#' Note: tmdl_reaches is large so it may take a minute to load.
 #'
 #' NHD values are derived from NHDH_OR_931v220, which is the current version used for DEQ business data. Database fields include:
 #'
@@ -29,7 +29,7 @@
 #'                                or segments that may be used to assess progress or status of allocation attainment
 #'                                but the segment is not the regulatory compliance point as defined in the TMDL.
 #'                                }
-#'   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs for temperature or dissolved oxygen.
+#'   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs that address temperature or dissolved oxygen.
 #'      \itemize{
 #'      \item year_round: TMDL addresses only non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
 #'      \item spawning: TMDL addresses only spawning uses for the temperature or dissolved oxygen water quality standards.
@@ -41,6 +41,7 @@
 #'      \item Nonpoint source: Identifies assessment units where pollutant loading is from nonpoint sources only.
 #'      \item Both: Identifies assessment units where pollutant loading is from point sources and nonpoint sources.
 #'      }
+#'   \item Pollu_ID: DEQ water quality parameter ID. ID is for the parameter in 'TMDL_wq_limited_parameter'.
 #'   \item geo_id:	Unique ID assigned to the NHD reaches codes where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'   \item HUC_6: Basin six digit USGS hydrological unit code.
 #'   \item HU_6_NAME: USGS Basin name.
@@ -68,10 +69,12 @@ tmdl_reaches <- function(){
 
   warning(immediate. = TRUE, "Loading tmdl_reaches may take a minute")
 
-  file_path <- system.file("extdata", "tmdl_reaches.rda", package = "odeqtmdl",
+  file_path <- system.file("extdata", "tmdl_reaches.RDS", package = "odeqtmdl",
                            mustWork = TRUE)
 
-  load(file = file_path, envir = .GlobalEnv)
+  df <- readRDS(file = file_path)
+
+  return(df)
 
 }
 

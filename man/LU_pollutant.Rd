@@ -5,13 +5,13 @@
 \alias{LU_pollutant}
 \title{Pollutant parameter look up}
 \format{
-An object of class \code{data.frame} with 191 rows and 7 columns.
+An object of class \code{data.frame} with 193 rows and 7 columns.
 }
 \usage{
 data(LU_pollutant)
 }
 \description{
-Lookup table of DEQ and EPA ATTAINS water quality parameter names and IDs.
+Look up table of DEQ and EPA ATTAINS water quality parameter names and IDs.
 }
 \details{
 Data fields include:

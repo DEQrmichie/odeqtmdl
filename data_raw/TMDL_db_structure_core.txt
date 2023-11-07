@@ -14,6 +14,7 @@ TMDL_issue_date  date
 EPA_action_date  date
 citation_abbreviated  text
 citation_full  text
+TMDL_comment text
 URL text
 }
 
@@ -21,39 +22,42 @@ Table tmdl_parameters {
 action_id text
 TMDL_wq_limited_parameter text
 TMDL_pollutant text
-TMDL_active text
-TMDL_active_note text
-scope_narrative text
+TMDL_status text
+TMDL_status_comment text
+revision_action_id text
+TMDL_mapped logical
 }
 
 Table tmdl_geo_ids {
   action_id text
   geo_id text
   geo_description text
-  mapped logical
+  geo_id_mapped logical
 }
 
 Table tmdl_targets {
-action_id text 
+action_id text
 geo_id text
 TMDL_pollutant text
+field_parameter text
 target_type text
 target_value text
 target_units text
 Unit_UID numeric
+target_time_base text
 target_stat_base text
 season_start text
 season_end text
-target_conditionals_references text
+target_conditionals text
 TMDL_element text
-notes text
+target_reference text
+target_comments text
 }
 
 Table tmdl_reaches {
 action_id text
 TMDL_wq_limited_parameter text
 TMDL_pollutant text
-TMDL_active text
 TMDL_scope text
 Period text
 Source text
@@ -84,7 +88,6 @@ Table tmdl_au {
 action_id text
 TMDL_wq_limited_parameter text
 TMDL_pollutant text
-TMDL_active text
 TMDL_scope text
 Period text
 Source text
@@ -107,7 +110,6 @@ Table tmdl_au_gnis {
 action_id text
 TMDL_wq_limited_parameter text
 TMDL_pollutant text
-TMDL_active text
 TMDL_scope text
 Period text
 Source text
@@ -169,8 +171,6 @@ Ref: "tmdl_parameters"."action_id" < "tmdl_reaches"."action_id"
 Ref: "tmdl_parameters"."TMDL_wq_limited_parameter" < "tmdl_reaches"."TMDL_wq_limited_parameter"
 
 Ref: "tmdl_parameters"."TMDL_pollutant" < "tmdl_reaches"."TMDL_pollutant"
-
-Ref: "tmdl_parameters"."TMDL_active" < "tmdl_reaches"."TMDL_active"
 
 Ref: "tmdl_actions"."action_id" < "tmdl_au_gnis"."action_id"
 

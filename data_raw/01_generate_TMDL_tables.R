@@ -27,9 +27,9 @@ tmdl_actions_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
                                        sheet = "tmdl_actions_table" ,
                                        na = c("", "NA"),
                                        col_names = TRUE,
-                                       col_types = c("text", "text", 'numeric', "text", "logical", "text",
-                                                     "logical", "text", "date", "date", "text", "text", "text", "text",
-                                                     "text"))
+                                       col_types = c("text", "text", 'numeric', "text", "text",
+                                                     "logical", "text", "date", "date", "text",
+                                                     "text", "text", "text", "text"))
 
 # This will be used when all mapping is complete.
 # tmdl_active_tbl <- readxl::read_excel(path = file.path(paths$tmdl_reaches_shp[1], "Mapping_List.xlsx"),
@@ -38,15 +38,16 @@ tmdl_actions_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
 #                                       col_names = TRUE,
 #                                       col_types = c("text", "numeric", "text", "text", "text", "text",
 #                                                     "text", "text", "text", "text", "text", "text", "text",
-#                                                     "text", "text", "text", "text", "text", "text")) %>%
-#   select(action_id, TMDL_wq_limited_parameter, TMDL_active)
+#                                                     "text", "text", "text", "text", "text", "text", "text", "text")) %>%
+#   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status) %>%
+#   distinct()
 
 #- LU_wqst ----------------------------------------------------------------
 
 LU_wqstd <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "LU_wqstd_info.xlsx"),
-                                   sheet = "Final", col_names = TRUE,
-                                   col_types = c("text", "numeric", "numeric",
-                                                 "text")) %>%
+                               sheet = "Final", col_names = TRUE,
+                               col_types = c("text", "numeric", "numeric",
+                                             "text")) %>%
   select(Pollu_ID, wqstd_code) %>%
   distinct() %>%
   arrange(Pollu_ID, wqstd_code) %>%
@@ -58,8 +59,8 @@ save(LU_wqstd, file = file.path(paths$package_path[1], "data", "LU_wqstd.rda"))
 #- LU_wqst_code ----------------------------------------------------------------
 
 LU_wqstd_code <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "LU_wqstd_code.xlsx"),
-                               sheet = "sheet1", col_names = TRUE,
-                               col_types = c("numeric", "text")) %>%
+                                    sheet = "sheet1", col_names = TRUE,
+                                    col_types = c("numeric", "text")) %>%
   select(wqstd_code, wqstd) %>%
   distinct() %>%
   arrange(wqstd_code, wqstd) %>%
@@ -85,20 +86,23 @@ save(LU_pollutant, file = file.path(paths$package_path[1], "data", "LU_pollutant
 #- tmdl_actions ----------------------------------------------------------------
 
 tmdl_actions <- tmdl_actions_tbl %>%
-  select(action_id,
-         TMDL_name,
-         TMDL_issue_year,
-         issue_agency,
-         in_attains,
-         attains_status,
-         TMDL_issue_date,
-         EPA_action_date,
-         citation_abbreviated,
-         citation_full,
-         URL) %>%
-  distinct() %>%
-  arrange(TMDL_issue_year,
-          TMDL_name) %>%
+  dplyr::select(action_id,
+                TMDL_name,
+                TMDL_issue_year,
+                issue_agency,
+                in_attains,
+                attains_status,
+                TMDL_issue_date,
+                EPA_action_date,
+                citation_abbreviated,
+                citation_full,
+                TMDL_comment,
+                URL) %>%
+  dplyr::distinct() %>%
+  dplyr::mutate(TMDL_issue_date = as.Date(TMDL_issue_date),
+                EPA_action_date = as.Date(EPA_action_date)) %>%
+  dplyr::arrange(TMDL_issue_year,
+                 TMDL_name) %>%
   as.data.frame()
 
 # Save a copy in data folder (replaces existing)
@@ -110,7 +114,7 @@ tmdl_geo_ids <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
                                    sheet = "geo_id_table" ,col_names = TRUE,
                                    col_types = c('text', 'text', 'logical', 'text', 'numeric',
                                                  'text')) %>%
-  dplyr::select(action_id, geo_id, geo_description, mapped) %>%
+  dplyr::select(action_id, geo_id, geo_description, geo_id_mapped) %>%
   arrange(action_id, geo_id) %>%
   as.data.frame()
 
@@ -121,11 +125,12 @@ save(tmdl_geo_ids, file = file.path(paths$package_path[1], "data", "tmdl_geo_ids
 
 tmdl_targets <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
                                    sheet = "target_table", col_names = TRUE,
-                                   col_types = c('text', 'text', 'numeric', 'text', 'text', 'text',
-                                                 'text', 'text', 'numeric', 'text', 'numeric', 'text', 'date',
-                                                 'date', 'text', 'text', 'text')) %>%
-  dplyr::mutate(season_start = format(season_start, "%d-%b"),
-                season_end = format(season_end, "%d-%b")) %>%
+                                   col_types = c("text", "text", "numeric", "text", "text",
+                                                 "text", "text", "text", "numeric", "text",
+                                                 "numeric", "text", "text", "date", "date",
+                                                 "text", "text", "text", "text")) %>%
+  dplyr::mutate(season_start = format(season_start, "%b %d"),
+                season_end = format(season_end, "%b %d")) %>%
   dplyr::select(action_id,
                 geo_id,
                 TMDL_pollutant,
@@ -133,13 +138,15 @@ tmdl_targets <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
                 target_type,
                 target_value,
                 target_units,
-                unit_uid,
+                Unit_UID,
+                target_time_base,
                 target_stat_base,
                 season_start,
                 season_end,
-                target_conditionals_references,
+                target_conditionals,
                 TMDL_element,
-                notes) %>%
+                target_reference,
+                target_comments) %>%
   arrange(geo_id) %>%
   as.data.frame()
 

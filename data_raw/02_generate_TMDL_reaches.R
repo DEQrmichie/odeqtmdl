@@ -9,44 +9,80 @@
 # It should be opened within the Project Rstudio view so the working directory is set correctly.
 # It pulls in the GIS features and tabular data and joins everything into one table.
 
-#- tmdl_reaches ----------------------------------------------------------------
+#- Setup -----------------------------------------------------------------------
+library(sf)
+library(dplyr)
+library(readxl)
+library(odeqtmdl)
+
+
+# Read paths
+paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
+                            sheet = "paths" , col_names = TRUE,
+                            na = c("", "NA"),
+                            col_types = c('text', 'text', 'text', 'text', 'text'))
 
 # Load the table that has the LU from old to new AUS
 df.aufixes <- read_csv(file.path(paths$tmdl_reaches_shp[1], "R/AU_Fixes.csv"))
 
-shp_dir <- paths$tmdl_reaches_shp[1]
-
-huc6 <- sf::st_read(dsn = file.path(shp_dir,"Support_Features.gdb"), layer = "WBDHU6") %>%
+huc6 <- sf::st_read(dsn = file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb"), layer = "WBDHU6") %>%
   sf::st_drop_geometry() %>%
   select(HUC_6 = HUC6, HU_6_NAME = Name) %>%
   mutate(HUC6_full = paste0(HUC_6," ", HU_6_NAME))
 
-huc8 <-  sf::st_read(dsn = file.path(shp_dir,"Support_Features.gdb"), layer = "WBDHU8") %>%
+huc8 <-  sf::st_read(dsn = file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb"), layer = "WBDHU8") %>%
   sf::st_drop_geometry() %>%
   select(HUC_8 = HUC8, HU_8_NAME = Name) %>%
   mutate(HUC8_full = paste0(HUC_8," ", HU_8_NAME))
 
-huc10 <-  sf::st_read(dsn = file.path(shp_dir,"Support_Features.gdb"), layer = "WBDHU10") %>%
+huc10 <-  sf::st_read(dsn = file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb"), layer = "WBDHU10") %>%
   sf::st_drop_geometry() %>%
   select(HUC_10 = HUC10, HU_10_NAME = Name) %>%
   mutate(HUC10_full = paste0(HUC_10," ", HU_10_NAME))
 
-files1 <- list.files(path = file.path(shp_dir, "01_Working_on"),
+ornhd <- odeqmloctools::ornhd %>%
+  dplyr::select(Permanent_Identifier, ReachCode, GNIS_Name, GNIS_ID, AU_ID,
+                AU_Name, AU_Description, AU_GNIS_Name, AU_GNIS, LengthKM) %>%
+  filter(!AU_ID == "99") %>%
+  mutate(HUC_6 = substr(AU_ID, 7, 12),
+         HUC_8 = substr(AU_ID, 7, 14),
+         HUC_10 = substr(AU_ID, 7, 16),
+         PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+  left_join(huc6) %>%
+  left_join(huc8) %>%
+  left_join(huc10) %>%
+  distinct()
+
+or_au <- ornhd %>%
+  dplyr::select(AU_ID, LengthKM) %>%
+  dplyr::group_by(AU_ID) %>%
+  dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
+  ungroup()
+
+or_au_gnis <- ornhd %>%
+  dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
+  dplyr::group_by(AU_ID, AU_GNIS) %>%
+  dplyr::summarise(AU_GNIS_length_km = sum(LengthKM, na.rm = TRUE)) %>%
+  ungroup()
+
+#- tmdl_reaches ----------------------------------------------------------------
+
+files1 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "01_Working_on"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
-files2 <- list.files(path = file.path(shp_dir, "02_DEQ_Under_Review"),
+files2 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "02_DEQ_Under_Review"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
-files3 <- list.files(path = file.path(shp_dir, "03_DEQ_Final_Reviewed"),
+files3 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "03_DEQ_Final_Reviewed"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
-files4 <- list.files(path = file.path(shp_dir, "04_EPA_Under_Review"),
+files4 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "04_EPA_Under_Review"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
-files5 <- list.files(path = file.path(shp_dir, "05_EPA_Final_Reviewed"),
+files5 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "05_EPA_Final_Reviewed"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
-files6 <- list.files(path = file.path(shp_dir, "06_Final_ATTAINS"),
+files6 <- list.files(path = file.path(paths$tmdl_reaches_shp[1], "06_Final_ATTAINS"),
                      pattern = "^action.*\\.shp$", recursive = TRUE, full.names = TRUE)
 
 tmdl.shps <- c(files1, files2, files3, files4, files5, files6)
@@ -84,58 +120,25 @@ for (i in 1:length(tmdl.shps)) {
     {
       if ("geo_id" %in% names(.)) . else mutate(., geo_id = NA_character_)
     } %>%
+    {
+      if ("GLOBALID" %in% names(.)) . else mutate(., GLOBALID = NA_character_)
+    } %>%
     select(action_id, TMDL_wq_limited_parameter = TMDL_param,
            TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-           geo_id, Permanent_Identifier = Permanent_, ReachCode, AU_ID)
+           geo_id, GLOBALID, Permanent_Identifier = Permanent_, ReachCode, AU_ID)
 
   tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
 
   rm(tmdl_reach_tbl0)
 }
 
-ornhd <- odeqmloctools::ornhd %>%
-  dplyr::select(Permanent_Identifier, ReachCode, GNIS_Name, GNIS_ID, AU_ID,
-                AU_Name, AU_Description, AU_GNIS_Name, AU_GNIS, LengthKM) %>%
-  filter(!AU_ID == "99") %>%
-  mutate(HUC_6 = substr(AU_ID, 7, 12),
-         HUC_8 = substr(AU_ID, 7, 14),
-         HUC_10 = substr(AU_ID, 7, 16),
-         PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  left_join(huc6) %>%
-  left_join(huc8) %>%
-  left_join(huc10)
-
-or_au <- ornhd %>%
-  dplyr::select(AU_ID, LengthKM) %>%
-  dplyr::group_by(AU_ID) %>%
-  dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  ungroup()
-
-or_au_gnis <- ornhd %>%
-  dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
-  dplyr::group_by(AU_ID, AU_GNIS) %>%
-  dplyr::summarise(AU_GNIS_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  ungroup()
-
-# Note, remove TMDL active mutate once all the GIS layers have been updated w/
-# consistent parameter names. Better approach is to use a join w/ mapping list. e.g.
-# select(-TMDL_active) %>%
-# left_join(by=c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant"))
 tmdl_reaches <- tmdl_reach_tbl %>%
   dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
   select(PIDAUID, action_id, TMDL_wq_limited_parameter,
          TMDL_pollutant, TMDL_scope, Period, Source, geo_id) %>%
-  dplyr::left_join(tmdl_actions, by = "action_id") %>%
-  dplyr::mutate(TMDL_active = case_when(action_id %in% c("2043", "1230", "2021",
-                                                         "10007", "42375",
-                                                         "OR_TMDL_20171219",
-                                                         "OR_TMDL_20191122") ~ FALSE,
-                                        action_id == "1936" & TMDL_pollutant %in% c("Total Phosphorus",
-                                                                                    "Ammonia Nitrogen (NH3-N)") ~ FALSE,
-                                        action_id == "30674" & TMDL_pollutant %in% c("Mercury (total)",
-                                                                                     "Methylmercury") ~ FALSE,
-                                        TRUE ~ TRUE),
-                Source = case_when(grepl("Nonpoint", Source, ignore.case = TRUE) ~ "Nonpoint source",
+  #dplyr::left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_active")],
+  #                 by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  dplyr::mutate(Source = case_when(grepl("Nonpoint", Source, ignore.case = TRUE) ~ "Nonpoint source",
                                    grepl("Point", Source, ignore.case = TRUE) ~ "Point source",
                                    grepl("Both", Source, ignore.case = TRUE) ~ "Both",
                                    TRUE ~ NA_character_)) %>%
@@ -148,7 +151,6 @@ tmdl_reaches <- tmdl_reach_tbl %>%
   dplyr::select(action_id,
                 TMDL_wq_limited_parameter,
                 TMDL_pollutant,
-                TMDL_active,
                 TMDL_scope,
                 Period,
                 Source,
@@ -167,12 +169,12 @@ tmdl_reaches <- tmdl_reach_tbl %>%
 
 # Save as a RDS file in inst/extdata folder (replaces existing)
 # File is too large to save in data.
-saveRDS(tmdl_reaches, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
+saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
 
 #- tmdl_au_gnis --------------------------------------------------------------------
 
 tmdl_au_gnis <- tmdl_reaches %>%
-  dplyr::filter(TMDL_scope == "TMDL") %>%
+  dplyr::filter(!is.na(TMDL_scope)) %>%
   dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
   dplyr::mutate(Source = dplyr::case_when(any(grepl("Both", Source, ignore.case = TRUE)) ~ "Both",
                                           any(grepl("Point", Source, ignore.case = TRUE)) & any(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Both",
@@ -184,38 +186,48 @@ tmdl_au_gnis <- tmdl_reaches %>%
   dplyr::ungroup() %>%
   dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
   dplyr::mutate(Period = case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                     length(unique(Period)) > 1 ~ paste0("Mixed (",paste0(sort(unique(Period)), collapse = ", "),")"),
+                                     length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
                                    TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                     length(unique(Period)) == 1 ~ paste0(sort(unique(Period)), collapse = ", "),
+                                     length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
                                    TRUE ~ NA_character_)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active,
+  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
                 TMDL_scope, Period, Source, Pollu_ID,
                 HUC_6, HU_6_NAME, HUC6_full,
                 HUC_8, HU_8_NAME, HUC8_full,
                 HUC_10, HU_10_NAME, HUC10_full,
                 AU_ID, AU_Name, AU_GNIS_Name, AU_GNIS,
                 LengthKM) %>%
-  dplyr::group_by(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active,
-                  TMDL_scope, Period, Source, Pollu_ID,
-                  HUC_6, HU_6_NAME, HUC6_full,
-                  HUC_8, HU_8_NAME, HUC8_full,
-                  HUC_10, HU_10_NAME, HUC10_full,
-                  AU_ID, AU_Name, AU_GNIS_Name, AU_GNIS) %>%
-  dplyr::summarise(TMDL_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  dplyr::ungroup() %>%
+  tidyr::pivot_wider(names_from = "TMDL_scope", values_from = "LengthKM",
+                     values_fn = sum, values_fill = 0) %>%
+  dplyr::rename(TMDL_length_km = TMDL,
+                Allocation_only_km = "Allocation only",
+                Advisory_allocation_km = "Advisory allocation") %>%
   dplyr::left_join(or_au_gnis, by = c("AU_ID", "AU_GNIS")) %>%
-  dplyr::mutate(TMDL_AU_GNIS_Percent = round(TMDL_length_km/AU_GNIS_length_km * 100,0)) %>%
+  dplyr::mutate(TMDL_scope = dplyr::case_when(TMDL_length_km > 0 ~ "TMDL",
+                                              Allocation_only_km > 0 ~ "Allocation only",
+                                              Advisory_allocation_km > 0 ~ "Advisory allocation",
+                                              TRUE ~ NA_character_),
+                TMDL_AU_GNIS_Percent = round(TMDL_length_km/AU_GNIS_length_km * 100,0),
+                Allocation_AU_GNIS_Percent = round((Allocation_only_km + Advisory_allocation_km)/AU_GNIS_length_km * 100,0)) %>%
+  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
+                TMDL_scope, Period, Source, Pollu_ID,
+                HUC_6, HU_6_NAME, HUC6_full,
+                HUC_8, HU_8_NAME, HUC8_full,
+                HUC_10, HU_10_NAME, HUC10_full,
+                AU_ID, AU_Name, AU_GNIS_Name, AU_GNIS,
+                TMDL_length_km, Allocation_only_km, Advisory_allocation_km,
+                AU_GNIS_length_km,
+                TMDL_AU_GNIS_Percent, Allocation_AU_GNIS_Percent) %>%
   as.data.frame()
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_au_gnis, file = file.path(paths$package_path[1], "data", "tmdl_au_gnis.rda"))
 
-
 #- tmdl_au --------------------------------------------------------------------
 
 tmdl_au <- tmdl_reaches %>%
-  dplyr::filter(TMDL_scope == "TMDL") %>%
+  dplyr::filter(!is.na(TMDL_scope)) %>%
   dplyr::group_by(action_id, AU_ID, TMDL_pollutant) %>%
   dplyr::mutate(Source = dplyr::case_when(any(grepl("Both", Source, ignore.case = TRUE)) ~ "Both",
                                           any(grepl("Point", Source, ignore.case = TRUE)) & any(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Both",
@@ -227,30 +239,39 @@ tmdl_au <- tmdl_reaches %>%
   dplyr::ungroup() %>%
   dplyr::group_by(action_id, AU_ID, TMDL_wq_limited_parameter) %>%
   dplyr::mutate(Period = case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                     length(unique(Period)) > 1 ~ paste0("Mixed (",paste0(sort(unique(Period)), collapse = ", "),")"),
+                                     length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
                                    TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                     length(unique(Period)) == 1 ~ paste0(sort(unique(Period)), collapse = ", "),
+                                     length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
                                    TRUE ~ NA_character_)) %>%
   dplyr::ungroup() %>%
-  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active,
+  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
                 TMDL_scope, Period, Source, Pollu_ID,
                 HUC_6, HU_6_NAME, HUC6_full,
                 HUC_8, HU_8_NAME, HUC8_full,
                 HUC_10, HU_10_NAME, HUC10_full,
                 AU_ID, AU_Name, AU_Description,
                 LengthKM) %>%
-  dplyr::group_by(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active,
-                  TMDL_scope, Period, Source, Pollu_ID,
-                  HUC_6, HU_6_NAME, HUC6_full,
-                  HUC_8, HU_8_NAME, HUC8_full,
-                  HUC_10, HU_10_NAME, HUC10_full,
-                  AU_ID, AU_Name, AU_Description) %>%
-  dplyr::summarise(TMDL_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  dplyr::ungroup() %>%
-  dplyr::mutate(TMDL_length_km = case_when(!TMDL_scope == "TMDL" ~ 0.0,
-                                           TRUE ~ TMDL_length_km)) %>%
+  tidyr::pivot_wider(names_from = "TMDL_scope", values_from = "LengthKM",
+                     values_fn = sum, values_fill = 0) %>%
+  dplyr::rename(TMDL_length_km = TMDL,
+                Allocation_only_km = "Allocation only",
+                Advisory_allocation_km = "Advisory allocation") %>%
   dplyr::left_join(or_au, by = "AU_ID") %>%
-  dplyr::mutate(TMDL_AU_Percent = round(TMDL_length_km/AU_length_km * 100,0)) %>%
+  dplyr::mutate(TMDL_scope = dplyr::case_when(TMDL_length_km > 0 ~ "TMDL",
+                                              Allocation_only_km > 0 ~ "Allocation only",
+                                              Advisory_allocation_km > 0 ~ "Advisory allocation",
+                                              TRUE ~ NA_character_),
+                TMDL_AU_Percent = round(TMDL_length_km/AU_length_km * 100,0),
+                Allocation_AU_Percent = round((Allocation_only_km + Advisory_allocation_km)/AU_length_km * 100,0)) %>%
+  dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
+                TMDL_scope, Period, Source, Pollu_ID,
+                HUC_6, HU_6_NAME, HUC6_full,
+                HUC_8, HU_8_NAME, HUC8_full,
+                HUC_10, HU_10_NAME, HUC10_full,
+                AU_ID, AU_Name, AU_Description,
+                TMDL_length_km, Allocation_only_km, Advisory_allocation_km,
+                AU_length_km,
+                TMDL_AU_Percent, Allocation_AU_Percent) %>%
   as.data.frame()
 
 # Save a copy in data folder (replaces existing)
@@ -258,33 +279,56 @@ save(tmdl_au, file = file.path(paths$package_path[1], "data", "tmdl_au.rda"))
 
 #- tmdl_parameters -------------------------------------------------------------
 
-tmdl_mapping <- readxl::read_excel(path = file.path(paths$tmdl_reaches_shp[1], "Mapping_List.xlsx"),
-                                   sheet = "tmdl_mapping_list",
-                                   na = c("", "NA"),
-                                   col_names = TRUE,
-                                   col_types = c("text", "numeric", "text", "text", "text", "text",
-                                                 "text", "text", "text", "text", "text", "text", "text",
-                                                 "text", "text", "text", "text", "text", "text", "text")) %>%
+# Logic to assign "Not Active" TMDL status. This is already attributed in spreadsheet but
+# leaving here just in case.
+
+# TMDL_status = case_when(action_id %in% c("2043", "1230", "2021",
+#                                          "10007", "42375",
+#                                          "OR_TMDL_20171219",
+#                                          "OR_TMDL_20191122") ~ "Not Active",
+#                         action_id == "1936" & TMDL_pollutant %in% c("Total Phosphorus",
+#                                                                     "Ammonia Nitrogen (NH3-N)") ~ "Not Active",
+#                         action_id == "30674" & TMDL_pollutant %in% c("Mercury (total)",
+#                                                                      "Methylmercury") ~ "Not Active",
+#                         TRUE ~ TMDL_status),
+
+# Read TMDL mapping table
+tmdl_mapping_tbl <- readxl::read_excel(path = file.path(paths$tmdl_reaches_shp[1], "Mapping_List.xlsx"),
+                                       sheet = "tmdl_mapping_list",
+                                       na = c("", "NA"),
+                                       col_names = TRUE,
+                                       col_types = c("text", "numeric", "text", "text", "text",
+                                                     "text", "text", "text", "text", "text",
+                                                     "text", "text", "text", "text", "text",
+                                                     "text", "text", "text", "text", "text",
+                                                     "text", "text")) %>%
   mutate(scope_citation = replace_na(scope_citation, ""),
          scope_narrative = case_when(!is.na(scope_narrative) ~ paste0(scope_narrative, " ", scope_citation),
                                      TRUE ~ NA_character_)) %>%
   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
-         scope_narrative)
+         TMDL_status, TMDL_status_comment, revision_action_id, scope_narrative) %>%
+  distinct()
 
-tmdl_active_note_tbl <- tmdl_actions_tbl %>%
-  select(action_id, TMDL_active_note)
+# This only includes mapped TMDLs.
+# tmdl_parameters <- tmdl_reaches %>%
+#   left_join(tmdl_mapping_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+#   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status, TMDL_status_comment) %>%
+#   mutate(TMDL_mapped = TRUE) %>%
+#   distinct() %>%
+#   arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
+#   as.data.frame()
 
+# This relies on the info from the mapping list, which usually includes un-mapped TMDLs.
+# Use the code above if only mapped TMDLs need to be included.
 tmdl_parameters <- tmdl_reaches %>%
-  left_join(tmdl_active_note_tbl, by = "action_id") %>%
-  select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_active,
-         TMDL_active_note) %>%
-  mutate(TMDL_active_note = case_when(action_id == "1936" & !(TMDL_pollutant %in% c("Total Phosphorus",
-                                                                                    "Ammonia Nitrogen (NH3-N)")) ~ NA_character_,
-                                      action_id == "30674" & !(TMDL_pollutant %in% c("Mercury (total)",
-                                                                                     "Methylmercury")) ~ NA_character_,
-                                      TRUE ~ TMDL_active_note)) %>%
-  left_join(tmdl_mapping, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
   distinct() %>%
+  mutate(TMDL_mapped = TRUE) %>%
+  right_join(tmdl_mapping_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status, TMDL_status_comment, revision_action_id, TMDL_mapped) %>%
+  mutate(TMDL_mapped = ifelse(is.na(TMDL_mapped), FALSE, TMDL_mapped)) %>%
+  distinct() %>%
+  arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
   as.data.frame()
 
 # Save a copy in data folder (replaces existing)
@@ -292,10 +336,12 @@ save(tmdl_parameters, file = file.path(paths$package_path[1], "data", "tmdl_para
 
 #- tmdl_wqstd ------------------------------------------------------------------
 
-tmdl_wqstd <- tmdl_reaches %>%
+tmdl_wqstd <- tmdl_parameters %>%
+  left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
+          by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
   select(action_id, Pollu_ID) %>%
   distinct() %>%
-  left_join(LU_wqstd, by = "Pollu_ID") %>%
+  left_join(odeqtmdl::LU_wqstd, by = "Pollu_ID") %>%
   select(action_id, Pollu_ID, wqstd_code) %>%
   arrange(action_id, Pollu_ID) %>%
   as.data.frame()
@@ -303,23 +349,3 @@ tmdl_wqstd <- tmdl_reaches %>%
 # Save a copy in data folder (replaces existing)
 save(tmdl_wqstd, file = file.path(paths$package_path[1], "data", "tmdl_wqstd.rda"))
 
-#- tmdl_db ---------------------------------------------------------------------
-
-# Not used but keeping just in case.
-
-tmdl_db <- tmdl_reaches %>%
-  left_join(tmdl_actions, by = "action_id") %>%
-  left_join(tmdl_parameters, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_active")) %>%
-  left_join(geo_id_table, by = c("action_id", "geo_id")) %>%
-  inner_join(tmdl_targets, by = c("action_id", "geo_id", "TMDL_pollutant")) %>%
-  dplyr::mutate(db_version = db_version) %>%
-  dplyr::select(geo_id, geo_description, mapped,
-                TMDL_pollutant, TMDL_wq_limited_parameter,
-                target_type, target_value, target_units, target_stat_base,
-                season_start, season_end, target_conditionals_references,
-                TMDL_element, notes, action_id, TMDL_name, TMDL_issue_year,
-                TMDL_active, issue_agency, in_attains, attains_status, TMDL_issue_date,
-                EPA_action_date, AU_ID, ReachCode,
-                citation_abbreviated, citation_full, db_version)
-
-save(tmdl_db, file = file.path("data_raw", "tmdl_db.rda"))

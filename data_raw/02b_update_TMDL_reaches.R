@@ -18,11 +18,8 @@ library(tidyr)
 library(readr)
 library(sf)
 
-update_action_id <- "2038"
-update_pattern <- "action_2038"
-
-#update_dir <- "03_DEQ_Final_Reviewed"
-update_dir <- "04_EPA_Under_Review"
+update_action_id <- "1936"
+update_pattern <- "action_1936"
 
 # Read paths
 paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
@@ -67,7 +64,8 @@ ornhd <- odeqmloctools::ornhd %>%
          PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
-  left_join(huc10)
+  left_join(huc10) %>%
+  distinct()
 
 oraus <- ornhd %>%
   dplyr::select(AU_ID, LengthKM) %>%
@@ -77,14 +75,30 @@ oraus <- ornhd %>%
 
 #- tmdl_reaches ----------------------------------------------------------------
 
-update_files <- list.files(path = file.path(shp_dir, update_dir),
+files1 <- list.files(path = file.path(shp_dir, "01_Working_on"),
                      pattern = paste0("^",update_pattern, ".*\\.shp$"),
-                                      recursive = TRUE, full.names = TRUE)
+                     recursive = TRUE, full.names = TRUE)
+files2 <- list.files(path = file.path(shp_dir, "02_DEQ_Under_Review"),
+                     pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                     recursive = TRUE, full.names = TRUE)
+files3 <- list.files(path = file.path(shp_dir, "03_DEQ_Final_Reviewed"),
+                     pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                     recursive = TRUE, full.names = TRUE)
+files4 <- list.files(path = file.path(shp_dir, "04_EPA_Under_Review"),
+                     pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                     recursive = TRUE, full.names = TRUE)
+files5 <- list.files(path = file.path(shp_dir, "05_EPA_Final_Reviewed"),
+                     pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                     recursive = TRUE, full.names = TRUE)
+files6 <- list.files(path = file.path(shp_dir, "06_Final_ATTAINS"),
+                     pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                     recursive = TRUE, full.names = TRUE)
+
+tmdl.shps <- c(files1, files2, files3, files4, files5, files6)
 
 # exclude files in the Supporting folder
-tmdl.shps <- update_files[ !grepl("Supporting", update_files) ]
-
-rm(update_files)
+tmdl.shps <- tmdl.shps[ !grepl("Supporting", tmdl.shps) ]
+rm(files1, files2, files3, files4, files5, files6)
 
 # Today's date
 db_version <- paste0("v", gsub(pattern = "-", replacement = "", x = Sys.Date()))
@@ -115,9 +129,12 @@ for (i in 1:length(tmdl.shps)) {
     {
       if ("geo_id" %in% names(.)) . else mutate(., geo_id = NA_character_)
     } %>%
+    {
+      if ("GLOBALID" %in% names(.)) . else mutate(., GLOBALID = NA_character_)
+    } %>%
     select(action_id, TMDL_wq_limited_parameter = TMDL_param,
            TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-           geo_id, Permanent_Identifier = Permanent_, ReachCode, AU_ID)
+           geo_id, GLOBALID, Permanent_Identifier = Permanent_, ReachCode, AU_ID)
 
   tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
 
@@ -132,17 +149,9 @@ tmdl_reaches_update <- tmdl_reach_tbl %>%
   dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
   select(PIDAUID, action_id, TMDL_wq_limited_parameter,
          TMDL_pollutant, TMDL_scope, Period, Source, geo_id) %>%
-  dplyr::left_join(tmdl_actions, by = "action_id") %>%
-  dplyr::mutate(TMDL_active = case_when(action_id %in% c("2043", "1230", "2021",
-                                                         "10007", "42375",
-                                                         "OR_TMDL_20171219",
-                                                         "OR_TMDL_20191122") ~ FALSE,
-                                        action_id == "1936" & TMDL_pollutant %in% c("Total Phosphorus",
-                                                                                    "Ammonia Nitrogen (NH3-N)") ~ FALSE,
-                                        action_id == "30674" & TMDL_pollutant %in% c("Mercury (total)",
-                                                                                     "Methylmercury") ~ FALSE,
-                                        TRUE ~ TRUE),
-                Source = case_when(grepl("Nonpoint", Source, ignore.case = TRUE) ~ "Nonpoint source",
+  #dplyr::left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_active")],
+  #                 by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  dplyr::mutate(Source = case_when(grepl("Nonpoint", Source, ignore.case = TRUE) ~ "Nonpoint source",
                                    grepl("Point", Source, ignore.case = TRUE) ~ "Point source",
                                    grepl("Both", Source, ignore.case = TRUE) ~ "Both",
                                    TRUE ~ NA_character_)) %>%
@@ -155,7 +164,6 @@ tmdl_reaches_update <- tmdl_reach_tbl %>%
   dplyr::select(action_id,
                 TMDL_wq_limited_parameter,
                 TMDL_pollutant,
-                TMDL_active,
                 TMDL_scope,
                 Period,
                 Source,
@@ -183,4 +191,4 @@ tmdl_reaches <- tmdl_reaches %>%
 
 # Save a copy in inst/extdata folder (replaces existing)
 # File is too large to save in data.
-saveRDS(tmdl_reaches, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
+saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))

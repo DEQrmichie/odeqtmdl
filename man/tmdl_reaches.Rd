@@ -24,21 +24,18 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
-  \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
   \item TMDL_scope: Provides information about how the TMDL applies.
      \itemize{
-     \item TMDL:	Identifies segments that a TMDL was developed for.
-     \item Allocation only: Identifies segments where a TMDL allocation applies
-                           but the TMDL does not address a 303(d) listing in that segment.
+     \item TMDL:	The TMDL was developed to address a 303(d) listing or future listing in this reach.
+     \item Allocation only: A TMDL allocation applies in this reach
+                           but the TMDL does not address a 303(d) listing or future listing.
                            Typically this situation is applicable for tributaries or canals
-                           that are upstream of the segment where the "TMDL" applies.
-                           The pollutant reduction in the upstream segment is needed to achieve the
-                           TMDL loading capacity of the downstream segment.
-                           This is common for TMDLs that address narrative water quality standards
-                           or cases when the pollutant is not the same as the listed parameter (e.g. nutrients).
-     \item Advisory allocation: Identifies segments that have suggested non regulatory allocations;
-                               or segments that may be used to assess progress or status of allocation attainment
-                               but the segment is not the regulatory compliance point as defined in the TMDL.
+                           that are upstream of the reach where the "TMDL" applies.
+                           The pollutant reduction in the upstream reach is needed to achieve the
+                           TMDL loading capacity of the downstream reach.
+     \item Advisory allocation: A conditional or non regulatory TMDL allocation applies in this reach;
+                               or the reach may be used to assess progress or status of allocation attainment
+                               but is not the regulatory compliance point as defined in the TMDL.
                                }
   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs that address temperature or dissolved oxygen.
      \itemize{
@@ -48,9 +45,9 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
      }
   \item Source:
      \itemize{
-     \item Point source: Identifies assessment units where pollutant loading is from point sources only.
-     \item Nonpoint source: Identifies assessment units where pollutant loading is from nonpoint sources only.
-     \item Both: Identifies assessment units where pollutant loading is from point sources and nonpoint sources.
+     \item Point source: Identifies reaches where pollutant loading is from point sources only.
+     \item Nonpoint source: Identifies reaches where pollutant loading is from nonpoint sources only.
+     \item Both: Identifies reaches where pollutant loading is from point sources and nonpoint sources.
      }
   \item Pollu_ID: DEQ water quality parameter ID. ID is for the parameter in 'TMDL_wq_limited_parameter'.
   \item geo_id:	Unique ID assigned to the NHD reaches codes where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.

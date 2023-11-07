@@ -5,7 +5,7 @@
 \alias{tmdl_targets}
 \title{Oregon TMDL targets}
 \format{
-An object of class \code{data.frame} with 232 rows and 14 columns.
+An object of class \code{data.frame} with 233 rows and 16 columns.
 }
 \usage{
 data(tmdl_targets)
@@ -21,15 +21,17 @@ for more information. A full listing of all non-tribal TMDL actions in Oregon ca
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
   \item field_parameter: Name of the parameter to be sampled in the field.
   \item target_type:	Type of target, e.g. concentration, load, clarity, percent, temperature.
-  \item target_value:	Value of TMDL Target.
-  \item target_units:	Parameter units of the TMDL Target.
+  \item target_value:	Value of TMDL target.
+  \item target_units:	Parameter units of the TMDL target.
   \item Unit_UID: Parameter unit ID.
-  \item target_stat_base:	The method used to calculate derive results of the TMDL target.
-  \item season_start:	The beginning of the period when the target applies. Date in format %m-%b (e.g 31-Aug)
-  \item season_end:	The end of the period when the target applies. Date in format %m-%b (e.g 31-Aug)
-  \item target_conditionals_references:	Specific conditions or references describing how or when to apply the target.
-  \item TMDL_element:	The TMDL element under which the target is identified.e.g. Loading Capacity, Load Allocation, Endpoint
-  \item notes:	Notes.
+  \item target_time_base:	The time period to use with the statistical base to assess results against the TMDL target.
+  \item target_stat_base:	The statistical method used to assess results against the TMDL target.
+  \item season_start:	The beginning of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
+  \item season_end:	The end of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
+  \item target_conditionals:	Specific conditions or information describing how or when to apply the target.
+  \item TMDL_element: The TMDL element under which the target is identified.e.g. Loading Capacity, Load Allocation, Endpoint
+  \item target_reference: TMDL page or table reference where target is discussed.
+  \item target_comments:	Comments about the TMDL target.
 }
 }
 \examples{

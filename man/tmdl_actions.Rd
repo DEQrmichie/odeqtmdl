@@ -5,7 +5,7 @@
 \alias{tmdl_actions}
 \title{Oregon TMDL Actions}
 \format{
-An object of class \code{data.frame} with 55 rows and 11 columns.
+An object of class \code{data.frame} with 59 rows and 12 columns.
 }
 \usage{
 data(tmdl_actions)
@@ -31,6 +31,7 @@ Database fields include:
   \item **action_TMDL_pollutants: All pollutants causing the water quality listings associated with the TMDL action.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+  \item TMDL_comment: Note summarizing high level information about the TMDL overall.
   \item URL: Website address for the TMDL.
 
 }

@@ -19,6 +19,7 @@
 #'   \item **action_TMDL_pollutants: All pollutants causing the water quality listings associated with the TMDL action.
 #'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
+#'   \item TMDL_comment: Note summarizing high level information about the TMDL overall.
 #'   \item URL: Website address for the TMDL.
 #'
 #' }

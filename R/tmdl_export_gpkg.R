@@ -14,11 +14,15 @@
 #' Output GeoPackage fields include:
 #' \itemize{
 #'   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
-#'   \item TMDL_name:	Name of TMDL document.
-#'   \item TMDL_issue_year:	Year the TMDL was issued by the issue agency.
+#'   \item TMDL_name:	Name of TMDL document and abbreviated citation of TMDL.
 #'   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
 #'   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
-#'   \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
+#'   \item TMDL_status: Status of TMDL for the parameter and pollutant.
+#'   \itemize{
+#'        \item Active: TMDL has been approved by EPA and is active.
+#'        \item Not Active: TMDL has been withdrawn, disapproved by EPA, and/or replaced with a newer TMDL.
+#'        \item In Development: TMDL is in development.
+#'   }
 #'   \item TMDL_scope: Provides information about how the TMDL applies.
 #'   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'      \itemize{
@@ -72,16 +76,20 @@
 #' @param action_ids vector of TMDL action IDs used to filter the TMDLs. Default is NULL and all TMDLs are included.
 #' @param TMDL_param vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
 #' @param TMDL_pollu vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.
+#' @param collapse logical. If TRUE (the default), the values in action id, TMDL_name, TMDL_wq_limited_parameter, and TMDL_pollutant are collapsed (pasted together) into a string separated by a semi-colon if they share a common Permanent_Identifier, AU_ID, HUC_6, and HUC_8 value. Each field is collapsed separately.
 #'
 #' @export
 #' @keywords Oregon TMDL reach database
 
 tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = NULL, nhd_fc,
-                             action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL) {
+                             action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL,
+                             collapse = TRUE) {
 
 
   df <- tmdl_reaches %>%
-    dplyr::filter(TMDL_active)
+    dplyr::left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_status")],
+                     by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+    dplyr::filter(TMDL_status == "Active")
 
   if (is.null(tmdl_actions)) {
     tmdl_actions_tbl <- odeqtmdl::tmdl_actions
@@ -111,45 +119,114 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
       dplyr::filter(TMDL_pollutant %in% TMDL_pollu)
   }
 
-  df <- df %>%
-    dplyr::left_join(tmdl_actions_tbl) %>%
-    dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-    dplyr::select(-Permanent_Identifier, -AU_ID)
+  if (collapse) {
 
-  tmdl_reach_fc_param <- nhd_fc %>%
-    dplyr::select(AU_ID, Permanent_Identifier, WBArea_Permanent_Identifier, FType, AU_WBType) %>%
-    dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-    dplyr::inner_join(y = df, by = "PIDAUID") %>%
-    dplyr::select(action_id,
-                  TMDL_name,
-                  TMDL_issue_year,
-                  TMDL_wq_limited_parameter,
-                  TMDL_pollutant,
-                  TMDL_active,
-                  TMDL_scope,
-                  geo_id,
-                  Period,
-                  citation_abbreviated,
-                  citation_full,
-                  HUC_6,
-                  HU_6_NAME,
-                  HUC6_full,
-                  HUC_8,
-                  HU_8_NAME,
-                  HUC8_full,
-                  Permanent_Identifier,
-                  ReachCode,
-                  WBArea_Permanent_Identifier,
-                  FType,
-                  GNIS_Name,
-                  GNIS_ID,
-                  AU_ID,
-                  AU_Name,
-                  AU_Description,
-                  AU_WBType,
-                  AU_GNIS_Name,
-                  AU_GNIS,
-                  LengthKM)
+    df <- df %>%
+      dplyr::left_join(tmdl_actions_tbl, by = "action_id") %>%
+      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID),
+                    TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
+      dplyr::select(-Permanent_Identifier, -AU_ID) %>%
+      group_by(PIDAUID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full, TMDL_status) %>%
+      summarize(action_id = paste((unique(action_id)), collapse = "; "),
+                TMDL_name = paste((unique(TMDL_name)), collapse = "; "),
+                TMDL_wq_limited_parameter = paste(sort(unique(TMDL_wq_limited_parameter)), collapse = "; "),
+                TMDL_pollutant = paste(sort(unique(TMDL_pollutant)), collapse = "; "),
+                TMDL_scope = paste(sort(unique(TMDL_scope)), collapse = "; "),
+                Period = paste(sort(unique(Period)), collapse = "; "))
+
+    tmdl_reach_fc_param <- nhd_fc %>%
+      dplyr::select(AU_ID, Permanent_Identifier, ReachCode,
+                    WBArea_Permanent_Identifier,
+                    FType,
+                    GNIS_Name,
+                    GNIS_ID,
+                    AU_ID,
+                    AU_Name,
+                    AU_Description,
+                    AU_WBType,
+                    AU_GNIS_Name,
+                    AU_GNIS,
+                    LengthKM) %>%
+      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+      dplyr::inner_join(y = df, by = "PIDAUID") %>%
+      dplyr::select(action_id,
+                    TMDL_name,
+                    TMDL_wq_limited_parameter,
+                    TMDL_pollutant,
+                    TMDL_status,
+                    TMDL_scope,
+                    Period,
+                    HUC_6,
+                    HU_6_NAME,
+                    HUC6_full,
+                    HUC_8,
+                    HU_8_NAME,
+                    HUC8_full,
+                    Permanent_Identifier,
+                    ReachCode,
+                    WBArea_Permanent_Identifier,
+                    FType,
+                    GNIS_Name,
+                    GNIS_ID,
+                    AU_ID,
+                    AU_Name,
+                    AU_Description,
+                    AU_WBType,
+                    AU_GNIS_Name,
+                    AU_GNIS,
+                    LengthKM)
+
+  } else {
+
+    df <- df %>%
+      dplyr::left_join(tmdl_actions_tbl) %>%
+      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+      dplyr::select(-Permanent_Identifier, -AU_ID)
+
+    tmdl_reach_fc_param <- nhd_fc %>%
+      dplyr::select(AU_ID, Permanent_Identifier, ReachCode,
+                    WBArea_Permanent_Identifier,
+                    FType,
+                    GNIS_Name,
+                    GNIS_ID,
+                    AU_ID,
+                    AU_Name,
+                    AU_Description,
+                    AU_WBType,
+                    AU_GNIS_Name,
+                    AU_GNIS,
+                    LengthKM) %>%
+      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID),
+                    TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
+      dplyr::inner_join(y = df, by = "PIDAUID") %>%
+      dplyr::select(action_id,
+                    TMDL_name,
+                    TMDL_wq_limited_parameter,
+                    TMDL_pollutant,
+                    TMDL_status,
+                    TMDL_scope,
+                    Period,
+                    HUC_6,
+                    HU_6_NAME,
+                    HUC6_full,
+                    HUC_8,
+                    HU_8_NAME,
+                    HUC8_full,
+                    Permanent_Identifier,
+                    ReachCode,
+                    WBArea_Permanent_Identifier,
+                    FType,
+                    GNIS_Name,
+                    GNIS_ID,
+                    AU_ID,
+                    AU_Name,
+                    AU_Description,
+                    AU_WBType,
+                    AU_GNIS_Name,
+                    AU_GNIS,
+                    LengthKM)
+
+  }
 
   sf::st_write(tmdl_reach_fc_param,
                dsn = gpkg_dsn,

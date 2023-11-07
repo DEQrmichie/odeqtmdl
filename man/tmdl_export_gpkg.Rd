@@ -12,7 +12,8 @@ tmdl_export_gpkg(
   nhd_fc,
   action_ids = NULL,
   TMDL_param = NULL,
-  TMDL_pollu = NULL
+  TMDL_pollu = NULL,
+  collapse = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ tmdl_export_gpkg(
 \item{TMDL_param}{vector of water quality  parameter names used to filter the TMDLs. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
 
 \item{TMDL_pollu}{vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.}
+
+\item{collapse}{logical. If TRUE (the default), the values in action id, TMDL_name, TMDL_wq_limited_parameter, and TMDL_pollutant are collapsed (pasted together) into a string separated by a semi-colon if they share a common Permanent_Identifier, AU_ID, HUC_6, and HUC_8 value. Each field is collapsed separately.}
 }
 \description{
 Export active TMDLs from the TMDL reach database to a GeoPackage (.gpkg). This allows the data to
@@ -48,11 +51,15 @@ version used for DEQ business data. Oregon's Assessment Unit fields are current 
 Output GeoPackage fields include:
 \itemize{
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
-  \item TMDL_name:	Name of TMDL document.
-  \item TMDL_issue_year:	Year the TMDL was issued by the issue agency.
+  \item TMDL_name:	Name of TMDL document and abbreviated citation of TMDL.
   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
-  \item TMDL_active: Boolean to indicate if the TMDL and TMDL allocations are effective and being implemented.
+  \item TMDL_status: Status of TMDL for the parameter and pollutant.
+  \itemize{
+       \item Active: TMDL has been approved by EPA and is active.
+       \item Not Active: TMDL has been withdrawn, disapproved by EPA, and/or replaced with a newer TMDL.
+       \item In Development: TMDL is in development.
+  }
   \item TMDL_scope: Provides information about how the TMDL applies.
   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
      \itemize{

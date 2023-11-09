@@ -11,7 +11,7 @@ An object of class \code{data.frame} with 277 rows and 3 columns.
 data(tmdl_wqstd)
 }
 \description{
-Look up water quality standard codes by pollutant parameter ID.
+Look up water quality standard codes by pollutant parameter ID. This information is used to determine which water quality standard was addressed by the TMDL.
 }
 \details{
 Data fields include:

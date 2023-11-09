@@ -33,9 +33,11 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
                            that are upstream of the reach where the "TMDL" applies.
                            The pollutant reduction in the upstream reach is needed to achieve the
                            TMDL loading capacity of the downstream reach.
-     \item Advisory allocation: A conditional or non regulatory TMDL allocation applies in this reach;
-                               or the reach may be used to assess progress or status of allocation attainment
-                               but is not the regulatory compliance point as defined in the TMDL.
+     \item Advisory allocation: A TMDL allocation may be applied at the discretion of DEQ, per TMDL language,
+                           based on assessment of source loads and if pollutant
+                           reduction is needed to achieve a TMDL allocation or
+                           loading capacity downstream. See TMDL document for details.
+                           The TMDL does not address a 303(d) listing or future listing in this reach.
                                }
   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs that address temperature or dissolved oxygen.
      \itemize{

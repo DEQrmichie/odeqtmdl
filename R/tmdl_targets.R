@@ -18,7 +18,7 @@
 #'   \item season_start:	The beginning of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
 #'   \item season_end:	The end of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
 #'   \item target_conditionals:	Specific conditions or information describing how or when to apply the target.
-#'   \item TMDL_element: The TMDL element under which the target is identified.e.g. Loading Capacity, Load Allocation, Endpoint
+#'   \item TMDL_element: The TMDL element under which the target is identified.e.g. Loading Capacity, Load Allocation, Surrogate Measure, Endpoint
 #'   \item target_reference: TMDL page or table reference where target is discussed.
 #'   \item target_comments:	Comments about the TMDL target.
 #' }

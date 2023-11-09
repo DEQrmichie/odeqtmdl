@@ -1,6 +1,6 @@
 #' TMDL pollutant parameter and Water quality standard table
 #'
-#' Look up water quality standard codes by pollutant parameter ID.
+#' Look up water quality standard codes by pollutant parameter ID. This information is used to determine which water quality standard was addressed by the TMDL.
 #'
 #' Data fields include:
 #' \itemize{

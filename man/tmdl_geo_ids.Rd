@@ -5,7 +5,7 @@
 \alias{tmdl_geo_ids}
 \title{Oregon TMDL geo IDs}
 \format{
-An object of class \code{data.frame} with 113 rows and 4 columns.
+An object of class \code{data.frame} with 115 rows and 4 columns.
 }
 \usage{
 data(tmdl_geo_ids)

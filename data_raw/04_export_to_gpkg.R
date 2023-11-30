@@ -4,10 +4,10 @@ library(sf)
 library(tidyr)
 
 # Read paths
-paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
+paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
                             sheet = "paths" , col_names = TRUE,
                             na = c("", "NA"),
-                            col_types = c('text', 'text', 'text', 'text', 'text'))
+                            col_types = c('text', 'text'))
 
 # nhd_fc
 load(file.path(paths$package_path[1], "data_raw", "nhd_fc.rda"))

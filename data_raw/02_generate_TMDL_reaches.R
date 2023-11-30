@@ -17,10 +17,10 @@ library(odeqtmdl)
 
 
 # Read paths
-paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
+paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
                             sheet = "paths" , col_names = TRUE,
                             na = c("", "NA"),
-                            col_types = c('text', 'text', 'text', 'text', 'text'))
+                            col_types = c('text', 'text'))
 
 # Load the table that has the LU from old to new AUS
 df.aufixes <- read_csv(file.path(paths$tmdl_reaches_shp[1], "R/AU_Fixes.csv"))
@@ -292,22 +292,36 @@ save(tmdl_au, file = file.path(paths$package_path[1], "data", "tmdl_au.rda"))
 #                                                                      "Methylmercury") ~ "Not Active",
 #                         TRUE ~ TMDL_status),
 
-# Read TMDL mapping table
-tmdl_mapping_tbl <- readxl::read_excel(path = file.path(paths$tmdl_reaches_shp[1], "Mapping_List.xlsx"),
-                                       sheet = "tmdl_mapping_list",
+
+tmdl_parameters_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+                                          sheet = "tmdl_parameters",
                                        na = c("", "NA"),
-                                       col_names = TRUE,
+                                       col_names = TRUE, skip = 1,
                                        col_types = c("text", "numeric", "text", "text", "text",
-                                                     "text", "text", "text", "text", "text",
-                                                     "text", "text", "text", "text", "text",
-                                                     "text", "text", "text", "text", "text",
-                                                     "text", "text")) %>%
-  mutate(scope_citation = replace_na(scope_citation, ""),
-         scope_narrative = case_when(!is.na(scope_narrative) ~ paste0(scope_narrative, " ", scope_citation),
-                                     TRUE ~ NA_character_)) %>%
+                                                     "text", "text", "text")) %>%
   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
-         TMDL_status, TMDL_status_comment, revision_action_id, scope_narrative) %>%
+         TMDL_status, revision_action_id, TMDL_status_comment) %>%
   distinct()
+
+# At a future date maybe we will add the scope narrative and/or HUCs to the parameters table.
+# Right now that information is in the TMDL mapping list. Here's how to add it.
+
+# Read TMDL mapping table
+# tmdl_mapping_tbl <- readxl::read_excel(path = file.path(paths$tmdl_reaches_shp[1], "Mapping_List.xlsx"),
+#                                        sheet = "mapping_list",
+#                                        na = c("", "NA"),
+#                                        col_names = TRUE, skip = 1,
+#                                        col_types = c("text", "numeric", "text", "text", "text",
+#                                                      "text", "text", "text", "text", "text",
+#                                                      "text", "text", "text", "text", "text",
+#                                                      "text", "text", "text", "text", "text",
+#                                                      "text", "text")) %>%
+#   mutate(scope_citation = replace_na(scope_citation, ""),
+#          scope_narrative = case_when(!is.na(scope_narrative) ~ paste0(scope_narrative, " ", scope_citation),
+#                                      TRUE ~ NA_character_)) %>%
+#   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, scope_narrative, scope_citation) %>%
+#   distinct()
+
 
 # This only includes mapped TMDLs.
 # tmdl_parameters <- tmdl_reaches %>%
@@ -324,8 +338,8 @@ tmdl_parameters <- tmdl_reaches %>%
   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
   distinct() %>%
   mutate(TMDL_mapped = TRUE) %>%
-  right_join(tmdl_mapping_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
-  select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status, TMDL_status_comment, revision_action_id, TMDL_mapped) %>%
+  right_join(tmdl_parameters_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status, revision_action_id, TMDL_status_comment, TMDL_mapped) %>%
   mutate(TMDL_mapped = ifelse(is.na(TMDL_mapped), FALSE, TMDL_mapped)) %>%
   distinct() %>%
   arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%

@@ -18,14 +18,14 @@ library(tidyr)
 library(readr)
 library(sf)
 
-update_action_id <- "1936"
-update_pattern <- "action_1936"
+update_action_id <- "33829"
+update_pattern <- "action_33829"
 
 # Read paths
-paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
+paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
                             sheet = "paths" , col_names = TRUE,
                             na = c("", "NA"),
-                            col_types = c('text', 'text', 'text', 'text', 'text'))
+                            col_types = c('text', 'text'))
 
 #- Import tables ---------------------------------------------------------------
 

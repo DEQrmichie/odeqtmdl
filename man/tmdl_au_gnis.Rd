@@ -5,7 +5,7 @@
 \alias{tmdl_au_gnis}
 \title{Oregon TMDL database by assessment unit and GNIS name}
 \format{
-An object of class \code{data.frame} with 84456 rows and 26 columns.
+An object of class \code{data.frame} with 95749 rows and 26 columns.
 }
 \usage{
 data(tmdl_au_gnis)
@@ -33,11 +33,11 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
                            that are upstream of the reach where the "TMDL" applies.
                            The pollutant reduction in the upstream reach is needed to achieve the
                            TMDL loading capacity of the downstream reach.
-     \item Advisory allocation: A TMDL allocation may be applied at the discretion of DEQ, per TMDL language,
+     \item Advisory allocation: A TMDL allocation may apply
                            based on assessment of source loads and if pollutant
                            reduction is needed to achieve a TMDL allocation or
-                           loading capacity downstream. See TMDL document for details.
-                           The TMDL does not address a 303(d) listing or future listing in this assessment unit.
+                           loading capacity downstream. See TMDL document for details and requirements.
+                           The TMDL does not address a 303(d) listing or future listing in this reach.
                                }
   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs that address temperature or dissolved oxygen.
      \itemize{

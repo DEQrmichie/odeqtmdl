@@ -5,13 +5,14 @@
 \alias{tmdl_targets}
 \title{Oregon TMDL targets}
 \format{
-An object of class \code{data.frame} with 249 rows and 16 columns.
+An object of class \code{data.frame} with 261 rows and 16 columns.
 }
 \usage{
 data(tmdl_targets)
 }
 \description{
-Inventory of unique TMDL targets from non-tribal Oregon TMDLs. Note the inventory is incomplete. See each relevant TMDL document
+Inventory of unique TMDL targets from non-tribal Oregon TMDLs. Targets may include the
+TMDL Loading capacity, Load Allocation, Surrogate Measure, or Endpoint. Note the inventory is incomplete. See each relevant TMDL document
 for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
 }
 \details{

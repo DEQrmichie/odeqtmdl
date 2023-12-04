@@ -33,10 +33,10 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
                            that are upstream of the reach where the "TMDL" applies.
                            The pollutant reduction in the upstream reach is needed to achieve the
                            TMDL loading capacity of the downstream reach.
-     \item Advisory allocation: A TMDL allocation may be applied at the discretion of DEQ, per TMDL language,
+     \item Advisory allocation: A TMDL allocation may apply
                            based on assessment of source loads and if pollutant
                            reduction is needed to achieve a TMDL allocation or
-                           loading capacity downstream. See TMDL document for details.
+                           loading capacity downstream. See TMDL document for details and requirements.
                            The TMDL does not address a 303(d) listing or future listing in this reach.
                                }
   \item Period: Identifies the fish use period that the TMDL addresses. Only used for TMDLs that address temperature or dissolved oxygen.
@@ -56,9 +56,13 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
   \item HUC_6: Basin six digit USGS hydrological unit code.
   \item HU_6_NAME: USGS Basin name.
   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.
-  \item HUC_8: Subbasin six digit USGS hydrological unit code.
+  \item HUC_8: Subbasin eight digit USGS hydrological unit code.
   \item HU_8_NAME: USGS Subbasin name.
   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
+  \item HUC_10: Watershed ten digit USGS hydrological unit code.
+  \item HU_10_NAME: USGS Watershed name.
+  \item HUC10_full: Concatenation of the HUC_10 and HU_10_NAME fields.
+  \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
   \item Permanent_Identifier: NHD Permanent Identifier.
   \item ReachCode: NHD reach code.
   \item GNIS_Name: Proper name, specific term, or expression by which a particular geographic entity is known

@@ -66,7 +66,7 @@ tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
     dplyr::mutate(AGENCY_CODE = "S",
                   ACTION_TYPE = "TMDL",
                   ACTION_STATUS = "Draft",
-                  ACTION_COMMENT = NA_character_,
+                  ACTION_COMMENT = TMDL_comment,
                   TMDL_OTHER_IDENTIFIER = NA_character_,
                   INDIAN_COUNTRY_INDICATOR = NA_character_) %>%
     dplyr::rename(ACTION_ID = action_id,

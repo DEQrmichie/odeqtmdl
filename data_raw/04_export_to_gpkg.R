@@ -127,9 +127,8 @@ df1 <- tmdl_reaches %>%
                    by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
   dplyr::filter(TMDL_status == "Active") %>%
   dplyr::left_join(odeqtmdl::tmdl_actions[,c("action_id", "TMDL_name", "citation_abbreviated")], by = "action_id") %>%
-  dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID),
-                TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
-  group_by(PIDAUID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full) %>%
+  dplyr::mutate(TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
+  group_by(GLOBALID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full) %>%
   summarize(action_ids = paste((unique(action_id)), collapse = "; "),
             TMDL_names = paste((unique(TMDL_name)), collapse = "; "),
             TMDL_wq_limited_parameters = paste(sort(unique(TMDL_wq_limited_parameter)), collapse = "; "),

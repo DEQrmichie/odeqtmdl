@@ -18,8 +18,8 @@ library(tidyr)
 library(readr)
 library(sf)
 
-update_action_id <- "33829"
-update_pattern <- "action_33829"
+update_action_id <- "1362"
+update_pattern <- "action_1362"
 
 # Read paths
 paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
@@ -55,13 +55,13 @@ huc10 <-  sf::st_read(dsn = file.path(shp_dir,"Support_Features.gdb"), layer = "
   mutate(HUC10_full = paste0(HUC_10," ", HU_10_NAME))
 
 ornhd <- odeqmloctools::ornhd %>%
-  dplyr::select(Permanent_Identifier, ReachCode, GNIS_Name, GNIS_ID, AU_ID,
-                AU_Name, AU_Description, AU_GNIS_Name, AU_GNIS, LengthKM) %>%
+  dplyr::select(GLOBALID, Permanent_Identifier, ReachCode,
+                GNIS_Name, GNIS_ID,
+                AU_ID, AU_Name, AU_Description, AU_GNIS_Name, AU_GNIS, LengthKM) %>%
   filter(!AU_ID == "99") %>%
   mutate(HUC_6 = substr(AU_ID, 7, 12),
          HUC_8 = substr(AU_ID, 7, 14),
-         HUC_10 = substr(AU_ID, 7, 16),
-         PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
+         HUC_10 = substr(AU_ID, 7, 16)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
   left_join(huc10) %>%
@@ -134,7 +134,7 @@ for (i in 1:length(tmdl.shps)) {
     } %>%
     select(action_id, TMDL_wq_limited_parameter = TMDL_param,
            TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-           geo_id, GLOBALID, Permanent_Identifier = Permanent_, ReachCode, AU_ID)
+           geo_id, GLOBALID)
 
   tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
 
@@ -146,8 +146,7 @@ for (i in 1:length(tmdl.shps)) {
 # select(-TMDL_active) %>%
 # left_join(by=c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant"))
 tmdl_reaches_update <- tmdl_reach_tbl %>%
-  dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  select(PIDAUID, action_id, TMDL_wq_limited_parameter,
+  select(GLOBALID, action_id, TMDL_wq_limited_parameter,
          TMDL_pollutant, TMDL_scope, Period, Source, geo_id) %>%
   #dplyr::left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_active")],
   #                 by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
@@ -155,7 +154,7 @@ tmdl_reaches_update <- tmdl_reach_tbl %>%
                                    grepl("Point", Source, ignore.case = TRUE) ~ "Point source",
                                    grepl("Both", Source, ignore.case = TRUE) ~ "Both",
                                    TRUE ~ NA_character_)) %>%
-  left_join(ornhd, by = "PIDAUID") %>%
+  left_join(ornhd, by = "GLOBALID") %>%
   filter(!AU_ID == "99") %>%
   dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
   dplyr::distinct() %>%
@@ -172,6 +171,7 @@ tmdl_reaches_update <- tmdl_reach_tbl %>%
                 HUC_6, HU_6_NAME, HUC6_full,
                 HUC_8, HU_8_NAME, HUC8_full,
                 HUC_10, HU_10_NAME, HUC10_full,
+                GLOBALID,
                 Permanent_Identifier,
                 ReachCode,
                 GNIS_Name, GNIS_ID,

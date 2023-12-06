@@ -5,10 +5,10 @@ library(dplyr)
 library(readxl)
 
 # Read paths
-paths <- readxl::read_excel(path = "data_raw/geoid_gis_path.xlsx",
+paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
                             sheet = "paths" , col_names = TRUE,
                             na = c("", "NA"),
-                            col_types = c('text', 'text', 'text', 'text', 'text'))
+                            col_types = c('text', 'text'))
 
 
 # Import NHD flowline feature ----------------------------------------------------------
@@ -42,45 +42,40 @@ load(file.path(paths$package_path[1], "data_raw", "nhd_fc.rda"))
 # tmdl_reaches
 tmdl_reaches <- readRDS(file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
 
-# unique list of NHD permanent Identifiers where TMDLs or allocation apply
-tmdl_pids <- dplyr::filter(tmdl_reaches, TMDL_scope %in% c("TMDL",
+# unique list of GLOBALIDs where TMDLs or allocation apply
+tmdl_gids <- dplyr::filter(tmdl_reaches, TMDL_scope %in% c("TMDL",
                                                            "Allocation only",
                                                            "Advisory Allocation")) %>%
-  mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  dplyr::pull(PIDAUID) %>%
+  dplyr::pull(GLOBALID) %>%
   unique() %>%
   sort()
 
 # Only where TMDLs apply cat5 -> cat 4a
-tmdl_scope_pids <- dplyr::filter(tmdl_reaches, TMDL_scope == "TMDL") %>%
-  mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-                        dplyr::pull(PIDAUID) %>%
-                        unique() %>%
-                        sort()
+tmdl_scope_gids <- dplyr::filter(tmdl_reaches, TMDL_scope == "TMDL") %>%
+  dplyr::pull(GLOBALID) %>%
+  unique() %>%
+  sort()
 
 
 tmdl_reach_fc <- nhd_fc %>%
-  mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  dplyr::filter(PIDAUID %in% tmdl_pids) %>%
+  dplyr::filter(GLOBALID %in% tmdl_gids) %>%
   dplyr::filter(!AU_ID == "99") %>%
   dplyr::select(AU_ID, AU_Name, AU_Description, AU_WBType, GNIS_ID, GNIS_Name,
                 HUC12,
-                AU_GNIS, AU_GNIS_Name, Permanent_Identifier,
+                AU_GNIS, AU_GNIS_Name, GLOBALID, Permanent_Identifier,
                 WBArea_Permanent_Identifier, FType) %>%
   sf::st_transform(crs = 4326)
 
 # Dissolve to AUs
 tmdl_au_fc <- tmdl_reach_fc %>%
-  mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  dplyr::filter(PIDAUID %in% tmdl_scope_pids) %>%
+  dplyr::filter(GLOBALID %in% tmdl_scope_gids) %>%
   dplyr::group_by(AU_ID, AU_Name, AU_Description, AU_WBType) %>%
   dplyr::summarize() %>%
   ungroup()
 
 # Dissolve to AUs GNIS
 tmdl_au_gnis_fc <- tmdl_reach_fc %>%
-  mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-  dplyr::filter(PIDAUID %in% tmdl_scope_pids) %>%
+  dplyr::filter(GLOBALID %in% tmdl_scope_gids) %>%
   dplyr::group_by(AU_ID, AU_Name, AU_GNIS_Name, AU_GNIS, AU_WBType) %>%
   dplyr::summarize() %>%
   ungroup()

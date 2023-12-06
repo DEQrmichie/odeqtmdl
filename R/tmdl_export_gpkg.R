@@ -24,7 +24,6 @@
 #'        \item In Development: TMDL is in development.
 #'   }
 #'   \item TMDL_scope: Provides information about how the TMDL applies.
-#'   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'      \itemize{
 #'      \item TMDL:	Identifies segments that a TMDL was developed for.
 #'      \item Allocation only: Identifies segments where a TMDL allocation applies
@@ -45,6 +44,7 @@
 #'      \item spawning: TMDL developed to address only spawning uses for the temperature or dissolved oxygen water quality standards.
 #'      \item Both: TMDL developed to address both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
 #'      }
+#'   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item HUC_6: Basin six digit USGS hydrological unit code.
@@ -53,6 +53,7 @@
 #'   \item HUC_8: Subbasin six digit USGS hydrological unit code.
 #'   \item HU_8_NAME: USGS Subbasin name.
 #'   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
+#'   \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
 #'   \item Permanent_Identifier: NHD Permanent Identifier.
 #'   \item ReachCode: NHD Reach code.
 #'   \item WBArea_Permanent_Identifier: NHD Waterbody feature Permanent Identifier
@@ -123,19 +124,18 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
 
     df <- df %>%
       dplyr::left_join(tmdl_actions_tbl, by = "action_id") %>%
-      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID),
-                    TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
-      dplyr::select(-Permanent_Identifier, -AU_ID) %>%
-      group_by(PIDAUID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full, TMDL_status) %>%
+      dplyr::mutate(TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
+      group_by(GLOBALID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full, TMDL_status) %>%
       summarize(action_id = paste((unique(action_id)), collapse = "; "),
                 TMDL_name = paste((unique(TMDL_name)), collapse = "; "),
                 TMDL_wq_limited_parameter = paste(sort(unique(TMDL_wq_limited_parameter)), collapse = "; "),
                 TMDL_pollutant = paste(sort(unique(TMDL_pollutant)), collapse = "; "),
                 TMDL_scope = paste(sort(unique(TMDL_scope)), collapse = "; "),
-                Period = paste(sort(unique(Period)), collapse = "; "))
+                Period = paste(sort(unique(Period)), collapse = "; "),
+                geo_id = paste(sort(unique(geo_id)), collapse = "; "))
 
     tmdl_reach_fc_param <- nhd_fc %>%
-      dplyr::select(AU_ID, Permanent_Identifier, ReachCode,
+      dplyr::select(AU_ID, GLOBALID, Permanent_Identifier, ReachCode,
                     WBArea_Permanent_Identifier,
                     FType,
                     GNIS_Name,
@@ -147,8 +147,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     AU_GNIS_Name,
                     AU_GNIS,
                     LengthKM) %>%
-      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-      dplyr::inner_join(y = df, by = "PIDAUID") %>%
+      dplyr::inner_join(y = df, by = "GLOBALID") %>%
       dplyr::select(action_id,
                     TMDL_name,
                     TMDL_wq_limited_parameter,
@@ -156,12 +155,14 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     TMDL_status,
                     TMDL_scope,
                     Period,
+                    geo_id,
                     HUC_6,
                     HU_6_NAME,
                     HUC6_full,
                     HUC_8,
                     HU_8_NAME,
                     HUC8_full,
+                    GLOBALID,
                     Permanent_Identifier,
                     ReachCode,
                     WBArea_Permanent_Identifier,
@@ -179,9 +180,7 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
   } else {
 
     df <- df %>%
-      dplyr::left_join(tmdl_actions_tbl) %>%
-      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID)) %>%
-      dplyr::select(-Permanent_Identifier, -AU_ID)
+      dplyr::left_join(tmdl_actions_tbl, by = "action_id")
 
     tmdl_reach_fc_param <- nhd_fc %>%
       dplyr::select(AU_ID, Permanent_Identifier, ReachCode,
@@ -196,9 +195,8 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     AU_GNIS_Name,
                     AU_GNIS,
                     LengthKM) %>%
-      dplyr::mutate(PIDAUID = paste0(Permanent_Identifier, ";", AU_ID),
-                    TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
-      dplyr::inner_join(y = df, by = "PIDAUID") %>%
+      dplyr::mutate(TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
+      dplyr::inner_join(y = df, by = "GLOBALID") %>%
       dplyr::select(action_id,
                     TMDL_name,
                     TMDL_wq_limited_parameter,
@@ -206,12 +204,14 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     TMDL_status,
                     TMDL_scope,
                     Period,
+                    geo_id,
                     HUC_6,
                     HU_6_NAME,
                     HUC6_full,
                     HUC_8,
                     HU_8_NAME,
                     HUC8_full,
+                    GLOBALID,
                     Permanent_Identifier,
                     ReachCode,
                     WBArea_Permanent_Identifier,

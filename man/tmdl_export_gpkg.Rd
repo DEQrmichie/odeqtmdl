@@ -61,7 +61,6 @@ Output GeoPackage fields include:
        \item In Development: TMDL is in development.
   }
   \item TMDL_scope: Provides information about how the TMDL applies.
-  \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
      \itemize{
      \item TMDL:	Identifies segments that a TMDL was developed for.
      \item Allocation only: Identifies segments where a TMDL allocation applies
@@ -82,6 +81,7 @@ Output GeoPackage fields include:
      \item spawning: TMDL developed to address only spawning uses for the temperature or dissolved oxygen water quality standards.
      \item Both: TMDL developed to address both spawning and non spawning (year round) uses for temperature or dissolved oxygen water quality standards.
      }
+  \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item HUC_6: Basin six digit USGS hydrological unit code.
@@ -90,6 +90,7 @@ Output GeoPackage fields include:
   \item HUC_8: Subbasin six digit USGS hydrological unit code.
   \item HU_8_NAME: USGS Subbasin name.
   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
+  \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
   \item Permanent_Identifier: NHD Permanent Identifier.
   \item ReachCode: NHD Reach code.
   \item WBArea_Permanent_Identifier: NHD Waterbody feature Permanent Identifier

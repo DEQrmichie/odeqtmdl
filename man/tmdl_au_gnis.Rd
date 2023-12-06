@@ -5,7 +5,7 @@
 \alias{tmdl_au_gnis}
 \title{Oregon TMDL database by assessment unit and GNIS name}
 \format{
-An object of class \code{data.frame} with 95749 rows and 26 columns.
+An object of class \code{data.frame} with 95754 rows and 26 columns.
 }
 \usage{
 data(tmdl_au_gnis)

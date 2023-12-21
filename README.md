@@ -1,9 +1,9 @@
 # odeqtmdl
 
 The odeqtmdl R package includes data tables of TMDL information from non-tribal 
-Oregon TMDLs and a set of functions that assist in assessment of water quality 
+TMDLs in Oregon and a set of functions that assist in assessment of water quality 
 data against select TMDL targets. The data tables are still in development and 
-for some TMDLs may be with incomplete. See each relevant TMDL document 
+for some TMDLs may be incomplete. See each relevant TMDL document 
 for the official record.
 
 https://www.oregon.gov/deq/wq/tmdls/Pages/default.aspx
@@ -24,16 +24,15 @@ A full listing of all non-tribal TMDL actions in Oregon.
 ```R
 odeqtmdl::tmdl_actions
 ```
-Inventory of NHD reaches where non-tribal Oregon TMDLs have been developed. 
-Note the inventory is still being developed and some information may not be accurate.
-See each relevant TMDL document for more information and applicability.
+
+Inventory of NHD reaches where non-tribal Oregon TMDLs have been developed.
+Note this table is large and may take a minute to load.
 ```R
 odeqtmdl::tmdl_reaches()
 ```
 
-Inventory of assessment units where non-tribal Oregon TMDLs have been developed. 
-Note the inventory is still being developed and some information may not be accurate.
-See each relevant TMDL document for more information and applicability.
+Inventory of assessment units and unique stream name (GNIS) assessment units 
+where non-tribal Oregon TMDLs have been developed. 
 ```R
 odeqtmdl::tmdl_au
 odeqtmdl::tmdl_au_gnis
@@ -45,17 +44,16 @@ combinations for each TMDL action.
 odeqtmdl::tmdl_parameters
 ```
 
-Partial inventory of TMDL targets from non-tribal Oregon TMDLs. Database includes 
+Partial inventory of TMDL targets from non-tribal Oregon TMDLs. The table includes 
 TMDL target value, target unit, statistical base, season start/end, and the 
 geo_id. A geo ID is a unique ID used to identify the applicable NHD 
-reaches and Oregon Assessment Unit IDs where the target applies.
+reaches and Oregon Assessment Unit where the target applies.
 ```R
 odeqtmdl::tmdl_targets
 ```
 
 Inventory and narrative description of unique TMDL geo IDs for non-tribal 
-Oregon TMDLs. A geo ID is a unique ID that is used to identify where a 
-specific TMDL target applies.
+Oregon TMDLs.
 ```R
 odeqtmdl::tmdl_geo_ids
 ```
@@ -65,8 +63,12 @@ Lookup table of DEQ and EPA ATTAINS water quality parameter names and IDs.
 odeqtmdl::LU_pollutant
 ```
 
-See odeqtmdl package help for information on other individual functions.
+There are many other individual package functions. See odeqtmdl package help 
+for more information.
 ```R
+?LU_pollutnat
+?LU_wqstd_code
+?LU_wqstd
 ?consecutive_median
 ?monthly_mean
 ?monthly_median

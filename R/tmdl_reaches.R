@@ -66,16 +66,27 @@
 #'
 #' @keywords Oregon TMDL reach data table
 #' @export
-#' @return loads Rdata into environment
+#' @return loads dataframe
 
 tmdl_reaches <- function(){
 
   warning(immediate. = TRUE, "Loading tmdl_reaches may take a minute")
 
-  file_path <- system.file("extdata", "tmdl_reaches.RDS", package = "odeqtmdl",
+  file_path1 <- system.file("extdata", "tmdl_reaches1.RDS", package = "odeqtmdl",
                            mustWork = TRUE)
+  file_path2 <- system.file("extdata", "tmdl_reaches2.RDS", package = "odeqtmdl",
+                            mustWork = TRUE)
+  file_path3 <- system.file("extdata", "tmdl_reaches3.RDS", package = "odeqtmdl",
+                            mustWork = TRUE)
+  file_path4 <- system.file("extdata", "tmdl_reaches4.RDS", package = "odeqtmdl",
+                            mustWork = TRUE)
 
-  df <- readRDS(file = file_path)
+  df1 <- readRDS(file = file_path1)
+  df2 <- readRDS(file = file_path2)
+  df3 <- readRDS(file = file_path3)
+  df4 <- readRDS(file = file_path4)
+
+  df <- rbind(df1, df2, df3, df4)
 
   return(df)
 

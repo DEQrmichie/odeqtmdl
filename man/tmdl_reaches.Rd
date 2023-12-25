@@ -7,7 +7,7 @@
 tmdl_reaches()
 }
 \value{
-loads Rdata into environment
+loads dataframe
 }
 \description{
 Inventory of where non-tribal Oregon TMDLs have been developed. Note the inventory

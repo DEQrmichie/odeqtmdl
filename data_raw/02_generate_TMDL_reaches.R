@@ -13,6 +13,7 @@
 library(sf)
 library(readr)
 library(dplyr)
+library(tidyr)
 library(readxl)
 library(odeqmloctools)
 library(odeqtmdl)
@@ -169,9 +170,29 @@ tmdl_reaches <- tmdl_reach_tbl %>%
                 LengthKM) %>%
   as.data.frame()
 
+num_df <- 4
+
+tmdl_reaches0 <- tmdl_reaches %>%
+  group_by((row_number() - 1 ) %/% (n() / num_df)) %>%
+  nest %>%
+  pull(data)
+
+tmdl_reaches1 <- tmdl_reaches0[[1]] %>% as.data.frame()
+tmdl_reaches2 <- tmdl_reaches0[[2]] %>% as.data.frame()
+tmdl_reaches3 <- tmdl_reaches0[[3]] %>% as.data.frame()
+tmdl_reaches4 <- tmdl_reaches0[[4]] %>% as.data.frame()
+
 # Save as a RDS file in inst/extdata folder (replaces existing)
-# File is too large to save in data.
-saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
+# File is too large to save in data and as single file
+saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.RDS"))
+saveRDS(tmdl_reaches1, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches1.RDS"))
+saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches2.RDS"))
+saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches3.RDS"))
+saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches4.RDS"))
+
+
+
+
 
 #- tmdl_au_gnis --------------------------------------------------------------------
 

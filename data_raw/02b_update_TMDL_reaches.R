@@ -18,8 +18,8 @@ library(tidyr)
 library(readr)
 library(sf)
 
-update_action_id <- "1362"
-update_pattern <- "action_1362"
+update_action_id <- "30674"
+update_pattern <- "action_30674"
 
 # Read paths
 paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
@@ -189,6 +189,23 @@ tmdl_reaches <- tmdl_reaches %>%
   dplyr::distinct() %>%
   as.data.frame()
 
-# Save a copy in inst/extdata folder (replaces existing)
-# File is too large to save in data.
-saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
+num_df <- 4
+
+tmdl_reaches0 <- tmdl_reaches %>%
+  group_by((row_number() - 1 ) %/% (n() / num_df)) %>%
+  nest %>%
+  pull(data)
+
+tmdl_reaches1 <- tmdl_reaches0[[1]] %>% as.data.frame()
+tmdl_reaches2 <- tmdl_reaches0[[2]] %>% as.data.frame()
+tmdl_reaches3 <- tmdl_reaches0[[3]] %>% as.data.frame()
+tmdl_reaches4 <- tmdl_reaches0[[4]] %>% as.data.frame()
+
+# Save as a RDS file in inst/extdata folder (replaces existing)
+# File is too large to save in data and as single file
+saveRDS(tmdl_reaches, compress = TRUE, file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.RDS"))
+saveRDS(tmdl_reaches1, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches1.RDS"))
+saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches2.RDS"))
+saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches3.RDS"))
+saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches4.RDS"))
+

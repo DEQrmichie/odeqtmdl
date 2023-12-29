@@ -50,7 +50,13 @@ ornhd <- odeqmloctools::ornhd %>%
   filter(!AU_ID == "99") %>%
   mutate(HUC_6 = substr(AU_ID, 7, 12),
          HUC_8 = substr(AU_ID, 7, 14),
-         HUC_10 = substr(AU_ID, 7, 16)) %>%
+         HUC_10 = substr(AU_ID, 7, 16),
+         AU_GNIS_Name = case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS_Name) ~ GNIS_Name,
+                                  !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
+                                  TRUE ~ AU_GNIS_Name),
+         AU_GNIS = case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS) ~ paste0(AU_ID,";"),
+                             !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
+                             TRUE ~ AU_GNIS)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
   left_join(huc10) %>%
@@ -64,6 +70,7 @@ or_au <- ornhd %>%
 
 or_au_gnis <- ornhd %>%
   dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
+  dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
   dplyr::group_by(AU_ID, AU_GNIS) %>%
   dplyr::summarise(AU_GNIS_length_km = sum(LengthKM, na.rm = TRUE)) %>%
   ungroup()
@@ -135,6 +142,9 @@ for (i in 1:length(tmdl.shps)) {
   rm(tmdl_reach_tbl0)
 }
 
+# For updates
+# tmdl_reach_tbl <- tmdl_reaches()
+
 tmdl_reaches <- tmdl_reach_tbl %>%
   select(GLOBALID, action_id, TMDL_wq_limited_parameter,
          TMDL_pollutant, TMDL_scope, Period, Source, geo_id) %>%
@@ -190,13 +200,10 @@ saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(paths$package_path[1], 
 saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches3.RDS"))
 saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches4.RDS"))
 
-
-
-
-
 #- tmdl_au_gnis --------------------------------------------------------------------
 
 tmdl_au_gnis <- tmdl_reaches %>%
+  dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
   dplyr::filter(!is.na(TMDL_scope)) %>%
   dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
   dplyr::mutate(Source = dplyr::case_when(any(grepl("Both", Source, ignore.case = TRUE)) ~ "Both",

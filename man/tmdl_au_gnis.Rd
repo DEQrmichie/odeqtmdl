@@ -3,21 +3,28 @@
 \docType{data}
 \name{tmdl_au_gnis}
 \alias{tmdl_au_gnis}
-\title{Oregon TMDL database by assessment unit and GNIS name}
+\title{Oregon TMDL database of watershed assessment unit and GNIS name}
 \format{
-An object of class \code{data.frame} with 95754 rows and 26 columns.
+An object of class \code{data.frame} with 67928 rows and 26 columns.
 }
 \usage{
 data(tmdl_au_gnis)
 }
 \description{
-Inventory of Oregon Assessment Units (AUs) and GNIS name
-concatenation (AU_GNIS) where non-tribal Oregon TMDLs have been developed.
-Note the inventory is still being developed and some information may not be accurate.
-See each relevant TMDL document for more information and applicability. A full listing of all
-non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
+Inventory of Oregon TMDL information for each named stream in watershed assessment units.
+The information is summarized for each AU_GNIS. AU_GNIS is a concatenation of
+the Oregon watershed assessment unit ID (AU) and the NHD GNIS name.
+Other assessment Unit types are not included in this table (e.g. Stream/River, Lakes/Reservoirs, Estuaries/Bays).
+See \code{\link{tmdl_au}} for the TMDL summary for all assessment unit types, including watershed units.
+See \code{\link{tmdl_reaches}} for TMDL information summarized for each NHD reach.
 }
 \details{
+Note the TMDL information is still being assembled and is undergoing review.
+Some information may not be accurate. See each relevant TMDL document for the
+official record and more information. TMDLs developed by tribal governments are not included at this time. The inventory
+is still being developed and some information may not be accurate.
+A full listing of all non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
+
 NHD values are derived from NHDH_OR_931v220, which is the current version used for DEQ business data. Database fields include:
 
 \itemize{

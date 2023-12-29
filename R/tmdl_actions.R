@@ -1,6 +1,6 @@
 #' Oregon TMDL Actions
 #'
-#'Summary of all non tribal TMDL actions applicable in Oregon.
+#'Summary of TMDL actions applicable in Oregon. TMDLs developed by tribal governments are not included at this time.
 #'
 #'** Field removed in version 0.6.
 #'See \code{\link{tmdl_parameters}} for listings of all unique TMDL parameter and pollutant pairs.

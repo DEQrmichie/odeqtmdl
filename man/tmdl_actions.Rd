@@ -11,7 +11,7 @@ An object of class \code{data.frame} with 59 rows and 12 columns.
 data(tmdl_actions)
 }
 \description{
-Summary of all non tribal TMDL actions applicable in Oregon.
+Summary of TMDL actions applicable in Oregon. TMDLs developed by tribal governments are not included at this time.
 }
 \details{
 ** Field removed in version 0.6.

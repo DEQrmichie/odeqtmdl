@@ -6,7 +6,7 @@
 \alias{odeqtmdl-package}
 \title{odeqtmdl: Oregon TMDL database}
 \description{
-The odeqtmdl R package includes databases of TMDL information from non-tribal Oregon TMDLs and a set of functions that assist in assessment of water quality data against select TMDL targets. Currently the TMDL databases are incomplete. See each relevant TMDL document for the official record.
+The odeqtmdl R package includes data tables of Oregon TMDL information and a set of functions that assist in assessment of water quality data against select TMDL targets. The TMDL information is still being assembled and is undergoing review. Some information may not be accurate. See each relevant TMDL document for the official record. TMDLs developed by tribal governments are not included at this time.
 }
 \author{
 \strong{Maintainer}: Ryan Michie \email{Ryan.Michie@deq.oregon.gov}

@@ -11,11 +11,15 @@ An object of class \code{data.frame} with 261 rows and 16 columns.
 data(tmdl_targets)
 }
 \description{
-Inventory of unique TMDL targets from non-tribal Oregon TMDLs. Targets may include the
-TMDL Loading capacity, Load Allocation, Surrogate Measure, or Endpoint. Note the inventory is incomplete. See each relevant TMDL document
-for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
+Inventory of unique TMDL targets from Oregon TMDLs. Targets may include the
+TMDL Loading capacity, Load Allocation, Surrogate Measure, or Endpoint.
 }
 \details{
+Note the TMDL information is still being assembled and is undergoing review.
+Some information is not included or may be accurate. See each relevant TMDL document for the
+official record and more information. TMDLs developed by tribal governments are not included at this time.
+
+
 \itemize{
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
   \item geo_id:	Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.

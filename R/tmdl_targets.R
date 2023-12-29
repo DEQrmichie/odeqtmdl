@@ -1,8 +1,11 @@
 #' Oregon TMDL targets
 #'
-#' Inventory of unique TMDL targets from non-tribal Oregon TMDLs. Targets may include the
-#' TMDL Loading capacity, Load Allocation, Surrogate Measure, or Endpoint. Note the inventory is incomplete. See each relevant TMDL document
-#' for more information. A full listing of all non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
+#' Inventory of unique TMDL targets from Oregon TMDLs. Targets may include the
+#' TMDL Loading capacity, Load Allocation, Surrogate Measure, or Endpoint.
+#'
+#' Note the TMDL information is still being assembled and is undergoing review.
+#' Some information is not included or may be accurate. See each relevant TMDL document for the
+#' official record and more information. TMDLs developed by tribal governments are not included at this time.
 #'
 #'
 #' \itemize{

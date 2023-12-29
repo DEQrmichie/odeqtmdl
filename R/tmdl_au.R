@@ -1,9 +1,15 @@
 #' Oregon TMDL database by assessment unit
 #'
-#' Inventory of Oregon Assessment Units (AUs) where non-tribal Oregon TMDLs have been developed. Note the inventory
+#' Inventory of Oregon TMDL information summarized by Assessment Unit (AUs).
+#' See \code{\link{tmdl_au_gnis}} for TMDL information summarized for
+#' each named stream in watershed assessment units and \code{\link{tmdl_reaches}}
+#' for TMDL information summarized for each NHD reach.
+#'
+#' Note the TMDL information is still being assembled and is undergoing review.
+#' Some information may not be accurate. See each relevant TMDL document for the
+#' official record and more information. TMDLs developed by tribal governments are not included at this time. The inventory
 #' is still being developed and some information may not be accurate.
-#' See each relevant TMDL document for more information and applicability. A full listing of all
-#' non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
+#' A full listing of all non-tribal TMDL actions in Oregon can be viewed using \code{\link{tmdl_actions}}.
 #'
 #' NHD values are derived from NHDH_OR_931v220, which is the current version used for DEQ business data. Database fields include:
 #'

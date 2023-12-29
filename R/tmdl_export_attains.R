@@ -1,9 +1,13 @@
 #' Export TMDL info to ATTAINS upload files
 #'
-#' Exports all or a subset of the Oregon TMDL assessment unit database (\code{\link{tmdl_au}}) as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced. The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
+#' Exports all or a subset of the Oregon TMDL assessment unit data table (\code{\link{tmdl_au}})
+#' as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced.
+#' The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
 #'
 #' @param out_dir: The directory to save the output csv files.
-#' @param tmdl_au: Data frame formatted the same as the Oregon TMDL assessment unit database. Default is NULL and the \code{\link{tmdl_au}} database will be used.
+#' @param df_tmdl_actions: Data frame formatted the same as \code{\link{tmdl_actions}}, Default is NULL and the \code{\link{tmdl_actions}} data table will be used.
+#' @param df_tmdl_au: Data frame formatted the same as \code{\link{tmdl_au}}. Default is NULL and the \code{\link{tmdl_au}} data table will be used.
+#' @param df_tmdl_wla: Data frame formatted the same as \code{\link{tmdl_wla}}. Default is NULL and the \code{\link{tmdl_wla}} data table will be used.
 #' @param AU_IDs: Vector of assessment units used to filter 'tmdl_aus'. Default is NULL and all AU IDs are included.
 #' @param status_attains: Vector of the attains status used to filter 'tmdl_aus'. Default is NULL and all statuses are included.
 #' @param action_ids: Vector of action IDs used to filter 'tmdl_aus'. Default is NULL and all action IDs are included.
@@ -12,19 +16,45 @@
 #' @export
 #' @keywords Oregon TMDL ATTAINS batch upload
 
-tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
+tmdl_export_attains <- function(out_dir,
+                                df_tmdl_actions = NULL,
+                                df_tmdl_au = NULL,
+                                df_tmdl_wla = NULL,
+                                AU_IDs = NULL,
                                 status_attains = NULL,
-                                action_ids = NULL, TMDL_param = NULL, TMDL_pollu = NULL) {
+                                action_ids = NULL,
+                                TMDL_param = NULL,
+                                TMDL_pollu = NULL) {
 
-  if (is.null(tmdl_au)) {
-    df <- odeqtmdl::tmdl_au
+  if (is.null(df_tmdl_actions)) {
+    df_actions <- odeqtmdl::tmdl_actions
   } else {
-    df <- tmdl_au
+    df_actions <- df_tmdl_actions
   }
+
+  if (is.null(df_tmdl_au)) {
+    df_au <- odeqtmdl::tmdl_au
+  } else {
+    df_au <- df_tmdl_au
+  }
+
+  if (is.null(df_tmdl_wla)) {
+    df_wla <- odeqtmdl::tmdl_wla
+  } else {
+    df_wla <- df_tmdl_wla
+  }
+
+  # Filter to TMDL scope
+  df_au <- dplyr::filter(df_au, TMDL_scope == "TMDL")
+
+  df <- dplyr::left_join(df_au, df_actions, by = c("action_id"))
 
   # Filter to action IDs
   if (!is.null(action_ids)) {
     df <- df %>%
+      dplyr::filter(action_id %in% action_ids)
+
+    df_wla <- df_wla %>%
       dplyr::filter(action_id %in% action_ids)
   }
 
@@ -37,6 +67,9 @@ tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
   # Filter to AU_IDs
   if (!is.null(AU_IDs)) {
     df <- df %>%
+      dplyr::filter(AU_ID %in% AU_IDs)
+
+    df_wla <- df_wla %>%
       dplyr::filter(AU_ID %in% AU_IDs)
   }
 
@@ -55,6 +88,12 @@ tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
   # TMDL pollu only
   if ((is.null(TMDL_param) & !is.null(TMDL_pollu))) {
     df <- df %>%
+      dplyr::filter(TMDL_pollutant %in% TMDL_pollu)
+  }
+
+  # TMDL pollu only for WLA
+  if (!is.null(TMDL_pollu)) {
+    df_wla <- df_wla %>%
       dplyr::filter(TMDL_pollutant %in% TMDL_pollu)
   }
 
@@ -113,7 +152,7 @@ tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
       write.csv(x = pollu_csv, file = file.path(out_dir, "Pollutants.csv"),
                 row.names = FALSE, na = "")
 
-      # - Parameter ------------------------------------------------------------------
+      # - Parameter ------------------------------------------------------------
 
       param_csv <- df %>%
         dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
@@ -133,6 +172,32 @@ tmdl_export_attains <- function(out_dir, tmdl_au = NULL, AU_IDs = NULL,
                        ASSESSMENT_UNIT_ID)
 
       write.csv(x = param_csv, file = file.path(out_dir, "Parameters.csv"),
+                row.names = FALSE, na = "")
+
+      # - Permit ---------------------------------------------------------------
+
+      permit_csv <- df_wla %>%
+        dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+        dplyr::mutate(WASTE_LOAD_ALLOCATION = NA_character_,
+                      WASTE_LOAD_ALLOCATION_UNIT = NA_character_,
+                      SEASON_START = NA_character_,
+                      SEASON_END = NA_character_) %>%
+        dplyr::rename(ACTION_ID = action_id,
+                      ASSESSMENT_UNIT_ID = AU_ID,
+                      POLLUTANT_NAME = Attains_Pollutant,
+                      NPDES_IDENTIFIER = EPANum,
+                      OTHER_IDENTIFIER = WQFileNum) %>%
+        dplyr::select(ACTION_ID,
+                      ASSESSMENT_UNIT_ID,
+                      POLLUTANT_NAME,
+                      NPDES_IDENTIFIER,
+                      OTHER_IDENTIFIER,
+                      WASTE_LOAD_ALLOCATION,
+                      WASTE_LOAD_ALLOCATION_UNIT,
+                      SEASON_START,
+                      SEASON_END)
+
+      write.csv(x = permit_csv, file = file.path(out_dir, "Permit.csv"),
                 row.names = FALSE, na = "")
 
 }

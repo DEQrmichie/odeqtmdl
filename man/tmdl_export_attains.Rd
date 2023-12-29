@@ -6,7 +6,9 @@
 \usage{
 tmdl_export_attains(
   out_dir,
-  tmdl_au = NULL,
+  df_tmdl_actions = NULL,
+  df_tmdl_au = NULL,
+  df_tmdl_wla = NULL,
   AU_IDs = NULL,
   status_attains = NULL,
   action_ids = NULL,
@@ -17,7 +19,11 @@ tmdl_export_attains(
 \arguments{
 \item{out_dir:}{The directory to save the output csv files.}
 
-\item{tmdl_au:}{Data frame formatted the same as the Oregon TMDL assessment unit database. Default is NULL and the \code{\link{tmdl_au}} database will be used.}
+\item{df_tmdl_actions:}{Data frame formatted the same as \code{\link{tmdl_actions}}, Default is NULL and the \code{\link{tmdl_actions}} data table will be used.}
+
+\item{df_tmdl_au:}{Data frame formatted the same as \code{\link{tmdl_au}}. Default is NULL and the \code{\link{tmdl_au}} data table will be used.}
+
+\item{df_tmdl_wla:}{Data frame formatted the same as \code{\link{tmdl_wla}}. Default is NULL and the \code{\link{tmdl_wla}} data table will be used.}
 
 \item{AU_IDs:}{Vector of assessment units used to filter 'tmdl_aus'. Default is NULL and all AU IDs are included.}
 
@@ -30,7 +36,9 @@ tmdl_export_attains(
 \item{TMDL_pollu:}{Vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.}
 }
 \description{
-Exports all or a subset of the Oregon TMDL assessment unit database (\code{\link{tmdl_au}}) as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced. The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
+Exports all or a subset of the Oregon TMDL assessment unit data table (\code{\link{tmdl_au}})
+as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced.
+The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
 }
 \keyword{ATTAINS}
 \keyword{Oregon}

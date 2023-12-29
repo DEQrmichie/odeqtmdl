@@ -31,7 +31,7 @@ tmdl_export_gdb(
 
 \item{TMDL_pollu}{vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.}
 
-\item{collapse}{logical. If TRUE (the default), the values in action id, TMDL_name, TMDL_wq_limited_parameter, and TMDL_pollutant are collapsed (pasted together) into a string separated by a semi-colon if they share a common Permanent_Identifier, AU_ID, HUC_6, and HUC_8 value. Each field is collapsed separately.}
+\item{collapse}{logical. If TRUE (the default), the values in action id, TMDL_name, TMDL_wq_limited_parameter, and TMDL_pollutant are collapsed (pasted together) into a string separated by a semi-colon if they share a common GLOBALID, HUC_6, HUC_8, and TMDL_status value. Each field is collapsed separately.}
 
 \item{gdb_layer}{layer name. The name of the output layer in the GeoPackage database. Passed to 'layer' argument in \code{\link[sf]{st_write}}.}
 }
@@ -41,7 +41,6 @@ be viewed spatially in a GIS. The TMDL database is an inventory where non-tribal
 Oregon TMDLs have been developed. The output does not includes TMDLs that have been rescinded or replaced with newer TMDLs.
 Note the inventory is still being developed and some information may not be accurate.
 See each relevant TMDL document for more information and applicability.
-The full TMDL reach database is currently only available to Oregon DEQ employee.
 }
 \details{
 The TMDL database is georeferenced to the National Hydrography Dataset (NHD).

@@ -18,8 +18,8 @@ library(tidyr)
 library(readr)
 library(sf)
 
-update_action_id <- "30674"
-update_pattern <- "action_30674"
+update_action_id <- "30358"
+update_pattern <- "action_30358"
 
 # Read paths
 paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
@@ -30,7 +30,7 @@ paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
 #- Import tables ---------------------------------------------------------------
 
 # tmdl_reaches
-tmdl_reaches <- readRDS(file = file.path(paths$package_path[1], "inst", "extdata", "tmdl_reaches.RDS"))
+tmdl_reaches <- readRDS(file = file.path(paths$package_path[1], "data_raw", "tmdl_reaches.RDS"))
 
 load(file = file.path(paths$package_path[1], "data", "LU_pollutant.rda"))
 
@@ -38,6 +38,11 @@ load(file = file.path(paths$package_path[1], "data", "LU_pollutant.rda"))
 df.aufixes <- read_csv(file.path(paths$tmdl_reaches_shp[1], "R/AU_Fixes.csv"))
 
 shp_dir <- paths$tmdl_reaches_shp[1]
+
+ws_fix <- sf::st_read(dsn = file.path(shp_dir,"Support_Features_shp"), layer = "OR_WS_171003010505_02_106440_in_171003021101") %>%
+  sf::st_drop_geometry() %>%
+  pull(GLOBALID) %>%
+  unique()
 
 huc6 <- sf::st_read(dsn = file.path(shp_dir,"Support_Features.gdb"), layer = "WBDHU6") %>%
   sf::st_drop_geometry() %>%
@@ -61,7 +66,17 @@ ornhd <- odeqmloctools::ornhd %>%
   filter(!AU_ID == "99") %>%
   mutate(HUC_6 = substr(AU_ID, 7, 12),
          HUC_8 = substr(AU_ID, 7, 14),
-         HUC_10 = substr(AU_ID, 7, 16)) %>%
+         HUC_10 = substr(AU_ID, 7, 16),
+         AU_GNIS_Name = case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS_Name) ~ GNIS_Name,
+                                  !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
+                                  TRUE ~ AU_GNIS_Name),
+         AU_GNIS = case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS) ~ paste0(AU_ID,";"),
+                             !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
+                             TRUE ~ AU_GNIS)) %>%
+  mutate(HUC_8 = case_when(GLOBALID %in% ws_fix ~ "17100302",
+                           TRUE ~ HUC_8),
+         HUC_10 = case_when(GLOBALID %in% ws_fix ~ "1710030211",
+                            TRUE ~ HUC_10)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
   left_join(huc10) %>%

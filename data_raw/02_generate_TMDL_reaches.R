@@ -28,6 +28,11 @@ paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
 # Load the table that has the LU from old to new AUS
 df.aufixes <- read_csv(file.path(paths$tmdl_reaches_shp[1], "R/AU_Fixes.csv"))
 
+ws_fix <- sf::st_read(dsn = file.path(paths$tmdl_reaches_shp[1],"Support_Features_shp"), layer = "OR_WS_171003010505_02_106440_in_171003021101") %>%
+  sf::st_drop_geometry() %>%
+  pull(GLOBALID) %>%
+  unique()
+
 huc6 <- sf::st_read(dsn = file.path(paths$tmdl_reaches_shp[1],"Support_Features.gdb"), layer = "WBDHU6") %>%
   sf::st_drop_geometry() %>%
   select(HUC_6 = HUC6, HU_6_NAME = Name) %>%
@@ -57,23 +62,14 @@ ornhd <- odeqmloctools::ornhd %>%
          AU_GNIS = case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS) ~ paste0(AU_ID,";"),
                              !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
                              TRUE ~ AU_GNIS)) %>%
+  mutate(HUC_8 = case_when(GLOBALID %in% ws_fix ~ "17100302",
+                           TRUE ~ HUC_8),
+         HUC_10 = case_when(GLOBALID %in% ws_fix ~ "1710030211",
+                            TRUE ~ HUC_10)) %>%
   left_join(huc6) %>%
   left_join(huc8) %>%
   left_join(huc10) %>%
   distinct()
-
-or_au <- ornhd %>%
-  dplyr::select(AU_ID, LengthKM) %>%
-  dplyr::group_by(AU_ID) %>%
-  dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  ungroup()
-
-or_au_gnis <- ornhd %>%
-  dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
-  dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
-  dplyr::group_by(AU_ID, AU_GNIS) %>%
-  dplyr::summarise(AU_GNIS_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-  ungroup()
 
 #- tmdl_reaches ----------------------------------------------------------------
 
@@ -202,6 +198,13 @@ saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(paths$package_path[1], 
 
 #- tmdl_au_gnis --------------------------------------------------------------------
 
+or_au_gnis <- ornhd %>%
+  dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
+  dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
+  dplyr::group_by(AU_ID, AU_GNIS) %>%
+  dplyr::summarise(AU_GNIS_length_km = sum(LengthKM, na.rm = TRUE)) %>%
+  ungroup()
+
 tmdl_au_gnis <- tmdl_reaches %>%
   dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
   dplyr::filter(!is.na(TMDL_scope)) %>%
@@ -255,6 +258,12 @@ tmdl_au_gnis <- tmdl_reaches %>%
 save(tmdl_au_gnis, file = file.path(paths$package_path[1], "data", "tmdl_au_gnis.rda"))
 
 #- tmdl_au --------------------------------------------------------------------
+
+or_au <- ornhd %>%
+  dplyr::select(AU_ID, LengthKM) %>%
+  dplyr::group_by(AU_ID) %>%
+  dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
+  ungroup()
 
 tmdl_au <- tmdl_reaches %>%
   dplyr::filter(!is.na(TMDL_scope)) %>%
@@ -323,7 +332,7 @@ save(tmdl_au, file = file.path(paths$package_path[1], "data", "tmdl_au.rda"))
 #                         TRUE ~ TMDL_status),
 
 
-tmdl_parameters_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+tmdl_parameters_tbl <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                           sheet = "tmdl_parameters",
                                        na = c("", "NA"),
                                        col_names = TRUE, skip = 1,
@@ -362,7 +371,7 @@ tmdl_parameters_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx"
 #   arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
 #   as.data.frame()
 
-# This relies on the info from the xlsx tmdl paramaters table, which usually includes un-mapped TMDLs.
+# This relies on the info from the xlsx tmdl parameters table, which usually includes un-mapped TMDLs.
 # Use the code above if only mapped TMDLs need to be included.
 tmdl_parameters <- tmdl_reaches %>%
   select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
@@ -377,19 +386,4 @@ tmdl_parameters <- tmdl_reaches %>%
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_parameters, file = file.path(paths$package_path[1], "data", "tmdl_parameters.rda"))
-
-#- tmdl_wqstd ------------------------------------------------------------------
-
-tmdl_wqstd <- tmdl_parameters %>%
-  left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
-          by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
-  select(action_id, Pollu_ID) %>%
-  distinct() %>%
-  left_join(odeqtmdl::LU_wqstd, by = "Pollu_ID") %>%
-  select(action_id, Pollu_ID, wqstd_code) %>%
-  arrange(action_id, Pollu_ID) %>%
-  as.data.frame()
-
-# Save a copy in data folder (replaces existing)
-save(tmdl_wqstd, file = file.path(paths$package_path[1], "data", "tmdl_wqstd.rda"))
 

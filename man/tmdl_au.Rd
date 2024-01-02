@@ -5,7 +5,7 @@
 \alias{tmdl_au}
 \title{Oregon TMDL database by assessment unit}
 \format{
-An object of class \code{data.frame} with 29527 rows and 25 columns.
+An object of class \code{data.frame} with 29438 rows and 25 columns.
 }
 \usage{
 data(tmdl_au)

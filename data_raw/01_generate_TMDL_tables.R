@@ -23,7 +23,7 @@ paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",
                             col_types = c("text", "text"))
 
 # Read TMDL actions table
-tmdl_actions_tbl <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+tmdl_actions_tbl <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                        sheet = "tmdl_actions" ,
                                        na = c("", "NA"), skip = 1,
                                        col_names = TRUE,
@@ -99,7 +99,7 @@ save(tmdl_actions, file = file.path(paths$package_path[1], "data", "tmdl_actions
 
 #- tmdl_geo_ids ----------------------------------------------------------------
 
-tmdl_geo_ids <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+tmdl_geo_ids <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                    sheet = "tmdl_geo_ids",
                                    col_names = TRUE, skip = 1,
                                    col_types = c('text', 'text', 'logical', 'text', 'numeric',
@@ -113,7 +113,7 @@ save(tmdl_geo_ids, file = file.path(paths$package_path[1], "data", "tmdl_geo_ids
 
 #- tmdl_targets ----------------------------------------------------------------
 
-tmdl_targets <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+tmdl_targets <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                    sheet = "tmdl_targets",
                                    col_names = TRUE, skip = 1,
                                    col_types = c("text", "text", "numeric", "text", "text",
@@ -149,7 +149,7 @@ save(tmdl_targets, file = file.path(paths$package_path[1], "data", "tmdl_targets
 
 #- point_sources ---------------------------------------------------------------
 
-tmdl_wla <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
+tmdl_wla <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                    sheet = "point_sources",
                                    col_names = TRUE, skip = 1,
                                    col_types = c("text", "text", "text", "text", "text",
@@ -161,3 +161,19 @@ tmdl_wla <- readxl::read_excel(path = "data_raw/TMDL_db_tabular.xlsx",
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_wla, file = file.path(paths$package_path[1], "data", "tmdl_wla.rda"))
+
+#- tmdl_wqstd ------------------------------------------------------------------
+
+tmdl_wqstd <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
+                               sheet = "tmdl_wqstd",
+                               col_names = TRUE, skip = 1,
+                               col_types = c("text", "text", "numeric")) %>%
+  left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
+            by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+  select(action_id, Pollu_ID, wqstd_code) %>%
+  distinct() %>%
+  arrange(action_id, Pollu_ID, wqstd_code) %>%
+  as.data.frame()
+
+# Save a copy in data folder (replaces existing)
+save(tmdl_wqstd, file = file.path(paths$package_path[1], "data", "tmdl_wqstd.rda"))

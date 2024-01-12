@@ -20,13 +20,60 @@ load(file.path(paths$package_path[1], "data_raw", "nhd_fc.rda"))
 # tmdl_reaches
 tmdl_reaches <- tmdl_reaches()
 
+gdb_path <- file.path(paths$tmdl_reaches_shp[1], "Maps", "web_map", "OR_TMDLs.gdb")
+
+pastee <- function(x) {paste(sort(na.omit(unique(x))), collapse = "; ")}
+
+# - Create Base features -------------------------------------------------------
+
+# unique list of GLOBALIDs where TMDLs apply
+tmdl_gids <- dplyr::filter(tmdl_reaches, TMDL_scope %in% c("TMDL",
+                                                           "Allocation only",
+                                                           "Advisory Allocation")) %>%
+  dplyr::pull(GLOBALID) %>%
+  unique() %>%
+  sort()
+
+tmdl_scope_gids <- dplyr::filter(tmdl_reaches, TMDL_scope == "TMDL") %>%
+  dplyr::pull(GLOBALID) %>%
+  unique() %>%
+  sort()
+
+# filter nhd to only where TMDLs apply
+tmdl_reach_fc <- nhd_fc %>%
+  dplyr::filter(GLOBALID %in% tmdl_gids) %>%
+  dplyr::filter(!AU_ID == "99") %>%
+  dplyr::select(AU_ID, AU_Name, AU_Description, AU_WBType, GNIS_ID, GNIS_Name,
+                HUC12,
+                AU_GNIS, AU_GNIS_Name, GLOBALID, Permanent_Identifier,
+                WBArea_Permanent_Identifier, FType)
+
+# Dissolve to AUs
+tmdl_au_fc <- tmdl_reach_fc %>%
+  dplyr::filter(GLOBALID %in% tmdl_scope_gids) %>%
+  dplyr::group_by(AU_ID, AU_Name, AU_Description, AU_WBType) %>%
+  dplyr::summarize() %>%
+  ungroup()
+
+# Dissolve to AU GNIS
+tmdl_au_gnis_fc <- tmdl_reach_fc %>%
+  dplyr::filter(GLOBALID %in% tmdl_scope_gids) %>%
+  dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
+  dplyr::group_by(AU_ID, AU_Name, AU_GNIS_Name, AU_GNIS, AU_WBType) %>%
+  dplyr::summarize() %>%
+  ungroup()
+
+save(tmdl_reach_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_reach_fc.rda"))
+save(tmdl_au_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_au_fc.rda"))
+save(tmdl_au_gnis_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_au_gnis_fc.rda"))
+
+ # -load base features----------------------------------------------------------
+
 #tmdl_ndh_fc
 load(file = file.path(paths$package_path[1], "data_raw", "tmdl_reach_fc.rda"))
 
 # tmdl_au_fc
 load(file = file.path(paths$package_path[1], "data_raw", "tmdl_au_fc.rda"))
-
-gdb_path <- file.path(paths$tmdl_reaches_shp[1], "web_map", "OR_TMDLs.gdb")
 
 # tmdl_au
 #load(file.path(paths$package_path[1], "data", "tmdl_au.rda"))
@@ -37,7 +84,7 @@ fc_name <- "TMDLs_by_reach"
 
 # This version separates pollutants by TMDL scope.
 
-pastee <- function(x) {paste(sort(na.omit(unique(x))), collapse = "; ")}
+
 
 df1 <- tmdl_reaches %>%
   dplyr::filter(!AU_ID == "99") %>%
@@ -213,6 +260,7 @@ arc.write(path = file.path(gdb_path, "tmdl_reaches"),
 sort(unique(tmdl_reaches$TMDL_wq_limited_parameter))
 
 param_names <- c(
+  "Aesthetics" = "Aesthetics",
   "Ammonia" = "Ammonia",
   "Aquatic Weeds" = "Aquatic_Weeds",
   "BioCriteria" = "BioCriteria",
@@ -243,7 +291,7 @@ param_names <- c(
   "Turbidity" = "Turbidity"
 )
 
-gdb_path <- file.path(paths$tmdl_reaches_shp[1], "web_map", "OR_TMDLs.gdb/TMDLs_by_wq_limited_parameter")
+gdb_path <- file.path(paths$tmdl_reaches_shp[1], "Maps", "web_map", "OR_TMDLs.gdb/TMDLs_by_wq_limited_parameter")
 
 TMDL_params <- tmdl_reaches %>%
   filter(!AU_ID == "99") %>%
@@ -321,7 +369,7 @@ TMDL_pollus <- tmdl_reaches %>%
   distinct() %>%
   pull(TMDL_pollutant) %>% sort()
 
-gdb_path <- file.path(paths$tmdl_reaches_shp[1], "web_map", "OR_TMDLs.gdb/TMDLs_by_pollutant")
+gdb_path <- file.path(paths$tmdl_reaches_shp[1], "Maps", "web_map", "OR_TMDLs.gdb/TMDLs_by_pollutant")
 
 for (pollu in TMDL_pollus) {
 

@@ -17,7 +17,7 @@
 #'   \item TMDL_status_comment: Note summarizing information about the TMDL and if it was replaced or modified.
 #'   \item scope_narrative:	Narrative summary of where the TMDL allocations apply.
 #'   \item revision_action_id: The EPA ATTAINS action ID assigned to the TMDL revision.
-#'   \item TMDL_mapped: Boolean to indicate if the TMDL parameter and pollutant scope has mapped in a GIS.
+#'   \item TMDL_mapped: logical to indicate if the TMDL parameter and pollutant scope has mapped in a GIS.
 #' }
 #'
 #' @docType data

@@ -83,11 +83,11 @@ Output Geodatabase feature fields include:
   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
-  \item HUC_6: Basin six digit USGS hydrological unit code.
-  \item HU_6_NAME: USGS Basin name.
+  \item HUC6: Basin six digit USGS hydrological unit code.
+  \item HUC6_Name: USGS Basin name.
   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.
-  \item HUC_8: Subbasin six digit USGS hydrological unit code.
-  \item HU_8_NAME: USGS Subbasin name.
+  \item HUC8: Subbasin six digit USGS hydrological unit code.
+  \item HUC8_Name: USGS Subbasin name.
   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
   \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
   \item Permanent_Identifier: NHD Permanent Identifier.

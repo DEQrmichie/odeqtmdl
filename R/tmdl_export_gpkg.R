@@ -47,11 +47,11 @@
 #'   \item geo_id: Unique ID assigned to the NHD reaches where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
 #'   \item citation_abbreviated: Abbreviated citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
 #'   \item citation_full: Full citation of TMDL document using DEQ style guidelines (Chicago Manual of Style).
-#'   \item HUC_6: Basin six digit USGS hydrological unit code.
-#'   \item HU_6_NAME: USGS Basin name.
-#'   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.
-#'   \item HUC_8: Subbasin six digit USGS hydrological unit code.
-#'   \item HU_8_NAME: USGS Subbasin name.
+#'   \item HUC6: Basin six digit USGS hydrological unit code.
+#'   \item HU6_Name: USGS Basin name.
+#'   \item HUC6_full: Concatenation of the HUC6 and HUC6_Name fields.
+#'   \item HUC8: Subbasin six digit USGS hydrological unit code.
+#'   \item HUC8_Name: USGS Subbasin name.
 #'   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
 #'   \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
 #'   \item Permanent_Identifier: NHD Permanent Identifier.
@@ -156,11 +156,11 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     TMDL_scope,
                     Period,
                     geo_id,
-                    HUC_6,
-                    HU_6_NAME,
+                    HUC6,
+                    HUC6_Name,
                     HUC6_full,
-                    HUC_8,
-                    HU_8_NAME,
+                    HUC8,
+                    HUC8_Name,
                     HUC8_full,
                     GLOBALID,
                     Permanent_Identifier,
@@ -205,11 +205,11 @@ tmdl_export_gpkg <- function(gpkg_dsn, gpkg_layer, tmdl_reaches, tmdl_actions = 
                     TMDL_scope,
                     Period,
                     geo_id,
-                    HUC_6,
-                    HU_6_NAME,
+                    HUC6,
+                    HUC6_Name,
                     HUC6_full,
-                    HUC_8,
-                    HU_8_NAME,
+                    HUC8,
+                    HUC8_Name,
                     HUC8_full,
                     GLOBALID,
                     Permanent_Identifier,

@@ -8,10 +8,10 @@
 #' @param df_tmdl_actions: Data frame formatted the same as \code{\link{tmdl_actions}}, Default is NULL and the \code{\link{tmdl_actions}} data table will be used.
 #' @param df_tmdl_au: Data frame formatted the same as \code{\link{tmdl_au}}. Default is NULL and the \code{\link{tmdl_au}} data table will be used.
 #' @param df_tmdl_wla: Data frame formatted the same as \code{\link{tmdl_wla}}. Default is NULL and the \code{\link{tmdl_wla}} data table will be used.
-#' @param AU_IDs: Vector of assessment units used to filter 'tmdl_aus'. Default is NULL and all AU IDs are included.
-#' @param status_attains: Vector of the attains status used to filter 'tmdl_aus'. Default is NULL and all statuses are included.
-#' @param action_ids: Vector of action IDs used to filter 'tmdl_aus'. Default is NULL and all action IDs are included.
-#' @param TMDL_param: Vector of water quality  parameter names used to filter 'tmdl_aus'. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
+#' @param AU_IDs: Vector of assessment units used to filter 'tmdl_au'. Default is NULL and all AU IDs are included.
+#' @param status_attains: Vector of the attains status used to filter 'tmdl_au'. Default is NULL and all statuses are included.
+#' @param action_ids: Vector of action IDs used to filter 'tmdl_au'. Default is NULL and all action IDs are included.
+#' @param TMDL_param: Vector of water quality  parameter names used to filter 'tmdl_au'. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.
 #' @param TMDL_pollu: Vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.
 #' @export
 #' @keywords Oregon TMDL ATTAINS batch upload

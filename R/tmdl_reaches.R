@@ -45,15 +45,15 @@
 #'      }
 #'   \item Pollu_ID: DEQ water quality parameter ID. ID is for the parameter in 'TMDL_wq_limited_parameter'.
 #'   \item geo_id:	Unique ID assigned to the NHD reaches codes where a TMDL target applies. ID is structured as YearTMDLissued_ShortTMDLdocName_TargetGeoArea.
-#'   \item HUC_6: Basin six digit USGS hydrological unit code.
-#'   \item HU_6_NAME: USGS Basin name.
-#'   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.
-#'   \item HUC_8: Subbasin eight digit USGS hydrological unit code.
-#'   \item HU_8_NAME: USGS Subbasin name.
-#'   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
-#'   \item HUC_10: Watershed ten digit USGS hydrological unit code.
-#'   \item HU_10_NAME: USGS Watershed name.
-#'   \item HUC10_full: Concatenation of the HUC_10 and HU_10_NAME fields.
+#'   \item HUC6: Basin six digit USGS hydrological unit code.
+#'   \item HUC6_Name: USGS Basin name.
+#'   \item HUC6_full: Concatenation of the HUC6 and HUC6_Name fields.
+#'   \item HUC8: Subbasin eight digit USGS hydrological unit code.
+#'   \item HUC8_Name: USGS Subbasin name.
+#'   \item HUC8_full: Concatenation of the HUC8 and HUC8_Name fields.
+#'   \item HUC10: Watershed ten digit USGS hydrological unit code.
+#'   \item HUC10_Name: USGS Watershed name.
+#'   \item HUC10_full: Concatenation of the HUC10 and HUC10_Name fields.
 #'   \item GLOBALID: Unique ID for every NHD reach record. Used for joins with TMDL GIS features.
 #'   \item Permanent_Identifier: NHD Permanent Identifier.
 #'   \item ReachCode: NHD reach code.

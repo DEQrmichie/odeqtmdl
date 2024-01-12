@@ -25,13 +25,13 @@ tmdl_export_attains(
 
 \item{df_tmdl_wla:}{Data frame formatted the same as \code{\link{tmdl_wla}}. Default is NULL and the \code{\link{tmdl_wla}} data table will be used.}
 
-\item{AU_IDs:}{Vector of assessment units used to filter 'tmdl_aus'. Default is NULL and all AU IDs are included.}
+\item{AU_IDs:}{Vector of assessment units used to filter 'tmdl_au'. Default is NULL and all AU IDs are included.}
 
-\item{status_attains:}{Vector of the attains status used to filter 'tmdl_aus'. Default is NULL and all statuses are included.}
+\item{status_attains:}{Vector of the attains status used to filter 'tmdl_au'. Default is NULL and all statuses are included.}
 
-\item{action_ids:}{Vector of action IDs used to filter 'tmdl_aus'. Default is NULL and all action IDs are included.}
+\item{action_ids:}{Vector of action IDs used to filter 'tmdl_au'. Default is NULL and all action IDs are included.}
 
-\item{TMDL_param:}{Vector of water quality  parameter names used to filter 'tmdl_aus'. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
+\item{TMDL_param:}{Vector of water quality  parameter names used to filter 'tmdl_au'. The output will include TMDLs that addressed that water quality parameter. Default is NULL and all parameters are included.}
 
 \item{TMDL_pollu:}{Vector of TMDL pollutant parameter names used to filter the TMDLs. The output will include TMDLs that addressed that pollutant parameter. Default is NULL and all pollutants are included.}
 }

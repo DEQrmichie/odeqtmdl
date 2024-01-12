@@ -16,9 +16,11 @@
 #'   \item target_type:	Type of target, e.g. concentration, load, clarity, percent, temperature.
 #'   \item target_value:	Value of TMDL target.
 #'   \item target_units:	Parameter units of the TMDL target.
-#'   \item Unit_UID: Parameter unit ID.
+#'   \item Unit_UID: Parameter unit Unique ID. UIDs are the same as Oregon DEQ's AWQMS database.
 #'   \item target_time_base:	The time period to use with the statistical base to assess results against the TMDL target.
+#'   \item time_base_UID:  The target time period unique ID. UIDs are the same as Oregon DEQ's AWQMS database. NA indicates a UID has not been assigned.
 #'   \item target_stat_base:	The statistical method used to assess results against the TMDL target.
+#'   \item stat_base_UID: The statistical method unique ID. UIDs are the same as Oregon DEQ's AWQMS database. NA indicates a UID has not been assigned.
 #'   \item season_start:	The beginning of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
 #'   \item season_end:	The end of the period when the target applies. Date in format '%b %d' (e.g Aug 31)
 #'   \item target_conditionals:	Specific conditions or information describing how or when to apply the target.

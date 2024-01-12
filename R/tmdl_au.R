@@ -46,12 +46,12 @@
 #'      \item Both: Identifies assessment units where pollutant loading is from point sources and nonpoint sources.
 #'      }
 #'   \item Pollu_ID: DEQ water quality parameter ID. ID is for the parameter in 'TMDL_wq_limited_parameter'.
-#'   \item HUC_6: Basin six digit USGS hydrological unit code
-#'   \item HU_6_NAME: USGS Basin name.
-#'   \item HUC6_full: Concatenation of the HUC_6 and HU_6_NAME fields.
-#'   \item HUC_8: Subbasin six digit USGS hydrological unit code.
-#'   \item HU_8_NAME: USGS Subbasin name.
-#'   \item HUC8_full: Concatenation of the HUC_8 and HU_8_NAME fields.
+#'   \item HUC6: Basin six digit USGS hydrological unit code
+#'   \item HUC6_Name: USGS Basin name.
+#'   \item HUC6_full: Concatenation of the HUC6 and HUC6_Name fields.
+#'   \item HUC8: Subbasin six digit USGS hydrological unit code.
+#'   \item HUC8_Name: USGS Subbasin name.
+#'   \item HUC8_full: Concatenation of the HUC8 and HUC8_Name fields.
 #'   \item AU_ID:	Assessment Unit ID.
 #'   \item AU_Name: Name of the assessment unit
 #'   \item AU_Description: Assessment unit descriptions

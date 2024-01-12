@@ -5,7 +5,7 @@
 \alias{tmdl_parameters}
 \title{Oregon TMDL parameters}
 \format{
-An object of class \code{data.frame} with 352 rows and 7 columns.
+An object of class \code{data.frame} with 685 rows and 7 columns.
 }
 \usage{
 data(tmdl_parameters)
@@ -29,7 +29,7 @@ Database fields include:
   \item TMDL_status_comment: Note summarizing information about the TMDL and if it was replaced or modified.
   \item scope_narrative:	Narrative summary of where the TMDL allocations apply.
   \item revision_action_id: The EPA ATTAINS action ID assigned to the TMDL revision.
-  \item TMDL_mapped: Boolean to indicate if the TMDL parameter and pollutant scope has mapped in a GIS.
+  \item TMDL_mapped: logical to indicate if the TMDL parameter and pollutant scope has mapped in a GIS.
 }
 }
 \examples{

@@ -1,10 +1,11 @@
 # odeqtmdl
 
-The odeqtmdl R package includes data tables of TMDL information from non-tribal 
-TMDLs in Oregon and a set of functions that assist in assessment of water quality 
-data against select TMDL targets. The data tables are still in development and 
-for some TMDLs may be incomplete. See each relevant TMDL document 
-for the official record.
+The odeqtmdl R package includes data tables of Oregon TMDL information and 
+a set of functions that assist in assessment of water quality data against 
+select TMDL targets. The TMDL information is still being assembled and is 
+undergoing review. Some information may not be accurate or complete.
+TMDLs developed by tribal governments are not included at this time. See 
+each relevant TMDL document for the official record.
 
 https://www.oregon.gov/deq/wq/tmdls/Pages/default.aspx
 
@@ -31,7 +32,7 @@ Note this table is large and may take a minute to load.
 odeqtmdl::tmdl_reaches()
 ```
 
-Inventory of assessment units and unique stream name (GNIS) assessment units 
+Inventory of assessment units and unique stream name (GNIS) watershed assessment units 
 where non-tribal Oregon TMDLs have been developed. 
 ```R
 odeqtmdl::tmdl_au

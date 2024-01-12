@@ -1,7 +1,7 @@
 Package: odeqtmdl
 Type: Package
 Title: Oregon TMDL database
-Version: 0.8.4
+Version: 0.9.1
 Authors@R: 
     c(person(given = "Ryan",
            family = "Michie",
@@ -14,7 +14,7 @@ Authors@R:
 Description: The odeqtmdl R package includes data tables of Oregon TMDL information 
              and a set of functions that assist in assessment of water quality data against 
              select TMDL targets. The TMDL information is still being assembled and is 
-             undergoing review. Some information may not be accurate. 
+             undergoing review. Some information may not be accurate or complete. 
              See each relevant TMDL document for the official record.
              TMDLs developed by tribal governments are not included at this time.
 License: MIT + file LICENSE

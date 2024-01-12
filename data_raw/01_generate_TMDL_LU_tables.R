@@ -90,7 +90,7 @@ tmdl_actions <- tmdl_actions_tbl %>%
   dplyr::distinct() %>%
   dplyr::mutate(TMDL_issue_date = as.Date(TMDL_issue_date),
                 EPA_action_date = as.Date(EPA_action_date)) %>%
-  dplyr::arrange(TMDL_issue_year,
+  dplyr::arrange(TMDL_issue_date,
                  TMDL_name) %>%
   as.data.frame()
 
@@ -102,8 +102,8 @@ save(tmdl_actions, file = file.path(paths$package_path[1], "data", "tmdl_actions
 tmdl_geo_ids <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                    sheet = "tmdl_geo_ids",
                                    col_names = TRUE, skip = 1,
-                                   col_types = c('text', 'text', 'logical', 'text', 'numeric',
-                                                 'text')) %>%
+                                   col_types = c("text", "text", "logical",
+                                                 "text", "text", "numeric")) %>%
   dplyr::select(action_id, geo_id, geo_description, geo_id_mapped) %>%
   arrange(action_id, geo_id) %>%
   as.data.frame()
@@ -116,10 +116,11 @@ save(tmdl_geo_ids, file = file.path(paths$package_path[1], "data", "tmdl_geo_ids
 tmdl_targets <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
                                    sheet = "tmdl_targets",
                                    col_names = TRUE, skip = 1,
-                                   col_types = c("text", "text", "numeric", "text", "text",
+                                   col_types = c("text", "text", "text", "numeric", "text",
                                                  "text", "text", "text", "text", "text",
-                                                 "numeric", "text", "text", "date", "date",
-                                                 "text", "text", "text", "text")) %>%
+                                                 "numeric", "text", "numeric", "text", "numeric",
+                                                 "date", "date", "text", "text", "text",
+                                                 "text")) %>%
   dplyr::mutate(season_start = format(season_start, "%b %d"),
                 season_end = format(season_end, "%b %d"),
                 target_value = case_when(grepl("^[[:digit:]]", target_value) ~ as.character(as.numeric(target_value)),
@@ -133,7 +134,9 @@ tmdl_targets <- readxl::read_excel(file.path(paths$package_path[1], "data_raw", 
                 target_units,
                 Unit_UID,
                 target_time_base,
+                time_base_UID,
                 target_stat_base,
+                stat_base_UID,
                 season_start,
                 season_end,
                 target_conditionals,
@@ -150,14 +153,16 @@ save(tmdl_targets, file = file.path(paths$package_path[1], "data", "tmdl_targets
 #- point_sources ---------------------------------------------------------------
 
 tmdl_wla <- readxl::read_excel(path = file.path(paths$package_path[1], "data_raw", "TMDL_db_tabular.xlsx"),
-                                   sheet = "point_sources",
-                                   col_names = TRUE, skip = 1,
-                                   col_types = c("text", "text", "text", "text", "text",
-                                                 "text", "text", "text", "text", "date",
-                                                 "date")) %>%
+                               sheet = "point_sources",
+                               col_names = TRUE, skip = 1,
+                               col_types = c("text", "text", "text", "text", "text",
+                                             "text", "text", "text", "text", "numeric",
+                                             "date", "date")) %>%
   dplyr::mutate(WLA_season_start = format(WLA_season_start, "%b %d"),
                 WLA_season_end = format(WLA_season_end, "%b %d")) %>%
-  dplyr::select(-WLA, -WLA_units, -WLA_season_start, -WLA_season_end)
+  dplyr::select(action_id, AU_ID, TMDL_pollutant, EPANum,
+                WQFileNum, facility_name,
+                -TMDL_name, -WLA, -WLA_units, -Unit_UID, -WLA_season_start, -WLA_season_end)
 
 # Save a copy in data folder (replaces existing)
 save(tmdl_wla, file = file.path(paths$package_path[1], "data", "tmdl_wla.rda"))

@@ -1,7 +1,7 @@
 // Use DBML to define your database structure
 // Docs: https://dbml.dbdiagram.io/docs
 
-// https://dbdiagram.io/d/tmdl-core-650fb148ffbf5169f0600bc7
+// https://dbdiagram.io/d/TMDL_db_structure-650fb148ffbf5169f0600bc7
 
 Table tmdl_actions {
 action_id  text [primary key]
@@ -45,7 +45,9 @@ target_value text
 target_units text
 Unit_UID numeric
 target_time_base text
+time_base_UID numeric
 target_stat_base text
+stat_base_UID numeric
 season_start text
 season_end text
 target_conditionals text
@@ -63,15 +65,16 @@ Period text
 Source text
 geo_id text
 Pollu_ID numeric
-HUC_6 text
-HU_6_NAME text
+HUC6 text
+HU_6_Name text
 HUC6_full text
-HUC_8 text
-HU_8_NAME text
+HUC8 text
+HU8_Name text
 HUC8_full text
-HUC_10 text
-HU_10_NAME text
+HUC10 text
+HU10_Name text
 HUC10_full text
+GLOBALID text
 Permanent_Identifier text
 ReachCode text
 GNIS_Name text
@@ -92,12 +95,15 @@ TMDL_scope text
 Period text
 Source text
 Pollu_ID numeric
-HUC_6 text
-HU_6_NAME text
+HUC6 text
+HUC6_Name text
 HUC6_full text
-HUC_8 text
-HU_8_NAME text
+HUC8 text
+HUC8_Name text
 HUC8_full text
+HUC10 text
+HU10_Name text
+HUC10_full text
 AU_ID text
 AU_Name text
 AU_Description text
@@ -114,12 +120,15 @@ TMDL_scope text
 Period text
 Source text
 Pollu_ID numeric
-HUC_6 text
-HU_6_NAME text
+HUC6 text
+HUC6_Name text
 HUC6_full text
-HUC_8 text
-HU_8_NAME text
+HUC8 text
+HUC8_Name text
 HUC8_full text
+HUC10 text
+HU10_Name text
+HUC10_full text
 AU_ID text
 AU_Name text
 AU_GNIS_Name text

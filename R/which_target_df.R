@@ -9,10 +9,20 @@
 
 which_target_df <- function(df, all_obs = TRUE){
 
-  tmdl_db_tmp <- odeqtmdl::tmdl_db[, c("ReachCode", "pollutant_name_AWQMS", "geo_id", "TMDL_name", "TMDL_issue_year",
+  tmdl_db_tmp <- odeqtmdl::tmdl_reaches()[,c("action_id", "ReachCode", "TMDL_pollutant", "geo_id")] %>%
+    dplyr::filter(ReachCode %in% df$Reachcode)
+
+  tmdl_info <- odeqtmdl::tmdl_actions[, c("action_id", "TMDL_name", "TMDL_issue_year")]
+  tmdl_db_tmp <- merge(tmdl_db_tmp, tmdl_info, by = "action_id", all.x = T, all.y = F)
+
+  target_info <- odeqtmdl::tmdl_targets[, c("action_id", "target_value", "target_units", "target_stat_base", "target_type",
+                                            "season_start", "season_end", "target_conditionals")]
+  tmdl_db_tmp <- merge(tmdl_db_tmp, target_info, by = "action_id", all.x = T, all.y = F)
+
+  tmdl_db_tmp <- tmdl_db_tmp[, c("ReachCode", "TMDL_pollutant", "geo_id", "TMDL_name", "TMDL_issue_year",
                                         "target_value", "target_units", "target_stat_base", "target_type", "season_start",
-                                        "season_end", "target_conditionals_references")] %>%
-    dplyr::filter(is.na(target_conditionals_references), target_type %in% c("temperature", "concentration")) %>%
+                                        "season_end", "target_conditionals")] %>%
+    dplyr::filter(is.na(target_conditionals), target_type %in% c("temperature", "concentration")) %>%
     # dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base, TMDL_name, TMDL_issue_year,
     #                 season_start, season_end) %>%
     # dplyr::summarise(target_value = min(target_value, na.rm = TRUE)
@@ -22,7 +32,8 @@ which_target_df <- function(df, all_obs = TRUE){
     dplyr::select(-TMDL_issue_year, -TMDL_name)
 
   df <- merge(df, tmdl_db_tmp,
-              by.x = c("Reachcode", "Char_Name"), by.y = c("ReachCode", "pollutant_name_AWQMS"), all.x = all_obs, all.y = FALSE)
+              by.x = c("Reachcode", "Char_Name"), by.y = c("ReachCode", "TMDL_pollutant"), all.x = all_obs, all.y = FALSE)
+  df$target_value <- as.numeric(df$target_value)
 
   if(nrow(df) > 0){
     df <- df %>% dplyr::mutate(
@@ -63,7 +74,7 @@ which_target_df <- function(df, all_obs = TRUE){
       # Print if result is in spawn or out of spawn
       Spawn_type = ifelse((sample_datetime >= Start_spawn & sample_datetime <= End_spawn & !is.na(Start_spawn)),  "Spawn", "Not_Spawn")
     ) %>% dplyr::select(-season_start, -season_end)
-    
+
     df <- df %>% dplyr::mutate(Spawn_type = case_when((Char_Name %in% c("Total Phosphorus, mixed forms", "Total suspended solids")) ~ NA_character_,
                                                       TRUE ~ as.character(Spawn_type)))
   }

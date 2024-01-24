@@ -125,7 +125,7 @@ tmdl_export_gdb <- function(gdb_path, gdb_fc, tmdl_reaches, tmdl_actions = NULL,
     df <- df %>%
       dplyr::left_join(tmdl_actions_tbl, by = "action_id") %>%
       dplyr::mutate(TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
-      group_by(GLOBALID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full, TMDL_status) %>%
+      group_by(GLOBALID, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full, TMDL_status) %>%
       summarize(action_id = paste((unique(action_id)), collapse = "; "),
                 TMDL_name = paste((unique(TMDL_name)), collapse = "; "),
                 TMDL_wq_limited_parameter = paste(sort(unique(TMDL_wq_limited_parameter)), collapse = "; "),

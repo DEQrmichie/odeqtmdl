@@ -2,6 +2,8 @@
 
 # It should be opened within the Project Rstudio view so the working directory is set correctly.
 
+# This does not update the LU tables
+
 library(odeqtmdl)
 library(readxl)
 
@@ -9,8 +11,8 @@ library(readxl)
 # update/import everything
 # update_action_ids <- unique(odeqtmdl::tmdl_actions$action_id)
 
-# update everything from select action ids
-update_action_ids <- c("OR_TMDL_20230915")
+# update info for specific action ids
+update_action_ids <- c("2039", "2038", "OR_TMDL_20191122", "OR_TMDL_20191230", "OR_TMDL_20230915")
 
 # Read paths
 paths <- readxl::read_excel(path = "data_raw/project_paths.xlsx",

@@ -39,6 +39,11 @@ tmdl_scope_gids <- dplyr::filter(tmdl_reaches, TMDL_scope == "TMDL") %>%
   unique() %>%
   sort()
 
+geo_ids_gids <- dplyr::filter(tmdl_reaches, !is.na(geo_id)) %>%
+  dplyr::pull(GLOBALID) %>%
+  unique() %>%
+  sort()
+
 # filter nhd to only where TMDLs apply
 tmdl_reach_fc <- nhd_fc %>%
   dplyr::filter(GLOBALID %in% tmdl_gids) %>%
@@ -47,6 +52,12 @@ tmdl_reach_fc <- nhd_fc %>%
                 HUC12,
                 AU_GNIS, AU_GNIS_Name, GLOBALID, Permanent_Identifier,
                 WBArea_Permanent_Identifier, FType)
+
+# Dissolve to geo_ids
+tmdl_geo_id_fc <- nhd_fc %>%
+  dplyr::filter(GLOBALID %in% geo_ids_gids) %>%
+  dplyr::select(AU_ID, AU_Name, AU_Description, AU_WBType, GNIS_ID, GNIS_Name,
+                AU_GNIS, AU_GNIS_Name, GLOBALID)
 
 # Dissolve to AUs
 tmdl_au_fc <- tmdl_reach_fc %>%
@@ -64,8 +75,11 @@ tmdl_au_gnis_fc <- tmdl_reach_fc %>%
   ungroup()
 
 save(tmdl_reach_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_reach_fc.rda"))
+save(tmdl_geo_id_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_geo_id_fc.rda"))
 save(tmdl_au_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_au_fc.rda"))
 save(tmdl_au_gnis_fc, file = file.path(paths$package_path[1], "data_raw", "tmdl_au_gnis_fc.rda"))
+
+rm(tmdl_au_gnis_fc, tmdl_reach_fc, tmdl_gids, tmdl_scope_gids, geo_ids_gids)
 
  # -load base features----------------------------------------------------------
 
@@ -79,12 +93,15 @@ load(file = file.path(paths$package_path[1], "data_raw", "tmdl_au_fc.rda"))
 #load(file.path(paths$package_path[1], "data", "tmdl_au.rda"))
 
 #- TMDLs by reach --------------------------------------------------------------
+# ~30 min`
+
+time_start1 <- Sys.time()
+
+gdb_path <- file.path(paths$tmdl_reaches_shp[1], "Maps", "web_map", "OR_TMDLs.gdb")
 
 fc_name <- "TMDLs_by_reach"
 
 # This version separates pollutants by TMDL scope.
-
-
 
 df1 <- tmdl_reaches %>%
   dplyr::filter(!AU_ID == "99") %>%
@@ -96,7 +113,7 @@ df1 <- tmdl_reaches %>%
                 Scope_TMDL = if_else(TMDL_scope == "TMDL", TMDL_pollutant, NA_character_),
                 Scope_Allocation_only = if_else(TMDL_scope == "Allocation only", TMDL_pollutant, NA_character_),
                 Scope_Advisory_allocation = if_else(TMDL_scope == "Advisory allocation", TMDL_pollutant, NA_character_)) %>%
-  group_by(GLOBALID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full) %>%
+  group_by(GLOBALID, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full) %>%
   summarize(action_ids = pastee(action_id),
             TMDL_names = pastee(TMDL_name),
             TMDL_wq_limited_parameters = pastee(TMDL_wq_limited_parameter),
@@ -154,11 +171,11 @@ tmdls_by_reach <- nhd_fc %>%
                          "Scope_Advisory_allocation")),
                 TMDL_status,
                 geo_id,
-                HUC_6,
-                HU_6_NAME,
+                HUC6,
+                HUC6_Name,
                 HUC6_full,
-                HUC_8,
-                HU_8_NAME,
+                HUC8,
+                HUC8_Name,
                 HUC8_full,
                 GLOBALID,
                 Permanent_Identifier,
@@ -180,7 +197,14 @@ arc.write(path = file.path(gdb_path, fc_name),
           validate = TRUE,
           overwrite = TRUE)
 
+time_end1 <- Sys.time()
+time_end1 - time_start1
+
+rm(df1, tmdls_by_reach)
+
 #- TMDLs by AU -----------------------------------------------------------------
+
+time_start2 <- Sys.time()
 
 fc_name <- "TMDLs_by_AU"
 
@@ -192,7 +216,7 @@ df3 <- odeqtmdl::tmdl_au %>%
   dplyr::filter(TMDL_status == "Active") %>%
   dplyr::left_join(odeqtmdl::tmdl_actions[,c("action_id", "TMDL_name", "citation_abbreviated")], by = "action_id") %>%
   dplyr::mutate(TMDL_name = paste0(TMDL_name," (",citation_abbreviated,")")) %>%
-  group_by(AU_ID, HUC_6, HU_6_NAME, HUC6_full, HUC_8, HU_8_NAME, HUC8_full) %>%
+  group_by(AU_ID, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full) %>%
   summarize(action_ids = pastee(action_id),
             TMDL_names = pastee(TMDL_name),
             TMDL_wq_limited_parameters = pastee(TMDL_wq_limited_parameter),
@@ -208,11 +232,11 @@ tmdls_by_au <- tmdl_au_fc %>%
                 TMDL_pollutants,
                 TMDL_scope,
                 TMDL_status,
-                HUC_6,
-                HU_6_NAME,
+                HUC6,
+                HUC6_Name,
                 HUC6_full,
-                HUC_8,
-                HU_8_NAME,
+                HUC8,
+                HUC8_Name,
                 HUC8_full,
                 AU_ID,
                 AU_Name,
@@ -225,7 +249,41 @@ arc.write(path = file.path(gdb_path, fc_name),
           validate = TRUE,
           overwrite = TRUE)
 
+time_end2 <- Sys.time()
+time_end2 - time_start2
+
+rm(df3, tmdls_by_au)
+
+#- geo IDs ---------------------------------------------------------------------
+
+fc_name <- "geo_ids"
+
+tmdl_reach_geo_ids_only <- dplyr::filter(tmdl_reaches, !is.na(geo_id)) %>%
+  left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_status")],
+            by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  filter(TMDL_status == "Active") %>%
+  select(geo_id, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full, GLOBALID) %>%
+  distinct()
+
+tmdl_geo_ids <- tmdl_geo_id_fc %>%
+  inner_join(y = tmdl_reach_geo_ids_only, by = "GLOBALID") %>%
+  group_by(geo_id, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full,
+           AU_ID, AU_Name, AU_Description, AU_WBType,
+           AU_GNIS, AU_GNIS_Name) %>%
+  summarize() %>%
+  ungroup() %>%
+  arrange(geo_id, AU_ID, AU_GNIS)
+
+arc.write(path = file.path(gdb_path, fc_name),
+          data = tmdl_geo_ids,
+          validate = TRUE,
+          overwrite = TRUE)
+
 #- Write Tables ----------------------------------------------------------------
+# ~1.2 hours
+
+time_start3 <- Sys.time()
+
 arc.write(path = file.path(gdb_path, "tmdl_actions"),
           data = odeqtmdl::tmdl_actions %>% mutate(TMDL_issue_date = as.POSIXct(TMDL_issue_date),
                                                    EPA_action_date = as.POSIXct(EPA_action_date)),
@@ -255,12 +313,19 @@ arc.write(path = file.path(gdb_path, "tmdl_reaches"),
           data = tmdl_reaches,
           overwrite = TRUE)
 
+time_start <- Sys.time()
+
+time_end3 <- Sys.time()
+time_end3 - time_start3
+
 #- Outputs by TMDL parameter ---------------------------------------------------
+# ~ 2 hours
 
 sort(unique(tmdl_reaches$TMDL_wq_limited_parameter))
 
+time_start4 <- Sys.time()
+
 param_names <- c(
-  "Aesthetics" = "Aesthetics",
   "Ammonia" = "Ammonia",
   "Aquatic Weeds" = "Aquatic_Weeds",
   "BioCriteria" = "BioCriteria",
@@ -293,10 +358,12 @@ param_names <- c(
 
 gdb_path <- file.path(paths$tmdl_reaches_shp[1], "Maps", "web_map", "OR_TMDLs.gdb/TMDLs_by_wq_limited_parameter")
 
+tmdl_params_df <- odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_status")] %>%
+  filter(action_id %in% unique(tmdl_reaches$action_id))
+
 TMDL_params <- tmdl_reaches %>%
   filter(!AU_ID == "99") %>%
-  left_join(odeqtmdl::tmdl_parameters[,c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant", "TMDL_status")],
-                   by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+  left_join(tmdl_params_df, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
   filter(TMDL_status == "Active") %>%
   select(TMDL_wq_limited_parameter) %>%
   distinct() %>%
@@ -312,6 +379,12 @@ for (param in TMDL_params) {
                              TMDL_param = param, TMDL_pollu = NULL)
 }
 
+time_end4 <- Sys.time()
+time_end4 - time_start4
+
+# Time -------------------------------------------------------------------------
+
+time_end4 - time_start1
 
 #- Outputs by TMDL pollutant ---------------------------------------------------
 
@@ -348,6 +421,7 @@ pollu_names <- c(
   "Polychlorinated Biphenyls (PCBs)" = "PCBs",
   "Sediment Oxygen Demand" = "SOD",
   "Sedimentation" = "Sedimentation",
+  "Solar Radiation" = "Solar_Radiation",
   "Total Dissolved gas" = "TDG",
   "Total Nitrogen" = "Total_Nitrogen",
   "Total Phosphorus" = "Total_Phosphorus",

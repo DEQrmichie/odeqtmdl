@@ -2,7 +2,7 @@
 #'
 #' Exports all or a subset of the Oregon TMDL assessment unit data table (\code{\link{tmdl_au}})
 #' as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced.
-#' The format is based on EPA's tmdl_action_batchupload_template_2022-07-18.
+#' The format is based on EPA's TMDL action template version 1.4, released on 2022-07-18.
 #'
 #' @param out_dir: The directory to save the output csv files.
 #' @param df_tmdl_actions: Data frame formatted the same as \code{\link{tmdl_actions}}, Default is NULL and the \code{\link{tmdl_actions}} data table will be used.
@@ -99,7 +99,7 @@ tmdl_export_attains <- function(out_dir,
 
   df_pollu <- odeqtmdl::LU_pollutant
 
-# - Actions --------------------------------------------------------------------
+  # - Actions --------------------------------------------------------------------
 
   actions_csv <- df %>%
     dplyr::mutate(AGENCY_CODE = "S",
@@ -123,82 +123,94 @@ tmdl_export_attains <- function(out_dir,
     dplyr::distinct() %>%
     dplyr::arrange(ACTION_ID)
 
-    write.csv(x = actions_csv, file = file.path(out_dir, "Actions.csv"),
-              row.names = FALSE, na = "")
+  write.csv(x = actions_csv, file = file.path(out_dir, "Actions.csv"),
+            row.names = FALSE, na = "")
 
-# - Pollutants -----------------------------------------------------------------
+  # - Pollutants -----------------------------------------------------------------
 
-    pollu_csv <- df %>%
-      dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
-      dplyr::mutate(EXPLICIT_MARGIN_OF_SAFETY = NA_character_,
-                    IMPLICIT_MARGIN_OF_SAFETY = NA_character_,
-                    TMDL_END_POINT = NA_character_) %>%
-      dplyr::rename(ACTION_ID = action_id,
-                    ASSESSMENT_UNIT_ID = AU_ID,
-                    POLLUTANT_NAME = Attains_Pollutant,
-                    POLLUTANT_SOURCE_TYPE = Source) %>%
-      dplyr::select(ACTION_ID,
-                    ASSESSMENT_UNIT_ID,
-                    POLLUTANT_NAME,
-                    POLLUTANT_SOURCE_TYPE,
-                    EXPLICIT_MARGIN_OF_SAFETY,
-                    IMPLICIT_MARGIN_OF_SAFETY,
-                    TMDL_END_POINT) %>%
-      dplyr::distinct() %>%
-        dplyr::arrange(ACTION_ID,
-                       ASSESSMENT_UNIT_ID,
-                       POLLUTANT_NAME)
+  pollu_csv <- df %>%
+    dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+    dplyr::mutate(EXPLICIT_MARGIN_OF_SAFETY = NA_character_,
+                  IMPLICIT_MARGIN_OF_SAFETY = NA_character_,
+                  TMDL_END_POINT = NA_character_) %>%
+    dplyr::rename(ACTION_ID = action_id,
+                  ASSESSMENT_UNIT_ID = AU_ID,
+                  POLLUTANT_NAME = Attains_Pollutant,
+                  POLLUTANT_SOURCE_TYPE = Source) %>%
+    dplyr::select(ACTION_ID,
+                  ASSESSMENT_UNIT_ID,
+                  POLLUTANT_NAME,
+                  POLLUTANT_SOURCE_TYPE,
+                  EXPLICIT_MARGIN_OF_SAFETY,
+                  IMPLICIT_MARGIN_OF_SAFETY,
+                  TMDL_END_POINT) %>%
+    dplyr::distinct() %>%
+    dplyr::arrange(ACTION_ID,
+                   ASSESSMENT_UNIT_ID,
+                   POLLUTANT_NAME)
 
-      write.csv(x = pollu_csv, file = file.path(out_dir, "Pollutants.csv"),
-                row.names = FALSE, na = "")
+  write.csv(x = pollu_csv, file = file.path(out_dir, "Pollutants.csv"),
+            row.names = FALSE, na = "")
 
-      # - Parameter ------------------------------------------------------------
+  # - Parameter ------------------------------------------------------------
 
-      param_csv <- df %>%
-        dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
-        dplyr::rename(ACTION_ID = action_id,
-                      ASSESSMENT_UNIT_ID = AU_ID,
-                      ASSOCIATED_POLLUTANT = Attains_Pollutant) %>%
-      dplyr::left_join(df_pollu, by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
-        dplyr::rename(PARAMETER_NAME = Attains_Pollutant) %>%
-      dplyr::select(ACTION_ID,
-                    ASSESSMENT_UNIT_ID,
-                    ASSOCIATED_POLLUTANT,
-                    PARAMETER_NAME) %>%
-        distinct() %>%
-        dplyr::arrange(ACTION_ID,
-                       PARAMETER_NAME,
-                       ASSOCIATED_POLLUTANT,
-                       ASSESSMENT_UNIT_ID)
+  param_csv <- df %>%
+    dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+    dplyr::rename(ACTION_ID = action_id,
+                  ASSESSMENT_UNIT_ID = AU_ID,
+                  ASSOCIATED_POLLUTANT = Attains_Pollutant) %>%
+    dplyr::left_join(df_pollu, by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+    dplyr::rename(PARAMETER_NAME = Attains_Pollutant) %>%
+    dplyr::select(ACTION_ID,
+                  ASSESSMENT_UNIT_ID,
+                  ASSOCIATED_POLLUTANT,
+                  PARAMETER_NAME) %>%
+    dplyr::distinct() %>%
+    dplyr::arrange(ACTION_ID,
+                   PARAMETER_NAME,
+                   ASSOCIATED_POLLUTANT,
+                   ASSESSMENT_UNIT_ID)
 
-      write.csv(x = param_csv, file = file.path(out_dir, "Parameters.csv"),
-                row.names = FALSE, na = "")
+  write.csv(x = param_csv, file = file.path(out_dir, "Parameters.csv"),
+            row.names = FALSE, na = "")
 
-      # - Permit ---------------------------------------------------------------
+  # - Permit ---------------------------------------------------------------
 
-      permit_csv <- df_wla %>%
-        dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
-        dplyr::mutate(WASTE_LOAD_ALLOCATION = NA_character_,
-                      WASTE_LOAD_ALLOCATION_UNIT = NA_character_,
-                      SEASON_START = NA_character_,
-                      SEASON_END = NA_character_) %>%
-        dplyr::rename(ACTION_ID = action_id,
-                      ASSESSMENT_UNIT_ID = AU_ID,
-                      POLLUTANT_NAME = Attains_Pollutant,
-                      NPDES_IDENTIFIER = EPANum,
-                      OTHER_IDENTIFIER = WQFileNum) %>%
-        dplyr::select(ACTION_ID,
-                      ASSESSMENT_UNIT_ID,
-                      POLLUTANT_NAME,
-                      NPDES_IDENTIFIER,
-                      OTHER_IDENTIFIER,
-                      WASTE_LOAD_ALLOCATION,
-                      WASTE_LOAD_ALLOCATION_UNIT,
-                      SEASON_START,
-                      SEASON_END)
+  permit_csv <- df_wla %>%
+    dplyr::left_join(df_pollu, by = c("TMDL_pollutant" = "Pollutant_DEQ")) %>%
+    dplyr::mutate(WASTE_LOAD_ALLOCATION = NA_character_,
+                  WASTE_LOAD_ALLOCATION_UNIT = NA_character_,
+                  SEASON_START = NA_character_,
+                  SEASON_END = NA_character_) %>%
+    dplyr::rename(ACTION_ID = action_id,
+                  ASSESSMENT_UNIT_ID = AU_ID,
+                  POLLUTANT_NAME = Attains_Pollutant,
+                  NPDES_IDENTIFIER = EPANum,
+                  OTHER_IDENTIFIER = WQFileNum) %>%
+    dplyr::select(ACTION_ID,
+                  ASSESSMENT_UNIT_ID,
+                  POLLUTANT_NAME,
+                  NPDES_IDENTIFIER,
+                  OTHER_IDENTIFIER,
+                  WASTE_LOAD_ALLOCATION,
+                  WASTE_LOAD_ALLOCATION_UNIT,
+                  SEASON_START,
+                  SEASON_END)
 
-      write.csv(x = permit_csv, file = file.path(out_dir, "Permit.csv"),
-                row.names = FALSE, na = "")
+  write.csv(x = permit_csv, file = file.path(out_dir, "Permit.csv"),
+            row.names = FALSE, na = "")
+
+  # - README ---------------------------------------------------------------
+
+  readme_txt <- c(paste0("ATTAINS batch upload csv files were generated using the odeqtmdl R package version ", packageVersion('odeqtmdl'),"."),
+                  "",
+                  paste0("Export on ", Sys.time())
+                  )
+
+  file.create(file.path(out_dir,"README.txt"))
+
+  writeLines(text = readme_txt, con = file.path(out_dir,"README.txt"))
+
 
 }
 

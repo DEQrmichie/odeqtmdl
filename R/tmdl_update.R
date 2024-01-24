@@ -77,15 +77,15 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
   }
 
   update_action_ids <- unique(action_ids)
-  update_pattern <- paste0(paste0("action_",update_action_ids), collapse = "|")
 
   # UPDATE TABLES --------------------------------------------------------------
 
   if (update_tables) {
 
-    print("updating tables")
+    cat("Updating tables","\n")
 
     #- tmdl_actions --------------------------------------------------------------
+    cat("-- tmdl_actions\n")
 
     # Read TMDL actions table
     tmdl_actions_tbl <- readxl::read_excel(file.path(xlsx_template),
@@ -130,6 +130,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- tmdl_geo_ids ------------------------------------------------------------
 
+    cat("-- tmdl_geo_ids\n")
     tmdl_geo_ids_update <- readxl::read_excel(file.path(xlsx_template),
                                               sheet = "tmdl_geo_ids",
                                               col_names = TRUE, skip = 1,
@@ -152,6 +153,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- tmdl_targets --------------------------------------------------------------
 
+    cat("-- tmdl_targets\n")
     tmdl_targets_update <- readxl::read_excel(file.path(xlsx_template),
                                               sheet = "tmdl_targets",
                                               col_names = TRUE, skip = 1,
@@ -197,6 +199,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- point_sources WLA--------------------------------------------------------
 
+    cat("-- tmdl_wla\n")
+
     tmdl_wla_update <- readxl::read_excel(path = file.path(xlsx_template),
                                           sheet = "point_sources",
                                           col_names = TRUE, skip = 1,
@@ -221,6 +225,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     save(tmdl_wla, file = file.path(package_path, "data", "tmdl_wla.rda"))
 
     #- tmdl_wqstd ----------------------------------------------------------------
+
+    cat("-- tmdl_wqstd\n")
 
     tmdl_wqstd_update <- readxl::read_excel(path = file.path(xlsx_template),
                                             sheet = "tmdl_wqstd",
@@ -247,6 +253,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
   # UPDATE REACHES -------------------------------------------------------------
 
   if (update_reaches) {
+
+    cat("Updating reaches\n")
 
     #- ornhd -------------------------------------------------------------------
 
@@ -276,15 +284,20 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                     AU_GNIS = dplyr::case_when(grepl("_WS", AU_ID, fixed = TRUE) & is.na(AU_GNIS) ~ paste0(AU_ID,";"),
                                                !grepl("_WS", AU_ID, fixed = TRUE) ~ NA_character_,
                                                TRUE ~ AU_GNIS)) %>%
-      dplyr::left_join(huc6) %>%
-      dplyr::left_join(huc8) %>%
-      dplyr::left_join(huc10) %>%
+      dplyr::left_join(huc6, by = "HUC6") %>%
+      dplyr::left_join(huc8, by = "HUC8") %>%
+      dplyr::left_join(huc10, by = "HUC10") %>%
       dplyr::distinct()
 
     #- tmdl_reaches ------------------------------------------------------------
 
+    cat("-- tmdl_reaches\n")
+
+    update_pattern <- paste0(paste0("^action_",update_action_ids, ".*\\.shp$"),
+                             collapse = "|")
+
     tmdl.shps <- list.files(path = file.path(gis_path),
-                            pattern = paste0("^",update_pattern, ".*\\.shp$"),
+                            pattern = update_pattern,
                             recursive = TRUE, full.names = TRUE)
 
     # exclude files in Supporting folder
@@ -380,7 +393,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_reaches3 <- tmdl_reaches0[[3]] %>% as.data.frame()
     tmdl_reaches4 <- tmdl_reaches0[[4]] %>% as.data.frame()
 
-    print("updating tmdl_reaches")
+    cat("-- tmdl_reaches (saving)\n")
 
     # Save as a RDS file in inst/extdata folder (replaces existing)
     # File is too large to save in data and as single file
@@ -392,7 +405,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- tmdl_au_gnis ------------------------------------------------------------
 
-    print("updating tmdl_au_gnis")
+    cat("-- tmdl_au_gnis\n")
 
     or_au_gnis <- ornhd %>%
       dplyr::select(AU_ID, AU_GNIS, LengthKM) %>%
@@ -414,7 +427,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                               TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
-      dplyr::mutate(Period = case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
+      dplyr::mutate(Period = dplyr::case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
                                          length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
                                        TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
                                          length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
@@ -470,7 +483,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- tmdl_au --------------------------------------------------------------------
 
-    print("updating tmdl_au")
+    cat("-- tmdl_au\n")
 
     or_au <- ornhd %>%
       dplyr::select(AU_ID, LengthKM) %>%
@@ -490,7 +503,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                               TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(action_id, AU_ID, TMDL_wq_limited_parameter) %>%
-      dplyr::mutate(Period = case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
+      dplyr::mutate(Period = dplyr::case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
                                          length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
                                        TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
                                          length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
@@ -546,6 +559,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     #- tmdl_parameters ----------------------------------------------------------
 
+    cat("-- tmdl_parmeters\n")
+
     # Logic to assign "Not Active" TMDL status. This is already attributed in
     # master spreadsheet but leaving here just in case.
 
@@ -571,14 +586,15 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       dplyr::distinct()
 
     tmdl_parameters_update <- tmdl_reaches_update %>%
-      select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
-      distinct() %>%
-      mutate(TMDL_mapped = TRUE) %>%
-      right_join(tmdl_parameters_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
-      select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, TMDL_status, revision_action_id, TMDL_status_comment, TMDL_mapped) %>%
-      mutate(TMDL_mapped = ifelse(is.na(TMDL_mapped), FALSE, TMDL_mapped)) %>%
-      distinct() %>%
-      arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
+      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
+      dplyr::distinct() %>%
+      dplyr::mutate(TMDL_mapped = TRUE) %>%
+      dplyr::right_join(tmdl_parameters_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
+      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
+                    TMDL_status, revision_action_id, TMDL_status_comment, TMDL_mapped) %>%
+      dplyr::mutate(TMDL_mapped = ifelse(is.na(TMDL_mapped), FALSE, TMDL_mapped)) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
       as.data.frame()
 
     # This updates the whole dataframe
@@ -594,6 +610,6 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
   }
 
-  print("Complete")
+  cat("Complete\n")
 
 }

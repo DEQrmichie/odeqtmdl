@@ -5,7 +5,7 @@
 \alias{tmdl_targets}
 \title{Oregon TMDL targets}
 \format{
-An object of class \code{data.frame} with 3633 rows and 18 columns.
+An object of class \code{data.frame} with 265 rows and 18 columns.
 }
 \usage{
 data(tmdl_targets)

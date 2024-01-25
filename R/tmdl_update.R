@@ -121,6 +121,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_actions <- odeqtmdl::tmdl_actions %>%
       dplyr::filter(!action_id %in% update_action_ids) %>%
       rbind(tmdl_actions_update) %>%
+      dplyr::distinct() %>%
       dplyr::arrange(TMDL_issue_date,
                      TMDL_name) %>%
       as.data.frame()
@@ -145,6 +146,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_geo_ids <- odeqtmdl::tmdl_geo_ids %>%
       dplyr::filter(!action_id %in% update_action_ids) %>%
       rbind(tmdl_geo_ids_update) %>%
+      dplyr::distinct() %>%
       dplyr::arrange(action_id, geo_id) %>%
       as.data.frame()
 
@@ -191,6 +193,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_targets <- odeqtmdl::tmdl_targets %>%
       dplyr::filter(!action_id %in% update_action_ids) %>%
       rbind(tmdl_targets_update) %>%
+      dplyr::distinct() %>%
       dplyr::arrange(geo_id) %>%
       as.data.frame()
 
@@ -218,6 +221,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_wla <- odeqtmdl::tmdl_wla %>%
       dplyr::filter(!action_id %in% update_action_ids) %>%
       rbind(tmdl_wla_update) %>%
+      dplyr::distinct() %>%
       dplyr::arrange(action_id, facility_name) %>%
       as.data.frame()
 
@@ -235,7 +239,6 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       dplyr::left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
                        by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
       dplyr::select(action_id, Pollu_ID, wqstd_code) %>%
-      dplyr::distinct() %>%
       dplyr::arrange(action_id, Pollu_ID, wqstd_code) %>%
       as.data.frame()
 
@@ -243,6 +246,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_wqstd <- odeqtmdl::tmdl_wqstd %>%
       dplyr::filter(!action_id %in% update_action_ids) %>%
       rbind(tmdl_wqstd_update) %>%
+      dplyr::distinct() %>%
       dplyr::arrange(action_id, Pollu_ID, wqstd_code) %>%
       as.data.frame()
 
@@ -377,8 +381,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_reaches <- odeqtmdl::tmdl_reaches() %>%
       dplyr::filter(!(action_id %in% update_action_ids)) %>%
       rbind(tmdl_reaches_update) %>%
-      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
       dplyr::distinct() %>%
+      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
       as.data.frame()
 
     num_df <- 4
@@ -474,8 +478,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_au_gnis <- odeqtmdl::tmdl_au_gnis %>%
       dplyr::filter(!(action_id %in% update_action_ids)) %>%
       rbind(tmdl_au_gnis_update) %>%
-      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, AU_GNIS) %>%
       dplyr::distinct() %>%
+      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, AU_GNIS) %>%
       as.data.frame()
 
     # Save a copy in data folder (replaces existing)
@@ -550,8 +554,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_au <- odeqtmdl::tmdl_au %>%
       dplyr::filter(!(action_id %in% update_action_ids)) %>%
       rbind(tmdl_au_update) %>%
-      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID) %>%
       dplyr::distinct() %>%
+      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID) %>%
       as.data.frame()
 
     # Save a copy in data folder (replaces existing)

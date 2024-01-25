@@ -9,7 +9,7 @@ library(readxl)
 
 
 # update/import everything
-# update_action_ids <- unique(odeqtmdl::tmdl_actions$action_id)
+# update_action_ids <- unique(c(odeqtmdl::tmdl_actions$action_id, NA_character_))
 
 # update info for specific action ids
 update_action_ids <- c("2039", "2038", "OR_TMDL_20191122", "OR_TMDL_20191230", "OR_TMDL_20230915")

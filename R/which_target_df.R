@@ -15,12 +15,13 @@ which_target_df <- function(df, all_obs = TRUE){
   tmdl_info <- odeqtmdl::tmdl_actions[, c("action_id", "TMDL_name", "TMDL_issue_year")]
   tmdl_db_tmp <- merge(tmdl_db_tmp, tmdl_info, by = "action_id", all.x = T, all.y = F)
 
-  target_info <- odeqtmdl::tmdl_targets[, c("action_id", "target_value", "target_units", "target_stat_base", "target_type",
+  target_info <- odeqtmdl::tmdl_targets[, c("action_id", "field_parameter", "target_value", "target_units",
+                                            "target_time_base", "target_stat_base", "target_type",
                                             "season_start", "season_end", "target_conditionals")]
   tmdl_db_tmp <- merge(tmdl_db_tmp, target_info, by = "action_id", all.x = T, all.y = F)
 
-  tmdl_db_tmp <- tmdl_db_tmp[, c("ReachCode", "TMDL_pollutant", "geo_id", "TMDL_name", "TMDL_issue_year",
-                                        "target_value", "target_units", "target_stat_base", "target_type", "season_start",
+  tmdl_db_tmp <- tmdl_db_tmp[, c("ReachCode", "TMDL_pollutant", "geo_id", "TMDL_name", "TMDL_issue_year", "target_type",
+                                        "target_value", "target_units", "target_time_base", "target_stat_base", "season_start",
                                         "season_end", "target_conditionals")] %>%
     dplyr::filter(is.na(target_conditionals), target_type %in% c("temperature", "concentration")) %>%
     # dplyr::group_by(ReachCode, pollutant_name_AWQMS, target_units, target_stat_base, TMDL_name, TMDL_issue_year,

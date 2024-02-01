@@ -67,8 +67,8 @@ target_assessment <- function(df){
   }
 
   df_ss <- df %>%
-    dplyr::filter(target_time_base %in% c("sample"),
-                  target_stat_base %in% c("maximum"))
+    dplyr::filter(target_time_base %in% c("sample", NA),
+                  target_stat_base %in% c("maximum", NA))
   if(nrow(df_ss) > 0){
     df_ss$excursion_cen <- if_else(df_ss$tmdl_season & df_ss$Result_cen > df_ss$target_value, 1, 0)
     df_assessed <- bind_rows(df_assessed, df_ss)

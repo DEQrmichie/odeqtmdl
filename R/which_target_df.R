@@ -44,8 +44,8 @@ which_target_df <- function(df, all_obs = TRUE){
       start_datetime = ifelse(!is.na(season_start), paste0(season_start, "-", lubridate::year(sample_datetime)), NA ) ,
       end_datetime = ifelse(!is.na(season_end), paste0(season_end, "-", lubridate::year(sample_datetime)), NA ),
       # Make dates POSIXct format
-      start_datetime = as.POSIXct(start_datetime, format = "%d-%b-%Y"),
-      end_datetime = as.POSIXct(end_datetime, format = "%d-%b-%Y"),
+      start_datetime = as.POSIXct(start_datetime, format = "%b %d-%Y"),
+      end_datetime = as.POSIXct(end_datetime, format = "%b %d-%Y"),
       # If dates span a calendar year, account for year change in end date
       end_datetime = if_else(!is.na(end_datetime),
                              if_else(end_datetime < start_datetime & sample_datetime >= end_datetime,

@@ -5,7 +5,7 @@
 \alias{tmdl_parameters}
 \title{Oregon TMDL parameters}
 \format{
-An object of class \code{data.frame} with 680 rows and 7 columns.
+An object of class \code{data.frame} with 354 rows and 7 columns.
 }
 \usage{
 data(tmdl_parameters)

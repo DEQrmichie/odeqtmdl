@@ -14,7 +14,7 @@
 #'
 #' \itemize{
 #'   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
-#'   \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
+#'   \item TMDL_wq_limited_parameter:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
 #'   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
 #'   \item TMDL_scope: Provides information about how the TMDL applies.
 #'      \itemize{

@@ -5,7 +5,7 @@
 \alias{tmdl_au}
 \title{Oregon TMDL database by assessment unit}
 \format{
-An object of class \code{data.frame} with 31545 rows and 25 columns.
+An object of class \code{data.frame} with 31563 rows and 25 columns.
 }
 \usage{
 data(tmdl_au)
@@ -27,7 +27,7 @@ NHD values are derived from NHDH_OR_931v220, which is the current version used f
 
 \itemize{
   \item action_id:	EPA ATTAINS Action ID assigned to each TMDL document.
-  \item TMDL_wq_limited_parameters:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
+  \item TMDL_wq_limited_parameter:	Name of the water quality limited 303(d) parameter that the TMDL addresses.
   \item TMDL_pollutant:	Name of TMDL pollutant causing the water quality impairment.
   \item TMDL_scope: Provides information about how the TMDL applies.
      \itemize{

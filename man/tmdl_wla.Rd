@@ -5,7 +5,7 @@
 \alias{tmdl_wla}
 \title{NPDES permittees assigned a TMDL WLA}
 \format{
-An object of class \code{data.frame} with 604 rows and 6 columns.
+An object of class \code{data.frame} with 622 rows and 6 columns.
 }
 \usage{
 data(tmdl_wla)

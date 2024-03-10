@@ -200,16 +200,16 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     # Save a copy in data folder (replaces existing)
     save(tmdl_targets, file = file.path(package_path, "data", "tmdl_targets.rda"))
 
-    #- point_sources WLA--------------------------------------------------------
+    #- tmdl_WLA-----------------------------------------------------------------
 
     cat("-- tmdl_wla\n")
 
     tmdl_wla_update <- readxl::read_excel(path = file.path(xlsx_template),
-                                          sheet = "point_sources",
+                                          sheet = "tmdl_wla",
                                           col_names = TRUE, skip = 1,
-                                          col_types = c("text", "text", "text", "text", "text",
-                                                        "text", "text", "text", "text", "numeric",
-                                                        "date", "date")) %>%
+                                          col_types = c("text", "text", "numeric", "text", "text",
+                                                        "text", "text", "text", "text", "text",
+                                                        "numeric", "date", "date")) %>%
       dplyr::mutate(WLA_season_start = format(WLA_season_start, "%b %d"),
                     WLA_season_end = format(WLA_season_end, "%b %d")) %>%
       dplyr::select(action_id, AU_ID, TMDL_pollutant, EPANum,
@@ -399,9 +399,13 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     cat("-- tmdl_reaches (saving)\n")
 
+    # Save a dev copy to a duckdb for fast reading.
+    con <- DBI::dbConnect(duckdb::duckdb(), dbdir = file.path(package_path, "data_raw", "tmdl_reaches.duckdb"))
+    DBI::dbWriteTable(con, "tmdl_reaches", tmdl_reaches, overwrite = TRUE)
+    duckdb::dbDisconnect(con, shutdown = TRUE)
+
     # Save as a RDS file in inst/extdata folder (replaces existing)
     # File is too large to save in data and as single file
-    saveRDS(tmdl_reaches, compress = TRUE, file = file.path(package_path, "data_raw", "tmdl_reaches.RDS"))
     saveRDS(tmdl_reaches1, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches1.RDS"))
     saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches2.RDS"))
     saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches3.RDS"))

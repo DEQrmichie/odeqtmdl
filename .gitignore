@@ -2,7 +2,16 @@
 .Rhistory
 .RData
 .RDataTmp
+data_raw/*.R
 data_raw/*.rda
+data_raw/*.RDS
 data_raw/geoid_*.xlsx
-data_raw/TMDL_par*.xlsx
+data_raw/*.xlsx
+data_raw/*.duckdb
+!data_raw/TMDL_db_tabular.xlsx
+!data_raw/01_generate_TMDL_LU_tables.R
+!data_raw/02_generate_TMDL_tables.R
+!data_raw/03_export_to_gdb.R
+!data_raw/03_export_to_gpkg.R
+!data_raw/04_export_to_ATTAINS.R
 data_raw/Archive

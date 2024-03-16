@@ -319,6 +319,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                      layer = tmdl_layer,
                                      stringsAsFactors = FALSE) %>%
         sf::st_drop_geometry() %>%
+        dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
         {
           if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
         } %>%

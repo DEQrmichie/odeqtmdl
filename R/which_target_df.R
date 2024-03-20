@@ -18,7 +18,8 @@ which_target_df <- function(df, all_obs = TRUE){
   target_info <- odeqtmdl::tmdl_targets[, c("action_id", "geo_id", "field_parameter", "target_value", "target_units",
                                             "target_time_base", "target_stat_base", "target_type",
                                             "season_start", "season_end", "target_conditionals")] %>%
-    dplyr::filter(target_type %in% c("temperature", "concentration"))
+    dplyr::filter(target_type %in% c("temperature", "concentration"),
+                  !field_parameter %in% c("Inorganic Phosphorus"))
   target_info$pollutant_name_AWQMS <- sapply(target_info$field_parameter, AWQMS_Char_Names)
   tmdl_db_tmp <- merge(tmdl_db_tmp, target_info, by = c("action_id", "geo_id"), all.x = T, all.y = F)
 

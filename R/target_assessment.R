@@ -14,6 +14,9 @@ target_assessment <- function(df){
     dplyr::filter(is.na(target_value)) %>%
     dplyr::mutate(excursion_cen = NA)
 
+  df <- df %>%
+    dplyr::filter(!is.na(target_value))
+
   df_seasonal_median <- df %>%
     dplyr::filter(target_time_base %in% c("seasonal", "annual"),
                   target_stat_base %in% c("median"))

@@ -124,7 +124,7 @@ tmdl_export_attains <- function(out_dir,
     dplyr::arrange(ACTION_ID)
 
   write.csv(x = actions_csv, file = file.path(out_dir, "Actions.csv"),
-            row.names = FALSE, na = "")
+            row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
   # - Pollutants -----------------------------------------------------------------
 
@@ -150,7 +150,7 @@ tmdl_export_attains <- function(out_dir,
                    POLLUTANT_NAME)
 
   write.csv(x = pollu_csv, file = file.path(out_dir, "Pollutants.csv"),
-            row.names = FALSE, na = "")
+            row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
   # - Parameter ------------------------------------------------------------
 
@@ -172,7 +172,7 @@ tmdl_export_attains <- function(out_dir,
                    ASSESSMENT_UNIT_ID)
 
   write.csv(x = param_csv, file = file.path(out_dir, "Parameters.csv"),
-            row.names = FALSE, na = "")
+            row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
   # - Permit ---------------------------------------------------------------
 
@@ -197,8 +197,8 @@ tmdl_export_attains <- function(out_dir,
                   SEASON_START,
                   SEASON_END)
 
-  write.csv(x = permit_csv, file = file.path(out_dir, "Permit.csv"),
-            row.names = FALSE, na = "")
+  write.csv(x = permit_csv, file = file.path(out_dir, "Permits.csv"),
+            row.names = FALSE, na = "", fileEncoding = "UTF-8")
 
   # - README ---------------------------------------------------------------
 

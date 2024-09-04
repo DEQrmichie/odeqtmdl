@@ -5,7 +5,7 @@
 \alias{LU_wqstd}
 \title{Pollutant parameter and Water quality standards code look up}
 \format{
-An object of class \code{data.frame} with 174 rows and 2 columns.
+An object of class \code{data.frame} with 175 rows and 2 columns.
 }
 \usage{
 data(LU_wqstd)

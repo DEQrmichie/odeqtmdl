@@ -22,8 +22,12 @@ tmdl_update(
 GIS shapefiles. The GIS shapefiles can be in a subdirctory. The function
 completes a recursive search using \code{\link[base]{list.files}}. The GIS files
 must be ESRI shapefiles and named in the following way:
-'action_[action_id]_[parameter]_[pollutant]', where action_id, parameter,
-and pollutant are user supplied.}
+    \itemize{
+      \item NHD reaches: 'action_[action_id]_[parameter]_[pollutant]_NHD'
+      \item AU Flowlines: 'action_[action_id]_[parameter]_[pollutant]_AU_Flowline'
+      \item AU Waterbodies: 'action_[action_id]_[parameter]_[pollutant]_AU_WB'
+      }
+      where, action_id, parameter, and pollutant are user supplied.}
 
 \item{package_path}{Path to the top level directory of the odeqtmdl R package. The 'data', data_raw', and 'inst/extdata' folders must exist.}
 
@@ -45,7 +49,7 @@ and pollutant are user supplied.}
 }
 \description{
 Imports TMDL information from DEQ's TMDL database template and GIS shapefiles; and
-updates the odeqtmdl package tables with the new or revised information. To
+add the new or revised the information to the odeqtmdl package tables. To
 run this function the xlsx template and/or the parameter/pollutant pair GIS files
 must be completed.
 }

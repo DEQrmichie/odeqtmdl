@@ -1,7 +1,7 @@
 #' Update TMDL tables with new or revised information
 #'
 #' Imports TMDL information from DEQ's TMDL database template and GIS shapefiles; and
-#' updates the odeqtmdl package tables with the new or revised information. To
+#' add the new or revised the information to the odeqtmdl package tables. To
 #' run this function the xlsx template and/or the parameter/pollutant pair GIS files
 #' must be completed.
 #'
@@ -17,8 +17,13 @@
 #'    GIS shapefiles. The GIS shapefiles can be in a subdirctory. The function
 #'    completes a recursive search using \code{\link[base]{list.files}}. The GIS files
 #'    must be ESRI shapefiles and named in the following way:
-#'    'action_[action_id]_[parameter]_[pollutant]', where action_id, parameter,
-#'    and pollutant are user supplied.
+#'        \itemize{
+#'          \item NHD reaches: 'action_[action_id]_[parameter]_[pollutant]_NHD'
+#'          \item AU Flowlines: 'action_[action_id]_[parameter]_[pollutant]_AU_Flowline'
+#'          \item AU Waterbodies: 'action_[action_id]_[parameter]_[pollutant]_AU_WB'
+#'          }
+#'          where, action_id, parameter, and pollutant are user supplied.
+#'
 #' @param xlsx_template The path including file name of the TMDL excel template.
 #' @param package_path Path to the top level directory of the odeqtmdl R package. The 'data', data_raw', and 'inst/extdata' folders must exist.
 #' @param update_tables logical. If TRUE, updates the following package tables:
@@ -153,7 +158,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     # Save a copy in data folder (replaces existing)
     save(tmdl_geo_ids, file = file.path(package_path, "data", "tmdl_geo_ids.rda"))
 
-    #- tmdl_targets --------------------------------------------------------------
+    #- tmdl_targets ------------------------------------------------------------
 
     cat("-- tmdl_targets\n")
     tmdl_targets_update <- readxl::read_excel(file.path(xlsx_template),
@@ -293,30 +298,46 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       dplyr::left_join(huc10, by = "HUC10") %>%
       dplyr::distinct()
 
-    #- tmdl_reaches ------------------------------------------------------------
+    # - orau -------------------------------------------------------------------
 
-    cat("-- tmdl_reaches\n")
+    or_au <- ornhd %>%
+      dplyr::select(AU_ID, LengthKM) %>%
+      dplyr::group_by(AU_ID) %>%
+      dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
+      dplyr::ungroup()
 
-    update_pattern <- paste0(paste0("^action_",update_action_ids, ".*\\.shp$"),
-                             collapse = "|")
+    or_au_wb <- odeqmloctools::orau %>%
+      dplyr::anti_join(or_au, by = "AU_ID") %>%
+      dplyr::mutate(AU_length_km = 0.01) %>%
+      dplyr::select(AU_ID, AU_length_km)
 
-    tmdl.shps <- list.files(path = file.path(gis_path),
-                            pattern = update_pattern,
-                            recursive = TRUE, full.names = TRUE)
+    or_au <- rbind(or_au, or_au_wb)
+
+    #- import GIS: nhd_reaches -------------------------------------------------
+
+    cat("-- import GIS: NHD reaches\n")
+
+    nhd_update_pattern <- paste0(paste0("^action_",update_action_ids, ".*NHD\\.shp$"),
+                                 collapse = "|")
+
+    nhd.shps <- list.files(path = file.path(gis_path),
+                           pattern = nhd_update_pattern,
+                           recursive = TRUE, full.names = TRUE,
+                           ignore.case = TRUE)
 
     # exclude files in Supporting folder
-    tmdl.shps <- tmdl.shps[ !grepl("Supporting", tmdl.shps, ignore.case = TRUE) ]
+    nhd.shps <- nhd.shps[ !grepl("Supporting", nhd.shps, ignore.case = TRUE) ]
 
     # Load all the shps into a dataframe'
     tmdl_reach_tbl <- data.frame()
 
-    for (i in 1:length(tmdl.shps)) {
+    for (i in 1:length(nhd.shps)) {
 
-      tmdl_dsn = dirname(tmdl.shps[i])
-      tmdl_layer = sub("\\.shp$", "", basename(tmdl.shps[i]))
+      nhd_dsn = dirname(nhd.shps[i])
+      nhd_layer = sub("\\.shp$", "", basename(nhd.shps[i]))
 
-      tmdl_reach_tbl0 <- sf::st_read(dsn = tmdl_dsn,
-                                     layer = tmdl_layer,
+      tmdl_reach_tbl0 <- sf::st_read(dsn = nhd_dsn,
+                                     layer = nhd_layer,
                                      stringsAsFactors = FALSE) %>%
         sf::st_drop_geometry() %>%
         dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
@@ -343,6 +364,171 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
       rm(tmdl_reach_tbl0)
     }
+
+    #- import GIS: AU Flowlines ------------------------------------------------
+
+    cat("-- import GIS: AU Flowlines\n")
+
+    AU_flow_update_pattern <- paste0(paste0("^action_",update_action_ids, ".*AU_Flowline\\.shp$"),
+                                     collapse = "|")
+
+    AU_flow.shps <- list.files(path = file.path(gis_path),
+                               pattern = AU_flow_update_pattern,
+                               recursive = TRUE, full.names = TRUE,
+                               ignore.case = TRUE)
+
+    # exclude files in Supporting folder
+    AU_flow.shps <- AU_flow.shps[ !grepl("Supporting", AU_flow.shps, ignore.case = TRUE) ]
+
+    # Load all the shps into a dataframe
+    AU_flow_tbl <- data.frame()
+
+    if (!identical(AU_flow.shps, character(0))) {
+      # Only continue if there are shapefiles
+
+      for (i in 1:length(AU_flow.shps)) {
+
+        AU_flow_dsn = dirname(AU_flow.shps[i])
+        AU_flow_layer = sub("\\.shp$", "", basename(AU_flow.shps[i]))
+
+        AU_flow_tbl0 <- sf::st_read(dsn = AU_flow_dsn,
+                                    layer = AU_flow_layer,
+                                    stringsAsFactors = FALSE) %>%
+          sf::st_drop_geometry() %>%
+          dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
+          {
+            if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
+          } %>%
+          {
+            if ("period" %in% names(.)) . else  dplyr::mutate(., period = NA_character_)
+          } %>%
+          {
+            if ("Source" %in% names(.)) . else  dplyr::mutate(., Source = NA_character_)
+          }  %>%
+          {
+            if ("geo_id" %in% names(.)) . else  dplyr::mutate(., geo_id = NA_character_)
+          } %>%
+          dplyr::select(AU_ID, action_id, TMDL_wq_limited_parameter = TMDL_param,
+                        TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
+                        geo_id)
+
+        AU_flow_tbl <- rbind(AU_flow_tbl, AU_flow_tbl0)
+
+        rm(AU_flow_tbl0)
+      }
+
+      # extract NHD reaches based on AU_ID and add to tmdl_reach_tbl
+
+      tmdl_reach_tbl0 <- ornhd %>%
+        dplyr::filter(!AU_ID == "99") %>%
+        dplyr::inner_join(AU_flow_tbl, by = "AU_ID", relationship = "many-to-many") %>%
+        dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
+        dplyr::distinct() %>%
+        dplyr::left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
+                         by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+        dplyr::select(action_id,
+                      TMDL_wq_limited_parameter,
+                      TMDL_pollutant,
+                      TMDL_scope,
+                      Period,
+                      Source,
+                      Pollu_ID,
+                      geo_id,
+                      HUC6, HUC6_Name, HUC6_full,
+                      HUC8, HUC8_Name, HUC8_full,
+                      HUC10, HUC10_Name, HUC10_full,
+                      GLOBALID,
+                      Permanent_Identifier,
+                      ReachCode,
+                      GNIS_Name, GNIS_ID,
+                      AU_ID, AU_Name, AU_Description,
+                      AU_GNIS_Name, AU_GNIS,
+                      LengthKM) %>%
+        as.data.frame()
+
+      tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
+
+    }
+
+    #- import GIS: AU_Waterbodies ----------------------------------------------
+
+    cat("-- import GIS: AU Waterbodies\n")
+
+    AU_WB_update_pattern <- paste0(paste0("^action_",update_action_ids, ".*AU_WB\\.shp$"),
+                                   collapse = "|")
+
+    AU_WB.shps <- list.files(path = file.path(gis_path),
+                             pattern = AU_WB_update_pattern,
+                             recursive = TRUE, full.names = TRUE,
+                             ignore.case = TRUE)
+
+    # exclude files in Supporting folder
+    AU_WB.shps <- AU_WB.shps[ !grepl("Supporting", AU_WB.shps, ignore.case = TRUE) ]
+
+    # Load all the shps into a dataframe
+    AU_WB_tbl <- data.frame()
+
+    if (!identical(AU_WB.shps, character(0))) {
+
+      for (i in 1:length(AU_WB.shps)) {
+        # Only continue if there are shapefiles
+
+        AU_WB_dsn = dirname(AU_WB.shps[i])
+        AU_WB_layer = sub("\\.shp$", "", basename(AU_WB.shps[i]))
+
+        AU_WB_tbl0 <- sf::st_read(dsn = AU_WB_dsn,
+                                  layer = AU_WB_layer,
+                                  stringsAsFactors = FALSE) %>%
+          sf::st_drop_geometry() %>%
+          dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
+          {
+            if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
+          } %>%
+          {
+            if ("period" %in% names(.)) . else  dplyr::mutate(., period = NA_character_)
+          } %>%
+          {
+            if ("Source" %in% names(.)) . else  dplyr::mutate(., Source = NA_character_)
+          }  %>%
+          {
+            if ("geo_id" %in% names(.)) . else  dplyr::mutate(., geo_id = NA_character_)
+          } %>%
+          dplyr::select(AU_ID, action_id, TMDL_wq_limited_parameter = TMDL_param,
+                        TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
+                        geo_id)
+
+        AU_WB_tbl <- rbind(AU_WB_tbl, AU_WB_tbl0)
+
+        rm(AU_WB_tbl0)
+      }
+
+      # Some processing for joins
+      AU_WB_update <- AU_WB_tbl %>%
+        dplyr::filter(!AU_ID == "99") %>%
+        dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID) %>%
+        dplyr::distinct() %>%
+        dplyr::left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
+                         by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+        dplyr::inner_join(odeqmloctools::orau, by = "AU_ID") %>%
+        dplyr::mutate(HUC6_full = paste0(HUC6," ", HUC6_Name),
+                      HUC8_full = paste0(HUC8," ", HUC8_Name),
+                      HUC10_full = paste0(HUC10," ", HUC10_Name),
+                      LengthKM = 0.01) %>%
+        dplyr::distinct() %>%
+        dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
+                      TMDL_scope, Period, Source, Pollu_ID,
+                      HUC6, HUC6_Name, HUC6_full,
+                      HUC8, HUC8_Name, HUC8_full,
+                      HUC10, HUC10_Name, HUC10_full,
+                      AU_ID, AU_Name, AU_Description,
+                      LengthKM) %>%
+        as.data.frame()
+
+    }
+
+    #- tmdl_reaches ------------------------------------------------------------
+
+    cat("-- tmdl_reaches\n")
 
     tmdl_reaches_update <- tmdl_reach_tbl %>%
       dplyr::select(GLOBALID, action_id, TMDL_wq_limited_parameter,
@@ -427,20 +613,20 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       dplyr::filter(grepl("_WS", AU_ID, fixed = TRUE)) %>%
       dplyr::filter(!is.na(TMDL_scope)) %>%
       dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
-      dplyr::mutate(Source = dplyr::case_when(any(grepl("Both", Source, ignore.case = TRUE)) ~ "Both",
-                                              any(grepl("Point", Source, ignore.case = TRUE)) & any(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Both",
-                                              all(grepl("Point", Source, ignore.case = TRUE)) ~ "Point source",
-                                              all(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Nonpoint source",
-                                              any(grepl("Point", Source, ignore.case = TRUE)) & any(is.na(Source)) ~ "Point source",
-                                              any(grepl("Nonpoint", Source, ignore.case = TRUE)) & any(is.na(Source)) ~ "Nonpoint source",
+      dplyr::mutate(Source = dplyr::case_when(all(c("Both") %in% Source) ~ "Both",
+                                              all(c("Point source") %in% Source) ~ "Point source",
+                                              all(c("Nonpoint source") %in% Source) ~ "Nonpoint source",
+                                              all(c("Point source", "Nonpoint source") %in% Source) ~ "Point source",
+                                              all(c("Nonpoint source", NA_character_) %in% Source) ~ "Nonpoint source",
+                                              all(c("Point source", NA_character_) %in% Source) ~ "Point source",
                                               TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(action_id, AU_ID, AU_GNIS, TMDL_pollutant) %>%
       dplyr::mutate(Period = dplyr::case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                         length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
-                                       TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                         length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
-                                       TRUE ~ NA_character_)) %>%
+                                                length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
+                                              TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
+                                                length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
+                                              TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
                     TMDL_scope, Period, Source, Pollu_ID,
@@ -494,29 +680,23 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     cat("-- tmdl_au\n")
 
-    or_au <- ornhd %>%
-      dplyr::select(AU_ID, LengthKM) %>%
-      dplyr::group_by(AU_ID) %>%
-      dplyr::summarise(AU_length_km = sum(LengthKM, na.rm = TRUE)) %>%
-      dplyr::ungroup()
-
     tmdl_au_update <- tmdl_reaches_update %>%
       dplyr::filter(!is.na(TMDL_scope)) %>%
       dplyr::group_by(action_id, AU_ID, TMDL_pollutant) %>%
-      dplyr::mutate(Source = dplyr::case_when(any(grepl("Both", Source, ignore.case = TRUE)) ~ "Both",
-                                              any(grepl("Point", Source, ignore.case = TRUE)) & any(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Both",
-                                              all(grepl("Point", Source, ignore.case = TRUE)) ~ "Point source",
-                                              all(grepl("Nonpoint", Source, ignore.case = TRUE)) ~ "Nonpoint source",
-                                              any(grepl("Point", Source, ignore.case = TRUE)) & any(is.na(Source)) ~ "Point source",
-                                              any(grepl("Nonpoint", Source, ignore.case = TRUE)) & any(is.na(Source)) ~ "Nonpoint source",
+      dplyr::mutate(Source = dplyr::case_when(all(c("Both") %in% Source) ~ "Both",
+                                              all(c("Point source") %in% Source) ~ "Point source",
+                                              all(c("Nonpoint source") %in% Source) ~ "Nonpoint source",
+                                              all(c("Point source", "Nonpoint source") %in% Source) ~ "Point source",
+                                              all(c("Nonpoint source", NA_character_) %in% Source) ~ "Nonpoint source",
+                                              all(c("Point source", NA_character_) %in% Source) ~ "Point source",
                                               TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::group_by(action_id, AU_ID, TMDL_wq_limited_parameter) %>%
       dplyr::mutate(Period = dplyr::case_when(TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                         length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
-                                       TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
-                                         length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
-                                       TRUE ~ NA_character_)) %>%
+                                                length(unique(na.omit(Period))) > 1 ~ paste0("Mixed (",paste0(sort(unique(na.omit(Period))), collapse = ", "),")"),
+                                              TMDL_wq_limited_parameter %in% c("Temperature", "Dissolved Oxygen") &
+                                                length(unique(na.omit(Period))) == 1 ~ paste0(sort(unique(na.omit(Period))), collapse = ", "),
+                                              TRUE ~ NA_character_)) %>%
       dplyr::ungroup() %>%
       dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
                     TMDL_scope, Period, Source, Pollu_ID,
@@ -525,6 +705,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                     HUC10, HUC10_Name, HUC10_full,
                     AU_ID, AU_Name, AU_Description,
                     LengthKM) %>%
+      rbind(AU_WB_update) %>%
+      dplyr::distinct() %>%
       tidyr::pivot_wider(names_from = "TMDL_scope", values_from = "LengthKM",
                          values_fn = sum, values_fill = 0) %>%
       dplyr::bind_rows(dplyr::tibble(TMDL = numeric(),

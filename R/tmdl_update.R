@@ -791,7 +791,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                     TMDL_status, revision_action_id, TMDL_status_comment) %>%
       dplyr::distinct()
 
-    tmdl_parameters_update <- tmdl_reaches_update %>%
+    tmdl_parameters_update <- tmdl_au_update %>%
       dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
       dplyr::distinct() %>%
       dplyr::mutate(TMDL_mapped = TRUE) %>%

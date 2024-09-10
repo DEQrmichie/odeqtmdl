@@ -2,7 +2,7 @@
 #'
 #' Inventory of unique TMDL geo IDs for Oregon TMDLs. A geo ID is a
 #' unique ID that is used to identify where a specific TMDL target applies. Geo IDs
-#' are mapped to the National Hydropgrahy Dataset version NHDH_OR_931v220.
+#' are mapped to the National Hydrography Dataset version NHDH_OR_931v220.
 #' See \code{\link{tmdl_targets}} for a summary of TMDL targets.
 #'
 #' Note the TMDL information is still being assembled and is undergoing review.

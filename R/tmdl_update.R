@@ -331,38 +331,42 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     # Load all the shps into a dataframe'
     tmdl_reach_tbl <- data.frame()
 
-    for (i in 1:length(nhd.shps)) {
+    if (!identical(nhd.shps, character(0))) {
+      # Only continue if there are shapefiles
 
-      nhd_dsn = dirname(nhd.shps[i])
-      nhd_layer = sub("\\.shp$", "", basename(nhd.shps[i]))
+      for (i in 1:length(nhd.shps)) {
 
-      tmdl_reach_tbl0 <- sf::st_read(dsn = nhd_dsn,
-                                     layer = nhd_layer,
-                                     stringsAsFactors = FALSE) %>%
-        sf::st_drop_geometry() %>%
-        dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
-        {
-          if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
-        } %>%
-        {
-          if ("period" %in% names(.)) . else  dplyr::mutate(., period = NA_character_)
-        } %>%
-        {
-          if ("Source" %in% names(.)) . else  dplyr::mutate(., Source = NA_character_)
-        }  %>%
-        {
-          if ("geo_id" %in% names(.)) . else  dplyr::mutate(., geo_id = NA_character_)
-        } %>%
-        {
-          if ("GLOBALID" %in% names(.)) . else  dplyr::mutate(., GLOBALID = NA_character_)
-        } %>%
-        dplyr::select(action_id, TMDL_wq_limited_parameter = TMDL_param,
-                      TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-                      geo_id, GLOBALID)
+        nhd_dsn = dirname(nhd.shps[i])
+        nhd_layer = sub("\\.shp$", "", basename(nhd.shps[i]))
 
-      tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
+        tmdl_reach_tbl0 <- sf::st_read(dsn = nhd_dsn,
+                                       layer = nhd_layer,
+                                       stringsAsFactors = FALSE) %>%
+          sf::st_drop_geometry() %>%
+          dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
+          {
+            if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
+          } %>%
+          {
+            if ("period" %in% names(.)) . else  dplyr::mutate(., period = NA_character_)
+          } %>%
+          {
+            if ("Source" %in% names(.)) . else  dplyr::mutate(., Source = NA_character_)
+          }  %>%
+          {
+            if ("geo_id" %in% names(.)) . else  dplyr::mutate(., geo_id = NA_character_)
+          } %>%
+          {
+            if ("GLOBALID" %in% names(.)) . else  dplyr::mutate(., GLOBALID = NA_character_)
+          } %>%
+          dplyr::select(action_id, TMDL_wq_limited_parameter = TMDL_param,
+                        TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
+                        geo_id, GLOBALID)
 
-      rm(tmdl_reach_tbl0)
+        tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
+
+        rm(tmdl_reach_tbl0)
+      }
     }
 
     #- import GIS: AU Flowlines ------------------------------------------------
@@ -524,6 +528,9 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                       LengthKM) %>%
         as.data.frame()
 
+    } else {
+
+      AU_WB_update <- data.frame()
     }
 
     #- tmdl_reaches ------------------------------------------------------------
@@ -572,7 +579,10 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
       as.data.frame()
 
-    num_df <- 4
+    # the number of RDS files that tmdl_reaches dataframe is separated into.
+    # This number should be set so each file is < 50 MB to avoid GitHub commit warnings.
+    # As of 2024, the maximum file size allowed on GitHub is 100 MB.
+    num_df <- 6
 
     tmdl_reaches0 <- tmdl_reaches %>%
       dplyr::group_by((dplyr::row_number() - 1 ) %/% ( dplyr::n() / num_df)) %>%
@@ -583,6 +593,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     tmdl_reaches2 <- tmdl_reaches0[[2]] %>% as.data.frame()
     tmdl_reaches3 <- tmdl_reaches0[[3]] %>% as.data.frame()
     tmdl_reaches4 <- tmdl_reaches0[[4]] %>% as.data.frame()
+    tmdl_reaches5 <- tmdl_reaches0[[5]] %>% as.data.frame()
+    tmdl_reaches6 <- tmdl_reaches0[[6]] %>% as.data.frame()
 
     cat("-- tmdl_reaches (saving)\n")
 
@@ -593,10 +605,13 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     # Save as a RDS file in inst/extdata folder (replaces existing)
     # File is too large to save in data and as single file
+    # Ideally each file should be < 50 MB to avoid GitHub warnings.
     saveRDS(tmdl_reaches1, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches1.RDS"))
     saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches2.RDS"))
     saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches3.RDS"))
     saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches4.RDS"))
+    saveRDS(tmdl_reaches5, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches5.RDS"))
+    saveRDS(tmdl_reaches6, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches6.RDS"))
 
     #- tmdl_au_gnis ------------------------------------------------------------
 

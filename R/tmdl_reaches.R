@@ -83,13 +83,19 @@ tmdl_reaches <- function(){
                             mustWork = TRUE)
   file_path4 <- system.file("extdata", "tmdl_reaches4.RDS", package = "odeqtmdl",
                             mustWork = TRUE)
+  file_path5 <- system.file("extdata", "tmdl_reaches5.RDS", package = "odeqtmdl",
+                            mustWork = TRUE)
+  file_path6 <- system.file("extdata", "tmdl_reaches6.RDS", package = "odeqtmdl",
+                            mustWork = TRUE)
 
   df1 <- readRDS(file = file_path1)
   df2 <- readRDS(file = file_path2)
   df3 <- readRDS(file = file_path3)
   df4 <- readRDS(file = file_path4)
+  df5 <- readRDS(file = file_path5)
+  df6 <- readRDS(file = file_path6)
 
-  df <- rbind(df1, df2, df3, df4)
+  df <- rbind(df1, df2, df3, df4, df5, df6)
 
   return(df)
 

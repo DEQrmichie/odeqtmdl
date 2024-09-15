@@ -5,7 +5,7 @@
 \alias{LU_wqstd_code}
 \title{Water quality standards codes}
 \format{
-An object of class \code{data.frame} with 17 rows and 2 columns.
+An object of class \code{data.frame} with 19 rows and 2 columns.
 }
 \usage{
 data(LU_wqstd_code)

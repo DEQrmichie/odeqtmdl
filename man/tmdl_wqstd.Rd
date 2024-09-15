@@ -5,7 +5,7 @@
 \alias{tmdl_wqstd}
 \title{TMDL pollutant parameter and Water quality standard table}
 \format{
-An object of class \code{data.frame} with 286 rows and 3 columns.
+An object of class \code{data.frame} with 288 rows and 3 columns.
 }
 \usage{
 data(tmdl_wqstd)

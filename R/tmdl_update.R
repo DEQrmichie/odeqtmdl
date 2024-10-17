@@ -29,8 +29,9 @@
 #' @param update_tables logical. If TRUE, updates the following package tables:
 #'        \itemize{
 #'          \item tmdl_actions
-#'          \item tmdl_targets
+#'          \item tmdl_parameters
 #'          \item tmdl_geo_id
+#'          \item tmdl_targets
 #'          \item tmdl_wqstd
 #'          }
 #' @param update_reaches logical. if TRUE, imports GIS files and updates the following package tables:
@@ -38,7 +39,6 @@
 #'        \item tmdl_reaches
 #'        \item tmdl_au
 #'        \item tmdl_au_gnis
-#'        \item tmdl_parameters
 #'        }
 #' @export
 
@@ -134,6 +134,47 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
     # Save a copy in data folder (replaces existing)
     save(tmdl_actions, file = file.path(package_path, "data", "tmdl_actions.rda"))
 
+
+    #- tmdl_parameters ----------------------------------------------------------
+
+    cat("-- tmdl_parmeters\n")
+
+    # Logic to assign "Not Active" TMDL status. This is already attributed in
+    # master spreadsheet but leaving here just in case.
+
+    # TMDL_status = case_when(action_id %in% c("2043", "1230", "2021",
+    #                                          "10007", "42375",
+    #                                          "OR_TMDL_20171219",
+    #                                          "OR_TMDL_20191122") ~ "Not Active",
+    #                         action_id == "1936" & TMDL_pollutant %in% c("Total Phosphorus",
+    #                                                                     "Ammonia Nitrogen (NH3-N)") ~ "Not Active",
+    #                         action_id == "30674" & TMDL_pollutant %in% c("Mercury (total)",
+    #                                                                      "Methylmercury") ~ "Not Active",
+    #                         TRUE ~ TMDL_status),
+
+
+    tmdl_parameters_update <- readxl::read_excel(path = file.path(xlsx_template),
+                                                 sheet = "tmdl_parameters",
+                                                 na = c("", "NA"),
+                                                 col_names = TRUE, skip = 1,
+                                                 col_types = c("text", "text", "numeric", "text", "text",
+                                                               "text", "text", "text")) %>%
+      dplyr::filter(action_id %in% update_action_ids) %>%
+      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
+                    TMDL_status, revision_action_id, TMDL_status_comment) %>%
+      dplyr::distinct()
+
+    # This updates the whole dataframe
+    tmdl_parameters <- odeqtmdl::tmdl_parameters %>%
+      dplyr::filter(!action_id %in% update_action_ids) %>%
+      rbind(tmdl_parameters_update) %>%
+      dplyr::distinct() %>%
+      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
+      as.data.frame()
+
+    # Save a copy in data folder (replaces existing)
+    save(tmdl_parameters, file = file.path(package_path, "data", "tmdl_parameters.rda"))
+
     #- tmdl_geo_ids ------------------------------------------------------------
 
     cat("-- tmdl_geo_ids\n")
@@ -143,6 +184,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                               col_types = c("text", "text", "logical",
                                                             "text", "text", "numeric"
                                               )) %>%
+      dplyr::filter(action_id %in% update_action_ids) %>%
       dplyr::select(action_id, geo_id, geo_description, geo_id_mapped) %>%
       dplyr::arrange(action_id, geo_id) %>%
       as.data.frame()
@@ -169,6 +211,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                                             "numeric", "text", "numeric", "text", "numeric",
                                                             "date", "date", "text", "text", "text",
                                                             "text")) %>%
+      dplyr::filter(action_id %in% update_action_ids) %>%
       dplyr::mutate(season_start = format(season_start, "%b %d"),
                     season_end = format(season_end, "%b %d"),
                     target_value = dplyr::case_when(grepl("^[[:digit:]]", target_value) ~ as.character(as.numeric(target_value)),
@@ -215,6 +258,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                           col_types = c("text", "text", "numeric", "text", "text",
                                                         "text", "text", "text", "text", "text",
                                                         "numeric", "date", "date")) %>%
+      dplyr::filter(action_id %in% update_action_ids) %>%
       dplyr::mutate(WLA_season_start = format(WLA_season_start, "%b %d"),
                     WLA_season_end = format(WLA_season_end, "%b %d")) %>%
       dplyr::select(action_id, AU_ID, TMDL_pollutant, EPANum,
@@ -241,6 +285,7 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
                                             sheet = "tmdl_wqstd",
                                             col_names = TRUE, skip = 1,
                                             col_types = c("text", "text", "numeric")) %>%
+      dplyr::filter(action_id %in% update_action_ids) %>%
       dplyr::left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
                        by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
       dplyr::select(action_id, Pollu_ID, wqstd_code) %>%
@@ -361,7 +406,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
           } %>%
           dplyr::select(action_id, TMDL_wq_limited_parameter = TMDL_param,
                         TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-                        geo_id, GLOBALID)
+                        geo_id, GLOBALID) %>%
+          dplyr::filter(action_id %in% update_action_ids)
 
         tmdl_reach_tbl <- rbind(tmdl_reach_tbl, tmdl_reach_tbl0)
 
@@ -414,7 +460,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
           } %>%
           dplyr::select(AU_ID, action_id, TMDL_wq_limited_parameter = TMDL_param,
                         TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-                        geo_id)
+                        geo_id) %>%
+          dplyr::filter(action_id %in% update_action_ids)
 
         AU_flow_tbl <- rbind(AU_flow_tbl, AU_flow_tbl0)
 
@@ -499,7 +546,8 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
           } %>%
           dplyr::select(AU_ID, action_id, TMDL_wq_limited_parameter = TMDL_param,
                         TMDL_pollutant = TMDL_pollu, TMDL_scope, Period = period, Source,
-                        geo_id)
+                        geo_id) %>%
+          dplyr::filter(action_id %in% update_action_ids)
 
         AU_WB_tbl <- rbind(AU_WB_tbl, AU_WB_tbl0)
 
@@ -762,57 +810,6 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     # Save a copy in data folder (replaces existing)
     save(tmdl_au, file = file.path(package_path, "data", "tmdl_au.rda"))
-
-    #- tmdl_parameters ----------------------------------------------------------
-
-    cat("-- tmdl_parmeters\n")
-
-    # Logic to assign "Not Active" TMDL status. This is already attributed in
-    # master spreadsheet but leaving here just in case.
-
-    # TMDL_status = case_when(action_id %in% c("2043", "1230", "2021",
-    #                                          "10007", "42375",
-    #                                          "OR_TMDL_20171219",
-    #                                          "OR_TMDL_20191122") ~ "Not Active",
-    #                         action_id == "1936" & TMDL_pollutant %in% c("Total Phosphorus",
-    #                                                                     "Ammonia Nitrogen (NH3-N)") ~ "Not Active",
-    #                         action_id == "30674" & TMDL_pollutant %in% c("Mercury (total)",
-    #                                                                      "Methylmercury") ~ "Not Active",
-    #                         TRUE ~ TMDL_status),
-
-
-    tmdl_parameters_tbl <- readxl::read_excel(path = file.path(xlsx_template),
-                                              sheet = "tmdl_parameters",
-                                              na = c("", "NA"),
-                                              col_names = TRUE, skip = 1,
-                                              col_types = c("text", "text", "numeric", "text", "text",
-                                                            "text", "text", "text")) %>%
-      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
-                    TMDL_status, revision_action_id, TMDL_status_comment) %>%
-      dplyr::distinct()
-
-    tmdl_parameters_update <- tmdl_au_update %>%
-      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
-      dplyr::distinct() %>%
-      dplyr::mutate(TMDL_mapped = TRUE) %>%
-      dplyr::right_join(tmdl_parameters_tbl, by = c("action_id", "TMDL_wq_limited_parameter", "TMDL_pollutant")) %>%
-      dplyr::select(action_id, TMDL_wq_limited_parameter, TMDL_pollutant,
-                    TMDL_status, revision_action_id, TMDL_status_comment, TMDL_mapped) %>%
-      dplyr::mutate(TMDL_mapped = ifelse(is.na(TMDL_mapped), FALSE, TMDL_mapped)) %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
-      as.data.frame()
-
-    # This updates the whole dataframe
-    tmdl_parameters <- odeqtmdl::tmdl_parameters %>%
-      dplyr::filter(!action_id %in% update_action_ids) %>%
-      rbind(tmdl_parameters_update) %>%
-      dplyr::distinct() %>%
-      dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant) %>%
-      as.data.frame()
-
-    # Save a copy in data folder (replaces existing)
-    save(tmdl_parameters, file = file.path(package_path, "data", "tmdl_parameters.rda"))
 
   }
 

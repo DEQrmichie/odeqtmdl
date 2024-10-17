@@ -34,8 +34,9 @@ must be ESRI shapefiles and named in the following way:
 \item{update_tables}{logical. If TRUE, updates the following package tables:
 \itemize{
   \item tmdl_actions
-  \item tmdl_targets
+  \item tmdl_parameters
   \item tmdl_geo_id
+  \item tmdl_targets
   \item tmdl_wqstd
   }}
 
@@ -44,7 +45,6 @@ must be ESRI shapefiles and named in the following way:
   \item tmdl_reaches
   \item tmdl_au
   \item tmdl_au_gnis
-  \item tmdl_parameters
   }}
 }
 \description{

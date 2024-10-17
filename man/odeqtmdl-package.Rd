@@ -6,7 +6,7 @@
 \alias{odeqtmdl-package}
 \title{odeqtmdl: Oregon TMDL database}
 \description{
-The odeqtmdl R package includes data tables of Oregon TMDL information and a set of functions that assist in assessment of water quality data against select TMDL targets. The TMDL information is still being assembled and is undergoing review. Some information may not be accurate or complete. See each relevant TMDL document for the official record. TMDLs developed by tribal governments are not included.
+The odeqtmdl R package includes data tables of Oregon Total Maximum Daily Load (TMDL) information and a set of functions that assist in assessment of water quality data against select TMDL targets. This data set is designed to be used for regulatory purposes by DEQ to prioritize, plan, and implement TMDLs, Water Quality Management Plans (WQMPs), water quality restoration activities, and as an information source for permitting NPDES point sources dischargers. The data set is available to the public as a reference. The information and data are provided with the understanding that conclusions drawn from such information are the responsibility of the user. The TMDL documents represent the official record should any information in this data conflict with the approved TMDL or WQMP documents. TMDLs developed by tribal governments are not included in this data.
 }
 \author{
 \strong{Maintainer}: Ryan Michie \email{Ryan.Michie@deq.oregon.gov}

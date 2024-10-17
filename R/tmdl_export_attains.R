@@ -1,7 +1,9 @@
 #' Export TMDL info to ATTAINS upload files
 #'
-#' Exports all or a subset of the Oregon TMDL assessment unit data table (\code{\link{tmdl_au}})
-#' as csv files formatted for batch upload into ATTAINS. The actions, parameters, and pollutants csv files are produced.
+#' Exports all or a subset of the Oregon TMDL database
+#' action table (\code{\link{tmdl_actions}}), assessment unit table (\code{\link{tmdl_au}}),
+#' and NPDES permittee WLA table (\code{\link{tmdl_wla}}) as csv files formatted
+#' for batch upload into ATTAINS. The actions, parameters, permits, and pollutants csv files are produced.
 #' The format is based on EPA's TMDL action template version 1.4, released on 2022-07-18.
 #'
 #' @param out_dir: The directory to save the output csv files.

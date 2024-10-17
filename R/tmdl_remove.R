@@ -122,7 +122,7 @@ tmdl_remove <- function(action_ids = NULL, package_path) {
     dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
     as.data.frame()
 
-  num_df <- 4
+  num_df <- 6
 
   tmdl_reaches0 <- tmdl_reaches %>%
     dplyr::group_by((dplyr::row_number() - 1 ) %/% ( dplyr::n() / num_df)) %>%
@@ -133,6 +133,8 @@ tmdl_remove <- function(action_ids = NULL, package_path) {
   tmdl_reaches2 <- tmdl_reaches0[[2]] %>% as.data.frame()
   tmdl_reaches3 <- tmdl_reaches0[[3]] %>% as.data.frame()
   tmdl_reaches4 <- tmdl_reaches0[[4]] %>% as.data.frame()
+  tmdl_reaches5 <- tmdl_reaches0[[5]] %>% as.data.frame()
+  tmdl_reaches6 <- tmdl_reaches0[[6]] %>% as.data.frame()
 
   cat("-- tmdl_reaches (saving)\n")
 
@@ -143,10 +145,13 @@ tmdl_remove <- function(action_ids = NULL, package_path) {
 
   # Save as a RDS file in inst/extdata folder (replaces existing)
   # File is too large to save in data and as single file
+  # Ideally each file should be < 50 MB to avoid GitHub warnings.
   saveRDS(tmdl_reaches1, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches1.RDS"))
   saveRDS(tmdl_reaches2, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches2.RDS"))
   saveRDS(tmdl_reaches3, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches3.RDS"))
   saveRDS(tmdl_reaches4, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches4.RDS"))
+  saveRDS(tmdl_reaches5, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches5.RDS"))
+  saveRDS(tmdl_reaches6, compress = TRUE, file = file.path(package_path, "inst", "extdata", "tmdl_reaches6.RDS"))
 
 
   #- tmdl_au_gnis ------------------------------------------------------------

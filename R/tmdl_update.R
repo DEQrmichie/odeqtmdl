@@ -415,6 +415,62 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
       }
     }
 
+    #- import GIS: geo_ids -------------------------------------------------
+
+    cat("-- import GIS: geo_ids\n")
+
+    gid_update_pattern <- paste0(paste0("^action_",update_action_ids, ".*geo_ids\\.shp$"),
+                                 collapse = "|")
+
+    gid.shps <- list.files(path = file.path(gis_path),
+                           pattern = gid_update_pattern,
+                           recursive = TRUE, full.names = TRUE,
+                           ignore.case = TRUE)
+
+    # exclude files in Supporting folder
+    gid.shps <- gid.shps[ !grepl("Supporting", gid.shps, ignore.case = TRUE) ]
+
+    # Load all the shps into a dataframe'
+    geo_ids_tbl <- data.frame()
+
+    if (!identical(gid.shps, character(0))) {
+      # Only continue if there are shapefiles
+
+      for (i in 1:length(gid.shps)) {
+
+        gid_dsn = dirname(gid.shps[i])
+        gid_layer = sub("\\.shp$", "", basename(gid.shps[i]))
+
+        geo_id_tbl0 <- sf::st_read(dsn = gid_dsn,
+                                       layer = gid_layer,
+                                       stringsAsFactors = FALSE) %>%
+          sf::st_drop_geometry() %>%
+          dplyr::rename(dplyr::any_of(c(period = "Period", Source = "source"))) %>%
+          {
+            if ("TMDL_scope" %in% names(.)) . else  dplyr::mutate(., TMDL_scope = NA_character_)
+          } %>%
+          {
+            if ("period" %in% names(.)) . else  dplyr::mutate(., period = NA_character_)
+          } %>%
+          {
+            if ("Source" %in% names(.)) . else  dplyr::mutate(., Source = NA_character_)
+          }  %>%
+          {
+            if ("geo_id" %in% names(.)) . else  dplyr::mutate(., geo_id = NA_character_)
+          } %>%
+          {
+            if ("GLOBALID" %in% names(.)) . else  dplyr::mutate(., GLOBALID = NA_character_)
+          } %>%
+          dplyr::select(action_id, TMDL_wq_limited_parameter = TMDL_param,
+                        TMDL_pollutant = TMDL_pollu, geo_id, GLOBALID) %>%
+          dplyr::filter(action_id %in% update_action_ids)
+
+        geo_id_tbl <- rbind(geo_id_tbl, geo_id_tbl0)
+
+        rm(geo_id_tbl0)
+      }
+    }
+
     #- import GIS: AU Flowlines ------------------------------------------------
 
     cat("-- import GIS: AU Flowlines\n")
@@ -810,6 +866,62 @@ tmdl_update <- function(action_ids = NULL, xlsx_template, gis_path, package_path
 
     # Save a copy in data folder (replaces existing)
     save(tmdl_au, file = file.path(package_path, "data", "tmdl_au.rda"))
+
+    #- tmdl_geo_ids_reaches-----------------------------------------------------
+
+
+    # tmdl_geo_id_reaches_update <- geo_id_tbl %>%
+    #   dplyr::select(GLOBALID, action_id, TMDL_wq_limited_parameter,
+    #                 TMDL_pollutant, geo_id) %>%
+    #   dplyr::left_join(ornhd, by = "GLOBALID") %>%
+    #   dplyr::filter(!AU_ID == "99") %>%
+    #   dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, geo_id, AU_ID, ReachCode) %>%
+    #   dplyr::distinct() %>%
+    #   dplyr::left_join(odeqtmdl::LU_pollutant[,c("Pollu_ID", "Pollutant_DEQ")],
+    #                    by = c("TMDL_wq_limited_parameter" = "Pollutant_DEQ")) %>%
+    #   dplyr::select(action_id,
+    #                 TMDL_wq_limited_parameter,
+    #                 TMDL_pollutant,
+    #                 Pollu_ID,
+    #                 geo_id,
+    #                 HUC6, HUC6_Name, HUC6_full,
+    #                 HUC8, HUC8_Name, HUC8_full,
+    #                 HUC10, HUC10_Name, HUC10_full,
+    #                 GLOBALID,
+    #                 Permanent_Identifier,
+    #                 ReachCode,
+    #                 GNIS_Name, GNIS_ID,
+    #                 AU_ID, AU_Name, AU_Description,
+    #                 AU_GNIS_Name, AU_GNIS,
+    #                 LengthKM) %>%
+    #   as.data.frame()
+    #
+    # # Remove the old rows and update with new ones
+    # # CAREFUL HERE, overwrites tmdl_reaches
+    # tmdl_reaches <- odeqtmdl::tmdl_reaches() %>%
+    #   dplyr::filter(!(action_id %in% update_action_ids)) %>%
+    #   rbind(tmdl_reaches_update) %>%
+    #   dplyr::distinct() %>%
+    #   dplyr::arrange(action_id, TMDL_wq_limited_parameter, TMDL_pollutant, AU_ID, ReachCode) %>%
+    #   as.data.frame()
+    #
+    #
+    # tmdl_reach_geo_ids_only <- tmdl_reaches |>
+    #   dplyr::filter(!is.na(geo_id)) %>%
+    #   dplyr::select(geo_id, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full, GLOBALID) %>%
+    #   dplyr::distinct()
+    #
+    # geo_ids_tbl %>%
+    #   dplyr::left_join(ornhd, by = "GLOBALID") %>%
+    #
+    # tmdl_geo_ids <- tmdl_geo_id_fc %>%
+    #   dplyr::inner_join(y = tmdl_reach_geo_ids_only, by = "GLOBALID") %>%
+    #   dplyr::group_by(geo_id, HUC6, HUC6_Name, HUC6_full, HUC8, HUC8_Name, HUC8_full,
+    #            AU_ID, AU_Name, AU_Description, AU_WBType,
+    #            AU_GNIS, AU_GNIS_Name) %>%
+    #   dplyr::summarize() %>%
+    #   dplyr::ungroup() %>%
+    #   dplyr::arrange(geo_id, AU_ID, AU_GNIS)
 
   }
 

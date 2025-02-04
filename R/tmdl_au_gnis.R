@@ -54,6 +54,9 @@
 #'   \item HUC8: Subbasin six digit USGS hydrological unit code.
 #'   \item HUC8_Name: USGS Subbasin name.
 #'   \item HUC8_full: Concatenation of the HUC8 and HUC8_Name fields.
+#'   \item HUC10: Watershed ten digit USGS hydrological unit code.
+#'   \item HUC10_Name: USGS watershed name.
+#'   \item HUC10_full: Concatenation of the HUC10 and HUC10_Name fields.
 #'   \item AU_ID:	Assessment Unit ID.
 #'   \item AU_Name: Name of the assessment unit
 #'   \item AU_GNIS_Name: Assessment unit and GNIS name concatenation.

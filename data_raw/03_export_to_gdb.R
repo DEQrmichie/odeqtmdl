@@ -521,11 +521,10 @@ time_end3 - time_start3
 
 sort(unique(tmdl_reaches$TMDL_wq_limited_parameter))
 
-8
 
 # Time -------------------------------------------------------------------------
 
-time_end4 - time_start1
+time_end3 - time_start1
 
 #- Outputs by TMDL pollutant ---------------------------------------------------
 
